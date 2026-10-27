@@ -64,3 +64,8 @@ No publiques contraseñas de administrador ni claves `service_role`.
 - Logo JIMPORT provisional en `assets/logo-jimport.svg`. Reemplaza ese archivo por tu logo original manteniendo el mismo nombre y formato SVG, o cambia la ruta en `index.html` y `admin.html`.
 - En el panel de administración, cambia **Disponibilidad** a **Agotado** para mostrar “Producto no disponible” y una capa visual de agotado en la tienda.
 - Las imágenes de productos se adaptan al tamaño disponible y usan `object-fit: contain` para evitar recortes o deformaciones.
+
+
+## Publicar la versión corregida
+
+Este ZIP está organizado para que `index.html` quede directamente en la raíz del sitio. Sube el contenido completo de este ZIP (incluida la carpeta `assets`) a la carpeta pública de tu hosting, reemplazando los archivos anteriores. No subas la carpeta contenedora del ZIP como una carpeta adicional. El logo principal se encuentra en `assets/logo-jimport.png` y se utiliza en la portada y el pie de página; el panel de administración también usa ese mismo archivo.
