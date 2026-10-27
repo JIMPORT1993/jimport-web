@@ -43,107 +43,22 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 @media(max-width:520px){.product-image{height:230px;min-height:190px;max-height:240px;padding:16px}.promotions-section{padding-left:18px;padding-right:18px}.promo-carousel{padding:12px}.promo-slide{grid-template-columns:1fr;gap:12px}.promo-art{min-height:150px;max-height:180px}.promo-art img{max-height:170px}.promo-copy{padding:4px 6px 8px}.promo-copy h3{font-size:25px}.promo-copy p{font-size:13px}}
 @media(prefers-reduced-motion:reduce){body,.hero{animation:none!important}}
 
-/* Cabecera cósmica animada JIMPORT */
-.topbar{position:relative;isolation:isolate;overflow:hidden;background:#070a12;border-bottom:1px solid #29344a}
-.topbar::before{content:"";position:absolute;inset:-35%;z-index:-2;background-image:url('assets/galaxia-jimport.png');background-size:cover;background-position:68% 48%;opacity:.78;transform:scale(1.05);animation:galaxiaMovimiento 24s ease-in-out infinite alternate}
-.topbar::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,8,16,.72),rgba(5,8,16,.32) 48%,rgba(5,8,16,.62))}
-.topbar nav{color:#f0f5ff;text-shadow:0 1px 8px #000}
-.topbar .button{box-shadow:0 0 24px #1469f544}
-@keyframes galaxiaMovimiento{0%{transform:scale(1.05) translate3d(-1%,0,0);background-position:65% 45%}50%{transform:scale(1.16) translate3d(1%,-1%,0);background-position:75% 52%}100%{transform:scale(1.23) translate3d(-1%,1%,0);background-position:60% 60%}}
-@media(prefers-reduced-motion:reduce){.topbar::before{animation:none}}
 
-
-/* DESTACADOS: mostrar únicamente las imágenes de los productos */
-#productos .section-heading > p,
-#productos .product-info,
-#productos .product-image .stock,
-#productos .product-image .unavailable-overlay {
-  display: none !important;
-}
-#productos .product-grid {
-  gap: clamp(18px, 2.4vw, 30px);
-  align-items: stretch;
-}
-#productos .product-card {
-  position: relative;
-  overflow: hidden;
-  padding: 0;
-  border: 1px solid rgba(64, 186, 255, .28);
-  border-radius: 22px;
-  background:
-    radial-gradient(ellipse at 50% 42%, rgba(35, 102, 160, .26), transparent 68%),
-    linear-gradient(145deg, #111b2a, #080d15);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, .22);
-  transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
-  isolation: isolate;
-}
-#productos .product-card::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(64,186,255,.8), transparent 38%, rgba(113,82,255,.65));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: .55;
-  z-index: 2;
-}
-#productos .product-card:hover {
-  transform: translateY(-7px) scale(1.015);
-  border-color: rgba(64, 186, 255, .8);
-  box-shadow: 0 20px 45px rgba(0, 115, 220, .22), 0 0 24px rgba(64, 186, 255, .12);
-}
-#productos .product-image {
-  position: relative;
-  height: clamp(230px, 27vw, 350px);
-  padding: clamp(18px, 3vw, 34px);
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 46%, rgba(64, 186, 255, .15), transparent 58%),
-    linear-gradient(145deg, #111b2a, #080d15);
-}
-#productos .product-image::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,.08) 45%, transparent 63%);
-  transform: translateX(-130%);
-  transition: transform .75s ease;
-  pointer-events: none;
-}
-#productos .product-card:hover .product-image::after {
-  transform: translateX(130%);
-}
-#productos .product-image img {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 20px rgba(0,0,0,.35));
-  transform: scale(.94);
-  transition: transform .5s cubic-bezier(.2,.75,.25,1), filter .5s ease;
-}
-#productos .product-card:hover .product-image img {
-  transform: scale(1.08);
-  filter: drop-shadow(0 16px 26px rgba(25,160,255,.24));
-}
-#productos .product-image .placeholder-icon {
-  position: relative;
-  z-index: 1;
-  font-size: clamp(48px, 7vw, 76px);
-  color: #43baff;
-  text-shadow: 0 0 30px rgba(64,186,255,.45);
-}
-@media (max-width: 520px) {
-  #productos .product-image { height: 270px; padding: 24px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  #productos .product-card,
-  #productos .product-image img,
-  #productos .product-image::after { transition: none; }
-}
+/* UGREEN + Anker galaxy animation section */
+.brand-galaxy{position:relative;isolation:isolate;min-height:480px;overflow:hidden;display:grid;place-items:center;padding:58px 24px 48px;background:#fff;color:#111827;text-align:center;border-top:1px solid #edf0f5;border-bottom:1px solid #edf0f5}
+#brandGalaxyCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.brand-galaxy-content{width:min(760px,100%);position:relative;z-index:1}
+.brand-galaxy .eyebrow{color:#1469f5;margin-bottom:12px}
+.brand-galaxy h2{font:800 clamp(28px,4.5vw,48px)/1.12 Manrope,sans-serif;letter-spacing:-1.8px;margin:0 0 13px;color:#111827}
+.brand-galaxy h2 span{background:linear-gradient(90deg,#00a650,#1469f5,#8d39d6);background-clip:text;-webkit-background-clip:text;color:transparent}
+.brand-galaxy-content>p:not(.eyebrow){color:#5c6676;margin:0 0 22px;font-size:15px}
+.galaxy-brand-logos{display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,30px);margin:0 auto 24px}
+.galaxy-brand-logos img{width:clamp(130px,23vw,220px);height:74px;object-fit:contain;border:1px solid #e7ebf1;border-radius:15px;background:rgba(255,255,255,.94);box-shadow:0 12px 30px #162d4a0d;animation:galaxyLogoFloat 3.8s ease-in-out infinite}
+.galaxy-brand-logos img:last-child{animation-delay:-1.9s}
+.galaxy-plus{font:700 25px Manrope,sans-serif;color:#94a3b8}
+.galaxy-button{background:#111827;box-shadow:0 10px 24px #11182720}
+.galaxy-button:hover{background:#1469f5}
+.galaxy-caption{position:absolute;right:20px;bottom:16px;color:#a4adba;font-size:9px;font-weight:800;letter-spacing:2px}
+@keyframes galaxyLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.025)}}
+@media(max-width:520px){.brand-galaxy{min-height:420px;padding:45px 16px}.galaxy-brand-logos img{height:58px;border-radius:11px}.galaxy-brand-logos{gap:8px}.galaxy-plus{font-size:18px}.brand-galaxy h2{letter-spacing:-1px}}
+@media(prefers-reduced-motion:reduce){.galaxy-brand-logos img{animation:none}}
