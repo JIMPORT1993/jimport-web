@@ -43,22 +43,11 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 @media(max-width:520px){.product-image{height:230px;min-height:190px;max-height:240px;padding:16px}.promotions-section{padding-left:18px;padding-right:18px}.promo-carousel{padding:12px}.promo-slide{grid-template-columns:1fr;gap:12px}.promo-art{min-height:150px;max-height:180px}.promo-art img{max-height:170px}.promo-copy{padding:4px 6px 8px}.promo-copy h3{font-size:25px}.promo-copy p{font-size:13px}}
 @media(prefers-reduced-motion:reduce){body,.hero{animation:none!important}}
 
-
-/* UGREEN + Anker galaxy animation section */
-.brand-galaxy{position:relative;isolation:isolate;min-height:480px;overflow:hidden;display:grid;place-items:center;padding:58px 24px 48px;background:#fff;color:#111827;text-align:center;border-top:1px solid #edf0f5;border-bottom:1px solid #edf0f5}
-#brandGalaxyCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
-.brand-galaxy-content{width:min(760px,100%);position:relative;z-index:1}
-.brand-galaxy .eyebrow{color:#1469f5;margin-bottom:12px}
-.brand-galaxy h2{font:800 clamp(28px,4.5vw,48px)/1.12 Manrope,sans-serif;letter-spacing:-1.8px;margin:0 0 13px;color:#111827}
-.brand-galaxy h2 span{background:linear-gradient(90deg,#00a650,#1469f5,#8d39d6);background-clip:text;-webkit-background-clip:text;color:transparent}
-.brand-galaxy-content>p:not(.eyebrow){color:#5c6676;margin:0 0 22px;font-size:15px}
-.galaxy-brand-logos{display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,30px);margin:0 auto 24px}
-.galaxy-brand-logos img{width:clamp(130px,23vw,220px);height:74px;object-fit:contain;border:1px solid #e7ebf1;border-radius:15px;background:rgba(255,255,255,.94);box-shadow:0 12px 30px #162d4a0d;animation:galaxyLogoFloat 3.8s ease-in-out infinite}
-.galaxy-brand-logos img:last-child{animation-delay:-1.9s}
-.galaxy-plus{font:700 25px Manrope,sans-serif;color:#94a3b8}
-.galaxy-button{background:#111827;box-shadow:0 10px 24px #11182720}
-.galaxy-button:hover{background:#1469f5}
-.galaxy-caption{position:absolute;right:20px;bottom:16px;color:#a4adba;font-size:9px;font-weight:800;letter-spacing:2px}
-@keyframes galaxyLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.025)}}
-@media(max-width:520px){.brand-galaxy{min-height:420px;padding:45px 16px}.galaxy-brand-logos img{height:58px;border-radius:11px}.galaxy-brand-logos{gap:8px}.galaxy-plus{font-size:18px}.brand-galaxy h2{letter-spacing:-1px}}
-@media(prefers-reduced-motion:reduce){.galaxy-brand-logos img{animation:none}}
+/* Cabecera cósmica animada JIMPORT */
+.topbar{position:relative;isolation:isolate;overflow:hidden;background:#070a12;border-bottom:1px solid #29344a}
+.topbar::before{content:"";position:absolute;inset:-35%;z-index:-2;background-image:url('assets/galaxia-jimport.png');background-size:cover;background-position:68% 48%;opacity:.78;transform:scale(1.05);animation:galaxiaMovimiento 24s ease-in-out infinite alternate}
+.topbar::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,8,16,.72),rgba(5,8,16,.32) 48%,rgba(5,8,16,.62))}
+.topbar nav{color:#f0f5ff;text-shadow:0 1px 8px #000}
+.topbar .button{box-shadow:0 0 24px #1469f544}
+@keyframes galaxiaMovimiento{0%{transform:scale(1.05) translate3d(-1%,0,0);background-position:65% 45%}50%{transform:scale(1.16) translate3d(1%,-1%,0);background-position:75% 52%}100%{transform:scale(1.23) translate3d(-1%,1%,0);background-position:60% 60%}}
+@media(prefers-reduced-motion:reduce){.topbar::before{animation:none}}
