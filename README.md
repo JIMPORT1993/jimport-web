@@ -56,3 +56,11 @@ No publiques contraseñas de administrador ni claves `service_role`.
 - Reemplaza los productos de ejemplo: solo se muestran cuando Supabase no está configurado; una vez conectado, la web lee la base de datos.
 - Añade precios reales, imágenes y políticas comerciales.
 - Revisa las políticas RLS de Supabase. Este proyecto usa la autenticación para escritura y deja lectura pública de productos activos. Para una tienda de mayor riesgo, restringe escritura a un rol/tabla de administradores.
+
+
+## Mejoras visuales incluidas
+- Portada con carrusel automático de productos del catálogo (cambia cada 4,5 segundos) y controles manuales.
+- Logos de UGREEN y Anker visibles en la página inicial.
+- Logo JIMPORT provisional en `assets/logo-jimport.svg`. Reemplaza ese archivo por tu logo original manteniendo el mismo nombre y formato SVG, o cambia la ruta en `index.html` y `admin.html`.
+- En el panel de administración, cambia **Disponibilidad** a **Agotado** para mostrar “Producto no disponible” y una capa visual de agotado en la tienda.
+- Las imágenes de productos se adaptan al tamaño disponible y usan `object-fit: contain` para evitar recortes o deformaciones.
