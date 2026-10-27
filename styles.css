@@ -44,123 +44,21 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 @media(prefers-reduced-motion:reduce){body,.hero{animation:none!important}}
 
 
-/* JIMPORT: encabezado con energía eléctrica animada */
-.topbar{
-  position:relative;
-  isolation:isolate;
-  overflow:hidden;
-  background:#070b14;
-  border-bottom:1px solid rgba(83,173,255,.35);
-  box-shadow:0 8px 28px rgba(0,0,0,.18);
-}
-.topbar::before{
-  content:"";
-  position:absolute;
-  inset:-90% -25%;
-  z-index:-2;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse at 18% 50%,rgba(26,105,245,.38),transparent 27%),
-    radial-gradient(ellipse at 72% 42%,rgba(0,220,255,.20),transparent 25%),
-    radial-gradient(ellipse at 50% 60%,rgba(188,35,255,.18),transparent 32%),
-    linear-gradient(112deg,#060a12 8%,#0b1730 34%,#080b18 53%,#10102b 72%,#060a12 94%);
-  background-size:160% 160%;
-  animation:jimportEnergyFlow 11s ease-in-out infinite alternate;
-}
-.topbar::after{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  pointer-events:none;
-  left:28%;
-  top:-42%;
-  width:46%;
-  height:190%;
-  opacity:.72;
-  background:
-    linear-gradient(108deg,transparent 0 38%,rgba(0,217,255,.04) 39%,rgba(71,224,255,.85) 39.4%,#fff 39.7%,rgba(81,142,255,.8) 40.1%,transparent 41%),
-    linear-gradient(74deg,transparent 0 52%,rgba(186,63,255,.08) 52.4%,rgba(193,94,255,.8) 52.8%,#fff 53%,rgba(76,174,255,.8) 53.3%,transparent 54%),
-    linear-gradient(112deg,transparent 0 63%,rgba(33,135,255,.05) 63.3%,rgba(54,191,255,.7) 63.7%,#fff 63.9%,transparent 64.3%);
-  filter:drop-shadow(0 0 5px rgba(43,192,255,.95)) drop-shadow(0 0 15px rgba(104,91,255,.8));
-  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,17% 76%,8% 66%,28% 48%,19% 37%,38% 15%);
-  transform:translateX(-12%) skewX(-7deg);
-  animation:jimportLightning 4.8s steps(1,end) infinite;
-}
-.topbar .brand,
-.topbar nav,
-.topbar > .button{
-  position:relative;
-  z-index:2;
-}
-.topbar nav{color:#edf5ff}
-.topbar nav a{transition:color .2s,text-shadow .2s}
-.topbar nav a:hover{color:#75eaff;text-shadow:0 0 12px rgba(64,207,255,.85)}
-.topbar .brand-logo{filter:drop-shadow(0 0 7px rgba(190,79,255,.28))}
-.topbar > .button{box-shadow:0 0 24px rgba(20,105,245,.28)}
-@keyframes jimportEnergyFlow{
-  0%{transform:translate3d(-3%,0,0) rotate(-2deg);filter:hue-rotate(0deg) brightness(.85)}
-  50%{filter:hue-rotate(18deg) brightness(1.18)}
-  100%{transform:translate3d(3%,1%,0) rotate(2deg);filter:hue-rotate(-12deg) brightness(1.05)}
-}
-@keyframes jimportLightning{
-  0%,7%,9%,28%,29%,31%,67%,68%,100%{opacity:.10}
-  8%,30%,69%{opacity:.95}
-  32%,66%{opacity:.38}
-}
-@media (max-width:700px){
-  .topbar::after{left:18%;width:68%;opacity:.55}
-}
-@media (prefers-reduced-motion:reduce){
-  .topbar::before,.topbar::after{animation:none}
-  .topbar::after{opacity:.32}
-}
-
-
-/* JIMPORT: video de tecnología en movimiento detrás de la navegación */
-.topbar{
-  min-height:100px;
-  height:100px;
-  background:#050914;
-}
-.topbar-video-bg{
-  position:absolute;
-  inset:0;
-  z-index:-3;
-  overflow:hidden;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse at 18% 50%,rgba(23,105,245,.42),transparent 40%),
-    linear-gradient(110deg,#060a12,#10132b 55%,#060a12);
-}
-.topbar-video-bg iframe{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:100vw;
-  height:56.25vw;
-  min-width:177.78vh;
-  min-height:100vh;
-  max-width:none;
-  border:0;
-  transform:translate(-50%,-50%);
-  opacity:.72;
-  pointer-events:none;
-}
-.topbar::before{
-  background:
-    radial-gradient(ellipse at 18% 50%,rgba(26,105,245,.18),transparent 32%),
-    radial-gradient(ellipse at 72% 42%,rgba(0,220,255,.13),transparent 29%),
-    radial-gradient(ellipse at 50% 60%,rgba(188,35,255,.12),transparent 36%),
-    linear-gradient(112deg,rgba(3,7,16,.62) 8%,rgba(6,14,31,.34) 34%,rgba(8,11,24,.30) 53%,rgba(16,16,43,.38) 72%,rgba(3,7,16,.66) 94%);
-  background-size:160% 160%;
-}
-.topbar::after{
-  opacity:.65;
-}
-@media(max-width:700px){
-  .topbar{height:auto;min-height:100px;padding-top:12px;padding-bottom:12px;gap:12px}
-  .topbar-video-bg iframe{opacity:.55}
-}
-@media(prefers-reduced-motion:reduce){
-  .topbar-video-bg iframe{display:none}
-}
+/* UGREEN + Anker galaxy animation section */
+.brand-galaxy{position:relative;isolation:isolate;min-height:480px;overflow:hidden;display:grid;place-items:center;padding:58px 24px 48px;background:#fff;color:#111827;text-align:center;border-top:1px solid #edf0f5;border-bottom:1px solid #edf0f5}
+#brandGalaxyCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.brand-galaxy-content{width:min(760px,100%);position:relative;z-index:1}
+.brand-galaxy .eyebrow{color:#1469f5;margin-bottom:12px}
+.brand-galaxy h2{font:800 clamp(28px,4.5vw,48px)/1.12 Manrope,sans-serif;letter-spacing:-1.8px;margin:0 0 13px;color:#111827}
+.brand-galaxy h2 span{background:linear-gradient(90deg,#00a650,#1469f5,#8d39d6);background-clip:text;-webkit-background-clip:text;color:transparent}
+.brand-galaxy-content>p:not(.eyebrow){color:#5c6676;margin:0 0 22px;font-size:15px}
+.galaxy-brand-logos{display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,30px);margin:0 auto 24px}
+.galaxy-brand-logos img{width:clamp(130px,23vw,220px);height:74px;object-fit:contain;border:1px solid #e7ebf1;border-radius:15px;background:rgba(255,255,255,.94);box-shadow:0 12px 30px #162d4a0d;animation:galaxyLogoFloat 3.8s ease-in-out infinite}
+.galaxy-brand-logos img:last-child{animation-delay:-1.9s}
+.galaxy-plus{font:700 25px Manrope,sans-serif;color:#94a3b8}
+.galaxy-button{background:#111827;box-shadow:0 10px 24px #11182720}
+.galaxy-button:hover{background:#1469f5}
+.galaxy-caption{position:absolute;right:20px;bottom:16px;color:#a4adba;font-size:9px;font-weight:800;letter-spacing:2px}
+@keyframes galaxyLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.025)}}
+@media(max-width:520px){.brand-galaxy{min-height:420px;padding:45px 16px}.galaxy-brand-logos img{height:58px;border-radius:11px}.galaxy-brand-logos{gap:8px}.galaxy-plus{font-size:18px}.brand-galaxy h2{letter-spacing:-1px}}
+@media(prefers-reduced-motion:reduce){.galaxy-brand-logos img{animation:none}}

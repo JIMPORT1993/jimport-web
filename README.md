@@ -79,7 +79,3 @@ Este ZIP está organizado para que `index.html` quede directamente en la raíz d
 5. Para las imágenes de productos, pega una URL directa a la imagen. Se mostrarán dentro del marco sin deformarse ni salirse.
 
 No borres `config.js`: conserva la configuración de Supabase y WhatsApp de tu tienda.
-
-
-## Video tecnológico en el encabezado
-La portada incluye un video de tecnología de Anker como fondo del encabezado, en reproducción automática silenciada y en bucle. Requiere conexión a Internet y que el navegador permita cargar YouTube. Si el video no se carga, se mantiene el fondo tecnológico con efectos luminosos. El video es contenido externo de YouTube; no se descarga ni se almacena en el repositorio.
