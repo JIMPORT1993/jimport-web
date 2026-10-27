@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administrar catálogo | JIMPORT</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<body class="admin-body"><header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">J</span><span>JIMPORT<small>Administración del catálogo</small></span></a><a href="index.html">← Ver tienda</a></header>
+<main class="admin-main"><div class="section-heading"><div><p class="eyebrow">PANEL PRIVADO</p><h1>Administrar productos</h1></div><span class="admin-note">Los cambios se reflejan en la tienda.</span></div>
+<div id="adminMessage" class="notice">Configura Supabase en config.js y crea el usuario administrador antes de entrar.</div>
+<section id="loginPanel" class="panel login-panel"><h2>Iniciar sesión</h2><p>Solo el administrador autorizado puede modificar el catálogo.</p><form id="loginForm"><label>Correo electrónico<input id="email" type="email" required autocomplete="username"></label><label>Contraseña<input id="password" type="password" required autocomplete="current-password"></label><button class="button" type="submit">Entrar al panel</button></form></section>
+<section id="dashboard" hidden>
+  <div class="admin-toolbar"><h2>Catálogo</h2><div><button class="button" id="newProduct">+ Añadir producto</button> <button class="button button-outline" id="logout">Cerrar sesión</button></div></div>
+  <form id="productForm" class="panel product-form" hidden>
+    <h3 id="formTitle">Nuevo producto</h3><input type="hidden" id="productId">
+    <div class="form-grid"><label>Nombre del producto *<input id="pName" required maxlength="120"></label><label>Marca *<input id="pBrand" required placeholder="UGREEN, Anker…" maxlength="60"></label><label>Modelo / SKU<input id="pModel" maxlength="80"></label><label>Precio (USD) *<input id="pPrice" type="number" min="0" step="0.01" required></label><label>Precio anterior (opcional)<input id="pOldPrice" type="number" min="0" step="0.01"></label><label>Disponibilidad<select id="pStock"><option>En stock</option><option>Bajo pedido</option><option>Agotado</option></select></label><label class="full">URL de imagen (opcional)<input id="pImage" type="url" placeholder="https://…"></label><label class="full">Descripción<textarea id="pDescription" rows="3" maxlength="1000"></textarea></label></div>
+    <div class="form-actions"><button class="button" type="submit">Guardar producto</button><button class="button button-outline" id="cancelForm" type="button">Cancelar</button></div>
+  </form>
+  <div id="adminProducts" class="admin-products"></div>
+</section></main><footer><span>JIMPORT · Panel de administración</span><a href="index.html">Volver a la tienda</a></footer>
+<script src="config.js"></script><script src="admin.js"></script></body></html>

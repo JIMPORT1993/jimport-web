@@ -1,0 +1,58 @@
+# JIMPORT — sitio web y catálogo editable
+
+## Arquitectura (tres servicios)
+1. **GitHub**: guardar el código.
+2. **Supabase**: base de datos de productos y acceso de administrador.
+3. **Vercel**: publicar el sitio web.
+
+La tienda pública muestra los productos activos. El panel `admin.html` permite iniciar sesión, añadir, editar precios/descripciones/imágenes y eliminar productos. El botón flotante y los botones de producto abren WhatsApp.
+
+## Configuración completa
+
+### 1) Crear base de datos en Supabase
+1. Entra en https://supabase.com y crea un proyecto llamado `jimport-catalogo`.
+2. Guarda la contraseña de base de datos en un lugar seguro.
+3. Abre **SQL Editor → New query**.
+4. Copia todo el contenido de `schema.sql`, pégalo y pulsa **Run**.
+5. Ve a **Project Settings → API** (o **Connect**) y copia el Project URL y la clave pública `anon`/`publishable`. Nunca uses la clave `service_role` en la web.
+
+### 2) Crear usuario administrador
+1. En Supabase abre **Authentication → Users → Add user**.
+2. Crea el correo y contraseña que usarás para administrar JIMPORT.
+3. Desactiva el registro público si aparece habilitado en Authentication settings. El administrador se crea desde el panel de Supabase, no desde la tienda.
+4. Guarda las credenciales de forma segura.
+
+### 3) Configurar el sitio
+Abre `config.js` y cambia:
+- `SUPABASE_URL`: URL del proyecto Supabase.
+- `SUPABASE_ANON_KEY`: clave pública `anon` o `publishable`.
+- `WHATSAPP_NUMBER`: número comercial con código de país, solo números. Para Ecuador, usa `593` seguido del número sin el primer `0`. Ejemplo de formato: `593991234567` (reemplázalo por el número real).
+No publiques contraseñas de administrador ni claves `service_role`.
+
+### 4) Publicar con GitHub + Vercel
+1. Crea un repositorio en https://github.com, por ejemplo `jimport-web`.
+2. Sube estos archivos a la raíz del repositorio: `index.html`, `admin.html`, `styles.css`, `config.js`, `app.js`, `admin.js`, `schema.sql`, `README.md`.
+3. Entra en https://vercel.com y elige **Add New → Project**. Importa el repositorio `jimport-web`.
+4. Framework preset: **Other**. Build command: déjalo vacío. Output directory: `.` (punto). Si Vercel exige un ajuste distinto, usa la configuración estática predeterminada.
+5. Pulsa **Deploy**. Cada cambio que subas a GitHub se publicará automáticamente.
+6. Tu tienda queda en la URL que te entrega Vercel; el panel será `https://TU-DOMINIO/admin.html`.
+
+### 5) Prueba de funcionamiento
+- Abre la tienda y comprueba que se carguen los productos.
+- Abre `/admin.html`, inicia sesión y añade un producto de prueba.
+- Comprueba que aparezca en la página principal.
+- Edita el precio y luego elimina el producto de prueba.
+- Prueba los botones de WhatsApp desde celular y computadora.
+
+## Uso diario
+- Para añadir o cambiar productos, entra a `/admin.html`.
+- Para editar un precio, pulsa **Editar** en ese producto.
+- Para quitar un producto, pulsa **Eliminar** y confirma.
+- Para ocultar temporalmente un producto sin borrarlo, la versión inicial no incluye un botón de ocultar; se puede ampliar desde el panel de datos. La tienda solo muestra productos con `active = true`.
+- Las imágenes deben estar en una URL pública HTTPS. Puedes usar enlaces directos de imágenes alojadas en un servicio público que permita hotlinking.
+
+## Antes de lanzar
+- Cambia el número de WhatsApp en `config.js`.
+- Reemplaza los productos de ejemplo: solo se muestran cuando Supabase no está configurado; una vez conectado, la web lee la base de datos.
+- Añade precios reales, imágenes y políticas comerciales.
+- Revisa las políticas RLS de Supabase. Este proyecto usa la autenticación para escritura y deja lectura pública de productos activos. Para una tienda de mayor riesgo, restringe escritura a un rol/tabla de administradores.
