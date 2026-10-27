@@ -10,36 +10,26 @@
   document.getElementById("year").textContent = new Date().getFullYear();
   let products = [], heroIndex = 0, heroTimer = null;
   const demo = [
-    {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",quantity:8,low_stock_threshold:3,image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
-    {id:"demo2",name:"Cargador rápido USB-C",brand:"Anker",model:"Ejemplo",price:24.90,old_price:null,stock:"Bajo pedido",quantity:2,low_stock_threshold:3,image_url:"",description:"Carga práctica para tus dispositivos compatibles.",demo:true},
-    {id:"demo3",name:"Cable USB-C",brand:"Varios",model:"Ejemplo",price:8.50,old_price:null,stock:"Agotado",quantity:0,low_stock_threshold:3,image_url:"",description:"Accesorio para uso diario.",demo:true}
+    {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
+    {id:"demo2",name:"Cargador rápido USB-C",brand:"Anker",model:"Ejemplo",price:24.90,old_price:null,stock:"Bajo pedido",image_url:"",description:"Carga práctica para tus dispositivos compatibles.",demo:true},
+    {id:"demo3",name:"Cable USB-C",brand:"UGREEN",model:"Ejemplo",price:8.50,old_price:null,stock:"Agotado",image_url:"",description:"Accesorio para uso diario.",demo:true}
   ];
   async function load() {
-    if (!client) { products=demo; loadPromo(); status.textContent="Vista de demostración. Configura Supabase para publicar tu catálogo real."; render(); return; }
+    if (!client) { products=demo; status.textContent="Vista de demostración. Configura Supabase para publicar tu catálogo real."; render(); return; }
     const {data,error}=await client.from("products").select("*").eq("active",true).order("created_at",{ascending:false});
     if(error){ status.textContent="No se pudo cargar el catálogo. Revisa la configuración de Supabase."; console.error(error); return; }
-    products=data||[]; await loadPromo(); status.textContent=products.length ? `${products.length} producto(s) disponibles` : "Estamos actualizando el catálogo. Escríbenos por WhatsApp para consultar.";
+    products=data||[]; status.textContent=products.length ? `${products.length} producto(s) disponibles` : "Estamos actualizando el catálogo. Escríbenos por WhatsApp para consultar.";
     render();
   }
   function render() {
     const q=(search.value||"").toLowerCase(), brand=brandFilter.value;
-    const brands=[...new Set([...products.map(p=>p.brand).filter(Boolean),"Varios"])].sort();
+    const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();
     const old=brandFilter.value; brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option>${esc(b)}</option>`).join(""); brandFilter.value=brands.includes(old)?old:"";
-    const list=products.filter(p=>(!brand||(brand==="Varios"?!["UGREEN","ANKER"].includes(String(p.brand||"").toUpperCase()):p.brand===brand))&&[p.name,p.brand,p.model,p.description].join(" ").toLowerCase().includes(q));
-    grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado"||(p.quantity!==undefined&&p.quantity!==null&&Number(p.quantity)===0); const low=!out&&p.quantity!==undefined&&p.quantity!==null&&Number(p.quantity)<=Number(p.low_stock_threshold??3);return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":low?`Pocas unidades: ${Number(p.quantity)}`:esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':low?'<span class="low-stock-overlay">¡POCAS UNIDADES!</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
+    const list=products.filter(p=>(!brand||p.brand===brand)&&[p.name,p.brand,p.model,p.description].join(" ").toLowerCase().includes(q));
+    grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
     if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esa búsqueda.</div>';
     if(products.length) status.textContent=`${products.length} producto(s) en catálogo`;
     renderHero();
-  }
-  async function loadPromo(){
-    let promo=null;
-    if(client){const {data,error}=await client.from("site_settings").select("value").eq("key","homepage_promo").maybeSingle();if(!error&&data)promo=data.value;}
-    if(!promo){try{promo=JSON.parse(localStorage.getItem("jimport_demo_promo")||"null");}catch{promo=null;}}
-    const box=document.getElementById("promoBanner");if(!box)return;
-    if(!promo||!promo.active){box.hidden=true;return;}
-    box.hidden=false;document.getElementById("promoTitle").textContent=promo.title||"Promoción destacada";document.getElementById("promoText").textContent=promo.text||"Consulta esta oferta especial por WhatsApp.";document.getElementById("promoPrice").textContent=promo.price||"";
-    const img=document.getElementById("promoImage");if(promo.image){img.src=promo.image;img.hidden=false;}else{img.removeAttribute("src");img.hidden=true;}
-    document.getElementById("promoButton").href=wa(`Hola JIMPORT, quiero información sobre la promoción: ${promo.title||"Promoción destacada"}`);
   }
   function renderHero(){
     const featured=products.filter(p=>p.active!==false);
