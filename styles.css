@@ -114,3 +114,53 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
   .topbar::before,.topbar::after{animation:none}
   .topbar::after{opacity:.32}
 }
+
+
+/* JIMPORT: video de tecnología en movimiento detrás de la navegación */
+.topbar{
+  min-height:100px;
+  height:100px;
+  background:#050914;
+}
+.topbar-video-bg{
+  position:absolute;
+  inset:0;
+  z-index:-3;
+  overflow:hidden;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 18% 50%,rgba(23,105,245,.42),transparent 40%),
+    linear-gradient(110deg,#060a12,#10132b 55%,#060a12);
+}
+.topbar-video-bg iframe{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:100vw;
+  height:56.25vw;
+  min-width:177.78vh;
+  min-height:100vh;
+  max-width:none;
+  border:0;
+  transform:translate(-50%,-50%);
+  opacity:.72;
+  pointer-events:none;
+}
+.topbar::before{
+  background:
+    radial-gradient(ellipse at 18% 50%,rgba(26,105,245,.18),transparent 32%),
+    radial-gradient(ellipse at 72% 42%,rgba(0,220,255,.13),transparent 29%),
+    radial-gradient(ellipse at 50% 60%,rgba(188,35,255,.12),transparent 36%),
+    linear-gradient(112deg,rgba(3,7,16,.62) 8%,rgba(6,14,31,.34) 34%,rgba(8,11,24,.30) 53%,rgba(16,16,43,.38) 72%,rgba(3,7,16,.66) 94%);
+  background-size:160% 160%;
+}
+.topbar::after{
+  opacity:.65;
+}
+@media(max-width:700px){
+  .topbar{height:auto;min-height:100px;padding-top:12px;padding-bottom:12px;gap:12px}
+  .topbar-video-bg iframe{opacity:.55}
+}
+@media(prefers-reduced-motion:reduce){
+  .topbar-video-bg iframe{display:none}
+}
