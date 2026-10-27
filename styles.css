@@ -42,3 +42,75 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 @media(max-width:800px){.promotions-section{grid-template-columns:1fr;gap:18px;padding-top:50px;padding-bottom:50px}.promo-heading{max-width:620px}.promo-slide{grid-template-columns:minmax(120px,.75fr) minmax(0,1.25fr)}}
 @media(max-width:520px){.product-image{height:230px;min-height:190px;max-height:240px;padding:16px}.promotions-section{padding-left:18px;padding-right:18px}.promo-carousel{padding:12px}.promo-slide{grid-template-columns:1fr;gap:12px}.promo-art{min-height:150px;max-height:180px}.promo-art img{max-height:170px}.promo-copy{padding:4px 6px 8px}.promo-copy h3{font-size:25px}.promo-copy p{font-size:13px}}
 @media(prefers-reduced-motion:reduce){body,.hero{animation:none!important}}
+
+
+/* JIMPORT: encabezado con energía eléctrica animada */
+.topbar{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:#070b14;
+  border-bottom:1px solid rgba(83,173,255,.35);
+  box-shadow:0 8px 28px rgba(0,0,0,.18);
+}
+.topbar::before{
+  content:"";
+  position:absolute;
+  inset:-90% -25%;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 18% 50%,rgba(26,105,245,.38),transparent 27%),
+    radial-gradient(ellipse at 72% 42%,rgba(0,220,255,.20),transparent 25%),
+    radial-gradient(ellipse at 50% 60%,rgba(188,35,255,.18),transparent 32%),
+    linear-gradient(112deg,#060a12 8%,#0b1730 34%,#080b18 53%,#10102b 72%,#060a12 94%);
+  background-size:160% 160%;
+  animation:jimportEnergyFlow 11s ease-in-out infinite alternate;
+}
+.topbar::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  pointer-events:none;
+  left:28%;
+  top:-42%;
+  width:46%;
+  height:190%;
+  opacity:.72;
+  background:
+    linear-gradient(108deg,transparent 0 38%,rgba(0,217,255,.04) 39%,rgba(71,224,255,.85) 39.4%,#fff 39.7%,rgba(81,142,255,.8) 40.1%,transparent 41%),
+    linear-gradient(74deg,transparent 0 52%,rgba(186,63,255,.08) 52.4%,rgba(193,94,255,.8) 52.8%,#fff 53%,rgba(76,174,255,.8) 53.3%,transparent 54%),
+    linear-gradient(112deg,transparent 0 63%,rgba(33,135,255,.05) 63.3%,rgba(54,191,255,.7) 63.7%,#fff 63.9%,transparent 64.3%);
+  filter:drop-shadow(0 0 5px rgba(43,192,255,.95)) drop-shadow(0 0 15px rgba(104,91,255,.8));
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,17% 76%,8% 66%,28% 48%,19% 37%,38% 15%);
+  transform:translateX(-12%) skewX(-7deg);
+  animation:jimportLightning 4.8s steps(1,end) infinite;
+}
+.topbar .brand,
+.topbar nav,
+.topbar > .button{
+  position:relative;
+  z-index:2;
+}
+.topbar nav{color:#edf5ff}
+.topbar nav a{transition:color .2s,text-shadow .2s}
+.topbar nav a:hover{color:#75eaff;text-shadow:0 0 12px rgba(64,207,255,.85)}
+.topbar .brand-logo{filter:drop-shadow(0 0 7px rgba(190,79,255,.28))}
+.topbar > .button{box-shadow:0 0 24px rgba(20,105,245,.28)}
+@keyframes jimportEnergyFlow{
+  0%{transform:translate3d(-3%,0,0) rotate(-2deg);filter:hue-rotate(0deg) brightness(.85)}
+  50%{filter:hue-rotate(18deg) brightness(1.18)}
+  100%{transform:translate3d(3%,1%,0) rotate(2deg);filter:hue-rotate(-12deg) brightness(1.05)}
+}
+@keyframes jimportLightning{
+  0%,7%,9%,28%,29%,31%,67%,68%,100%{opacity:.10}
+  8%,30%,69%{opacity:.95}
+  32%,66%{opacity:.38}
+}
+@media (max-width:700px){
+  .topbar::after{left:18%;width:68%;opacity:.55}
+}
+@media (prefers-reduced-motion:reduce){
+  .topbar::before,.topbar::after{animation:none}
+  .topbar::after{opacity:.32}
+}
