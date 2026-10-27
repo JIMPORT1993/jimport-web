@@ -69,3 +69,13 @@ No publiques contraseñas de administrador ni claves `service_role`.
 ## Publicar la versión corregida
 
 Este ZIP está organizado para que `index.html` quede directamente en la raíz del sitio. Sube el contenido completo de este ZIP (incluida la carpeta `assets`) a la carpeta pública de tu hosting, reemplazando los archivos anteriores. No subas la carpeta contenedora del ZIP como una carpeta adicional. El logo principal se encuentra en `assets/logo-jimport.png` y se utiliza en la portada y el pie de página; el panel de administración también usa ese mismo archivo.
+
+
+## Promociones editables en portada
+1. En Supabase abre **SQL Editor** y ejecuta el archivo `schema.sql` actualizado. Esto crea la tabla `promotions` además de la tabla de productos existente.
+2. Publica los archivos actualizados en GitHub y espera el despliegue de Vercel.
+3. Abre `admin.html`, inicia sesión y usa **Añadir promoción**. Completa título, imagen (URL pública https://), descripción y enlace opcional.
+4. Activa **Mostrar en la portada** y guarda. Las promociones activas aparecen en la portada y rotan cada 3 segundos. Desde el panel puedes editar, ocultar o eliminar promociones.
+5. Para las imágenes de productos, pega una URL directa a la imagen. Se mostrarán dentro del marco sin deformarse ni salirse.
+
+No borres `config.js`: conserva la configuración de Supabase y WhatsApp de tu tienda.
