@@ -79,18 +79,3 @@ Este ZIP está organizado para que `index.html` quede directamente en la raíz d
 5. Para las imágenes de productos, pega una URL directa a la imagen. Se mostrarán dentro del marco sin deformarse ni salirse.
 
 No borres `config.js`: conserva la configuración de Supabase y WhatsApp de tu tienda.
-
-
-## Importar productos desde el Excel
-
-El paquete incluye 70 registros de productos con sus imágenes extraídas del Excel y las características de la columna DESCRIPCIÓN. El precio se tomó únicamente de la columna I (PRECIO NORMAL); no se usó el precio LIVE de la columna J ni se configuró precio anterior.
-
-1. Sube todos los archivos del ZIP al mismo directorio del sitio web, incluyendo `assets/products/`.
-2. En Supabase, abre **SQL Editor**.
-3. Si aún no configuraste las tablas, ejecuta primero `schema.sql`.
-4. Ejecuta `IMPORTAR_PRODUCTOS.sql` para cargar los productos. El script evita volver a insertar productos que ya coincidan en nombre, modelo y descripción.
-5. Abre la tienda y recarga la página. Las imágenes usan rutas relativas `assets/products/...`, así que esa carpeta debe permanecer junto al sitio web.
-
-`productos_importados.csv` contiene un listado de revisión con modelo, categoría, descripción, precio usado y archivo de imagen.
-
-Las categorías del catálogo se ajustaron a: Cables, Cargadores, Power Banks, Teclados mecánicos, Micrófonos y Varios. Los productos que no pertenecen claramente a las cinco primeras categorías quedan en Varios.
