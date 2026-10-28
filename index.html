@@ -13,16 +13,23 @@
   <nav><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a></nav>
   <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">Consultar por WhatsApp</a>
 </header>
-<section class="hero">
-  <div class="hero-copy">
-    <p class="eyebrow">TECNOLOGÍA · ACCESORIOS · CONECTIVIDAD</p>
-    <h1>Todo lo que necesitas.<br><span>Conecta con JIMPORT.</span></h1>
-    <p>Descubre productos UGREEN, Anker y otras marcas seleccionadas para tu día a día.</p>
-    <a class="button" href="#productos">Explorar productos <span>↗</span></a>
+<section class="hero hero-centered">
+  <div class="hero-logo-wrap">
+    <span class="hero-logo-ring hero-logo-ring-one" aria-hidden="true"></span>
+    <span class="hero-logo-ring hero-logo-ring-two" aria-hidden="true"></span>
+    <img class="hero-main-logo" src="assets/logo-jimport.png" alt="JIMPORT — tecnología y accesorios">
   </div>
-  <div class="hero-art"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="hero-card hero-carousel" aria-label="Productos destacados"><span class="hero-tag">JIMPORT PICKS · DESTACADOS</span><div id="heroProductVisual" class="hero-product-visual"><div class="device">✦</div></div><div class="hero-product-copy"><b id="heroProductName">Tecnología para tu día a día</b><small id="heroProductBrand">UGREEN · Anker</small></div><div class="hero-controls"><button type="button" id="heroPrev" aria-label="Producto anterior">‹</button><span id="heroDots" class="hero-dots"></span><button type="button" id="heroNext" aria-label="Producto siguiente">›</button></div></div></div>
+  <p class="eyebrow">TECNOLOGÍA · ACCESORIOS · CONECTIVIDAD</p>
+  <h1>Conecta con <span>JIMPORT</span></h1>
+  <p class="hero-intro">Explora nuestro catálogo de productos tecnológicos, accesorios y soluciones de conectividad.</p>
+  <a class="button" href="#productos">Ver productos disponibles <span>↓</span></a>
 </section>
 <main>
+  <section class="section" id="productos">
+    <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Productos destacados</h2></div><p>Encuentra el accesorio ideal para ti.</p></div>
+    <div class="filters"><input id="search" type="search" placeholder="Buscar producto, marca o modelo…"><select id="brandFilter"><option value="">Todas las marcas</option></select></div>
+    <div id="status" class="status">Cargando catálogo…</div><div id="productGrid" class="product-grid"></div>
+  </section>
   <section class="brand-showcase" aria-label="Marcas disponibles"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><div><img src="assets/ugreen.svg" alt="UGREEN"><span>Conectividad y carga</span></div><div><img src="assets/anker.svg" alt="Anker"><span>Carga inteligente</span></div></div></section>
   <section class="promotions-section" id="promociones" aria-label="Promociones JIMPORT">
     <div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Promociones que te conectan</h2><p>Descubre nuestras ofertas por tiempo limitado.</p></div>
@@ -35,11 +42,7 @@
     </div>
   </section>
   <section class="trust-row"><div><b>Marcas seleccionadas</b><span>UGREEN · Anker y más</span></div><div><b>Atención directa</b><span>Resuelve tus dudas por WhatsApp</span></div><div><b>Catálogo actualizado</b><span>Consulta disponibilidad y precios</span></div></section>
-  <section class="section" id="productos">
-    <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Productos destacados</h2></div><p>Encuentra el accesorio ideal para ti.</p></div>
-    <div class="filters"><input id="search" type="search" placeholder="Buscar producto, marca o modelo…"><select id="brandFilter"><option value="">Todas las marcas</option></select></div>
-    <div id="status" class="status">Cargando catálogo…</div><div id="productGrid" class="product-grid"></div>
-  </section>
+
   <section class="about" id="nosotros"><div><p class="eyebrow">SOMOS JIMPORT</p><h2>Soluciones prácticas para tu tecnología.</h2></div><p>Te ayudamos a encontrar accesorios, conectividad y productos tecnológicos de marcas reconocidas. Escríbenos para confirmar stock, compatibilidad y formas de entrega.</p></section>
   <section class="contact" id="contacto"><div><p class="eyebrow">¿NECESITAS AYUDA?</p><h2>Hablemos por WhatsApp.</h2><p>Consulta precios, disponibilidad o solicita una recomendación.</p></div><a class="button button-light" id="contactWhatsapp" target="_blank" rel="noopener">Escribir a JIMPORT ↗</a></section>
 </main>

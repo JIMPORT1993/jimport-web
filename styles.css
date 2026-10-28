@@ -51,3 +51,106 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 .topbar .button{box-shadow:0 0 24px #1469f544}
 @keyframes galaxiaMovimiento{0%{transform:scale(1.05) translate3d(-1%,0,0);background-position:65% 45%}50%{transform:scale(1.16) translate3d(1%,-1%,0);background-position:75% 52%}100%{transform:scale(1.23) translate3d(-1%,1%,0);background-position:60% 60%}}
 @media(prefers-reduced-motion:reduce){.topbar::before{animation:none}}
+
+
+/* Portada centrada: logo JIMPORT protagonista y catálogo inmediatamente debajo */
+.hero-centered{
+  min-height:520px;
+  padding:52px 24px 58px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:0;
+  background:
+    radial-gradient(ellipse at 50% 28%,rgba(28,111,190,.28),transparent 42%),
+    radial-gradient(ellipse at 50% 80%,rgba(83,43,174,.16),transparent 42%),
+    linear-gradient(145deg,#070a12,#0c1728 55%,#080b12);
+}
+.hero-logo-wrap{
+  position:relative;
+  width:min(620px,88vw);
+  min-height:230px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 22px;
+  isolation:isolate;
+}
+.hero-main-logo{
+  position:relative;
+  z-index:2;
+  display:block;
+  width:min(570px,84vw);
+  max-height:310px;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 0 12px rgba(72,184,255,.45)) drop-shadow(0 0 34px rgba(52,113,255,.26));
+  animation:jimportLogoFloat 5s ease-in-out infinite, jimportLogoGlow 3.8s ease-in-out infinite alternate;
+}
+.hero-logo-ring{
+  position:absolute;
+  z-index:1;
+  width:min(410px,66vw);
+  aspect-ratio:1;
+  border:1px solid rgba(93,193,255,.25);
+  border-radius:50%;
+  box-shadow:0 0 38px rgba(36,147,255,.12),inset 0 0 35px rgba(45,125,255,.08);
+  pointer-events:none;
+}
+.hero-logo-ring-one{animation:jimportRing 18s linear infinite}
+.hero-logo-ring-two{width:min(490px,76vw);border-style:dashed;border-color:rgba(142,109,255,.2);animation:jimportRing 28s linear infinite reverse}
+.hero-centered .eyebrow{margin:0 0 12px;color:#71d4ff}
+.hero-centered h1{font:800 clamp(32px,5vw,54px)/1.1 Manrope,sans-serif;letter-spacing:-1.8px;color:#f5f8ff;margin:0 0 14px}
+.hero-centered h1 span{color:#62c9ff;text-shadow:0 0 22px rgba(52,169,255,.25)}
+.hero-intro{max-width:620px;color:#b6c6dc;font-size:16px;line-height:1.7;margin:0 auto 24px}
+.hero-centered .button{background:linear-gradient(110deg,#1469f5,#168ed6);box-shadow:0 0 28px rgba(20,105,245,.25)}
+#productos.section{padding-top:46px;padding-bottom:66px;background:rgba(9,13,20,.97)}
+#productos .section-heading h2{color:#f4f7fb}
+#productos .section-heading>p{color:#aab8ca}
+#productos .filters input,#productos .filters select{background:#111b2a;color:#f4f7fb;border-color:#34465c}
+#productos .filters input::placeholder{color:#91a1b6}
+#productos .status{color:#aab8ca}
+#productos .product-card{background:#101a29;border-color:#26384e}
+#productos .product-info h3{color:#f5f8ff}
+#productos .product-model,#productos .product-description{color:#aab8ca}
+#productos .price-line strong{color:#fff}
+@keyframes jimportLogoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes jimportLogoGlow{from{filter:drop-shadow(0 0 9px rgba(72,184,255,.35)) drop-shadow(0 0 22px rgba(52,113,255,.18))}to{filter:drop-shadow(0 0 17px rgba(72,184,255,.7)) drop-shadow(0 0 42px rgba(52,113,255,.35))}}
+@keyframes jimportRing{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@media(max-width:600px){
+  .hero-centered{min-height:0;padding:38px 18px 42px}
+  .hero-logo-wrap{min-height:175px;width:94vw;margin-bottom:16px}
+  .hero-main-logo{width:90vw;max-height:210px}
+  .hero-logo-ring{width:54vw}
+  .hero-logo-ring-two{width:70vw}
+  .hero-intro{font-size:14px}
+  #productos.section{padding:36px 18px 48px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-main-logo,.hero-logo-ring{animation:none!important}
+}
+
+
+/* Carrusel de destacados: mostrar únicamente las fotografías de productos */
+.hero-carousel .hero-product-copy,
+.hero-carousel .hero-product-copy *,
+#heroCarousel .hero-product-copy,
+#heroCarousel .hero-product-copy *{
+  display:none!important;
+}
+.hero-carousel{
+  gap:14px;
+}
+.hero-carousel .hero-product-visual{
+  height:clamp(190px,24vw,300px);
+  border-radius:14px;
+  background:#fff;
+}
+.hero-carousel .hero-product-visual img{
+  padding:0;
+  object-fit:contain;
+}
+@media(max-width:520px){
+  .hero-carousel .hero-product-visual{height:190px}
+}
