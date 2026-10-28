@@ -38,6 +38,91 @@
       form.hidden=true;note("Producto guardado correctamente.");await refresh();
     } catch(err) { console.error(err); note("Error inesperado al guardar: "+(err?.message||String(err))); }
   });
+
+  // Importación masiva desde la plantilla Excel de JIMPORT o un CSV equivalente.
+  const importButton=$("importProducts"), importInput=$("productImportFile"), importStatus=$("importStatus");
+  function importNote(t){importStatus.textContent=t;importStatus.hidden=false;}
+  importButton.addEventListener("click",()=>{
+    if(!window.XLSX){note("No se pudo cargar el lector de Excel. Comprueba tu conexión e inténtalo de nuevo.");return;}
+    importInput.value="";importInput.click();
+  });
+  function normHeader(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/[_/]+/g," ").replace(/\s+/g," ");}
+  function getVal(row,aliases){
+    for(const alias of aliases){const key=normHeader(alias);for(const original of Object.keys(row)){if(normHeader(original)===key && row[original]!==undefined && row[original]!==null && String(row[original]).trim()!=="")return row[original];}}
+    return "";
+  }
+  function asBool(v,defaultValue=true){
+    if(v===undefined||v===null||String(v).trim()==="")return defaultValue;
+    return ["si","sí","yes","true","1","activo","activa"].includes(String(v).trim().toLowerCase());
+  }
+  function asNumber(v,defaultValue=null){
+    if(v===undefined||v===null||String(v).trim()==="")return defaultValue;
+    if(typeof v==="number")return Number.isFinite(v)?v:defaultValue;
+    const n=Number(String(v).trim().replace(/\s/g,"").replace(/\$/g,"").replace(",","."));
+    return Number.isFinite(n)?n:defaultValue;
+  }
+  function mapImportRow(r,index){
+    const name=String(getVal(r,["Nombre del producto","Nombre","Producto","name"])).trim();
+    const brand=String(getVal(r,["Marca","brand"])).trim();
+    const price=asNumber(getVal(r,["Precio de venta","Precio","Precio (USD)","price"]),null);
+    const category=String(getVal(r,["Categoría","Categoria","category"])||"VARIOS").trim().toUpperCase();
+    const oldPrice=asNumber(getVal(r,["Precio anterior (opcional)","Precio anterior","old_price"]),null);
+    const qty=asNumber(getVal(r,["Stock / Cantidad","Cantidad","Stock","quantity"]),null);
+    const stockRaw=String(getVal(r,["Disponibilidad","Estado de stock","stock"])||"").trim().toLowerCase();
+    let stock="En stock";
+    if(["agotado","sin stock","out of stock"].includes(stockRaw) || qty===0) stock="Agotado";
+    else if(["bajo pedido","por pedido","on order"].includes(stockRaw)) stock="Bajo pedido";
+    else if(["en stock","disponible","in stock"].includes(stockRaw)) stock="En stock";
+    const active=asBool(getVal(r,["Estado (activo/inactivo)","Estado","active"]),true);
+    const model=String(getVal(r,["Modelo","Modelo / SKU","SKU / Código","SKU","Código","model"])).trim();
+    const image=String(getVal(r,["URL de imagen principal","URL de imagen","Imagen","image_url"])).trim();
+    return {rowNumber:index+2,item:{name,brand,model:model||null,price,old_price:oldPrice,stock,category,image_url:image||null,description:String(getVal(r,["Descripción","Descripcion","description"])).trim()||null,active}};
+  }
+  importInput.addEventListener("change",async()=>{
+    const file=importInput.files&&importInput.files[0];if(!file)return;
+    if(!client){note("Supabase no está configurado.");return;}
+    if(!window.XLSX){note("No se pudo cargar el lector de Excel.");return;}
+    try{
+      importNote("Leyendo archivo…");
+      const data=await file.arrayBuffer();
+      const book=window.XLSX.read(data,{type:"array"});
+      const sheet=book.Sheets[book.SheetNames[0]];
+      const raw=window.XLSX.utils.sheet_to_json(sheet,{defval:"",raw:true});
+      if(!raw.length){importNote("El archivo no contiene filas de productos.");return;}
+      const mapped=raw.map((r,i)=>mapImportRow(r,i)).filter(x=>Object.values(x.item).some(v=>v!==null&&v!==""&&v!==undefined));
+      const errors=[];
+      for(const x of mapped){
+        if(!x.item.name)errors.push(`Fila ${x.rowNumber}: falta el nombre del producto.`);
+        if(!x.item.brand)errors.push(`Fila ${x.rowNumber}: falta la marca.`);
+        if(x.item.price===null||x.item.price<0)errors.push(`Fila ${x.rowNumber}: el precio de venta debe ser un número igual o mayor que 0.`);
+        if(x.item.old_price!==null&&x.item.old_price<0)errors.push(`Fila ${x.rowNumber}: el precio anterior no puede ser negativo.`);
+        if(x.item.category&&!["CABLES","CARGADORES","TECLADOS MECÁNICOS","MICRÓFONOS","HUBS","POWER BANKS","AUDIO","PERIFÉRICOS","ACCESORIOS PARA CELULARES","VARIOS"].includes(x.item.category))errors.push(`Fila ${x.rowNumber}: categoría no reconocida (${x.item.category}).`);
+        if(x.item.image_url&&!/^https?:\/\//i.test(x.item.image_url))errors.push(`Fila ${x.rowNumber}: la URL de imagen debe empezar por http:// o https://.`);
+      }
+      if(errors.length){importNote("No se importó ningún producto. Corrige estos errores y vuelve a intentarlo: "+errors.slice(0,8).join(" ")+(errors.length>8?` Y ${errors.length-8} error(es) más.`:""));return;}
+      if(!mapped.length){importNote("No se encontraron filas con productos. Usa la hoja Productos de la plantilla JIMPORT.");return;}
+      const count=mapped.length;
+      if(!confirm(`Se van a importar ${count} producto(s). Los productos se agregarán al catálogo existente; no se eliminará ningún producto. ¿Continuar?`)){importNote("Importación cancelada.");return;}
+      importButton.disabled=true;importNote(`Importando ${count} producto(s)…`);
+      // Insert in batches to avoid request-size limits.
+      let inserted=0;
+      for(let i=0;i<mapped.length;i+=25){
+        const batch=mapped.slice(i,i+25).map(x=>x.item);
+        const {error}=await client.from("products").insert(batch);
+        if(error){
+          console.error("Error importando productos:",error);
+          importNote(`Se importaron ${inserted} de ${count} producto(s). Falló el siguiente grupo: ${error.message||"error de base de datos"}. Revisa los datos y vuelve a importar solo los que faltan para evitar duplicados.`);
+          await refresh();return;
+        }
+        inserted+=batch.length;
+      }
+      importNote(`Importación completada: ${inserted} producto(s) agregados correctamente.`);
+      note(`Importación completada: ${inserted} producto(s) agregados correctamente.`);
+      await refresh();
+    }catch(err){console.error(err);importNote("No se pudo leer el archivo: "+(err?.message||String(err)));}
+    finally{importButton.disabled=false;}
+  });
+
   async function remove(id){const p=rows.find(x=>x.id===id);if(!p)return;if(!confirm(`¿Eliminar “${p.name}” del catálogo?`))return;const {error}=await client.from("products").delete().eq("id",id);if(error){note("No se pudo eliminar el producto.");return;}note("Producto eliminado.");refresh();}
   function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
