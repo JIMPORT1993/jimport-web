@@ -233,3 +233,13 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
   .header-brand-carousel{order:3}
 }
 @media(prefers-reduced-motion:reduce){.header-brand-track{animation:none;justify-content:center}}
+
+/* Categorías del catálogo */
+.category-nav{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 24px}
+.category-chip{border:1px solid #dce4ee;background:#fff;color:#40516a;border-radius:999px;padding:10px 16px;font:700 13px 'DM Sans',sans-serif;cursor:pointer;transition:.2s}
+.category-chip:hover,.category-chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.catalog-category{margin:34px 0 46px}
+.category-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:0 0 14px;margin-bottom:20px}
+.category-heading h3{font:800 25px/1.2 Manrope,sans-serif;margin:0;letter-spacing:-.5px}
+.category-heading span{color:var(--muted);font-size:12px}
+@media(max-width:640px){.category-nav{gap:7px}.category-chip{padding:9px 12px;font-size:12px}.category-heading h3{font-size:21px}}
