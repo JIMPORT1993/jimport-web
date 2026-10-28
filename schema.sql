@@ -9,9 +9,13 @@ create table if not exists public.products (
   stock text not null default 'En stock' check (stock in ('En stock','Bajo pedido','Agotado')),
   image_url text,
   description text,
+  category text not null default 'VARIOS',
   active boolean not null default true,
   created_at timestamptz not null default now()
 );
+-- Migración segura para instalaciones que ya tenían productos.
+alter table public.products add column if not exists category text not null default 'VARIOS';
+
 alter table public.products enable row level security;
 drop policy if exists "Public can view active products" on public.products;
 create policy "Public can view active products" on public.products for select using (active = true);

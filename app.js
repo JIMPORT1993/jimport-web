@@ -3,7 +3,7 @@
   const configured = cfg.SUPABASE_URL && !cfg.SUPABASE_URL.startsWith("PEGA_") && cfg.SUPABASE_ANON_KEY && !cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
   const client = configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
   const grid = document.getElementById("productGrid"), status = document.getElementById("status");
-  const search = document.getElementById("search"), brandFilter = document.getElementById("brandFilter");
+  const search = document.getElementById("search"), brandFilter = document.getElementById("brandFilter"), categoryFilter = document.getElementById("categoryFilter");
   const money = n => new Intl.NumberFormat("es-EC", {style:"currency",currency:cfg.CURRENCY || "USD"}).format(Number(n || 0));
   const wa = (msg="Hola JIMPORT, quisiera información sobre sus productos.") => `https://wa.me/${(cfg.WHATSAPP_NUMBER||"").replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`;
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
@@ -22,11 +22,11 @@
     render();
   }
   function render() {
-    const q=(search.value||"").toLowerCase(), brand=brandFilter.value;
+    const q=(search.value||"").toLowerCase(), brand=brandFilter.value, category=categoryFilter?.value||"";
     const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();
     const old=brandFilter.value; brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option>${esc(b)}</option>`).join(""); brandFilter.value=brands.includes(old)?old:"";
-    const list=products.filter(p=>(!brand||p.brand===brand)&&[p.name,p.brand,p.model,p.description].join(" ").toLowerCase().includes(q));
-    grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
+    const categories=[...new Set(products.map(p=>p.category||"VARIOS").filter(Boolean))].sort(); const oldCategory=categoryFilter?.value||""; if(categoryFilter){categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");categoryFilter.value=categories.includes(oldCategory)?oldCategory:"";} const list=products.filter(p=>(!brand||p.brand===brand)&&(!category||(p.category||"VARIOS")===category)&&[p.name,p.brand,p.model,p.description,p.category].join(" ").toLowerCase().includes(q));
+    grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><span class="product-category">${esc(p.category||"VARIOS")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
     if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esa búsqueda.</div>';
     if(products.length) status.textContent=`${products.length} producto(s) en catálogo`;
     renderHero();
@@ -74,5 +74,5 @@
     renderPromotion(); restartPromo();
   }
   function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-  search.addEventListener("input",render); brandFilter.addEventListener("change",render); load().then(restartHero); loadPromotions();
+  search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
 })();

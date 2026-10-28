@@ -233,3 +233,6 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
   .header-brand-carousel{order:3}
 }
 @media(prefers-reduced-motion:reduce){.header-brand-track{animation:none;justify-content:center}}
+
+/* Categorías JIMPORT */
+.category-admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:0 0 24px}.category-admin-grid>div{display:flex;flex-direction:column;gap:5px;padding:15px;border:1px solid var(--line,#dbe2ea);border-radius:12px;background:var(--surface,#fff)}.category-admin-grid small{color:var(--muted,#64748b);line-height:1.45}.product-category{display:inline-block;margin:4px 0 2px;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#2453a6;font-size:.72rem;font-weight:700;letter-spacing:.02em}.filters select{min-width:170px}
