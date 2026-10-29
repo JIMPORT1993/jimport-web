@@ -12,7 +12,7 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();populatePromoProducts();}
   function draw(){const el=$("adminProducts");if(!rows.length){el.innerHTML='<div class="empty">Aún no hay productos. Pulsa “Añadir producto”.</div>';return;}el.innerHTML=rows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✳"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||"Sin modelo")} · Categoría: ${safe(p.category||"VARIOS")}</span><strong>${money(p.price)} ${p.active?"":"· Oculto"}</strong></div><span class="admin-stock">${safe(p.stock||"")}</span><button class="button button-outline edit" data-id="${p.id}">Editar</button><button class="button button-danger delete" data-id="${p.id}">Eliminar</button></article>`).join("");el.querySelectorAll(".edit").forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));el.querySelectorAll(".delete").forEach(b=>b.onclick=()=>remove(b.dataset.id));}
   function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
@@ -128,21 +128,46 @@
 
   const promoForm=$("promotionForm");
   let promoRows=[];
+  function populatePromoProducts(){
+    const sel=$("promoProduct"), current=sel.value;
+    sel.innerHTML='<option value="">Selecciona un producto del catálogo (opcional)</option>'+rows.map(p=>`<option value="${safe(p.id)}">${safe(p.brand)} · ${safe(p.name)} · ${money(p.price)}</option>`).join("");
+    sel.value=current;
+  }
+  function showSelectedPromoProduct(){
+    const p=rows.find(p=>p.id===$("promoProduct").value);
+    $("promoProductInfo").innerHTML=p?`<div class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"📦"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${money(p.price)}</span><small>Los cambios de esta promoción no modifican el producto del catálogo.</small></div></div>`:"";
+  }
+  $("promoProduct").addEventListener("change",()=>{
+    const p=rows.find(p=>p.id===$("promoProduct").value);
+    showSelectedPromoProduct();if(!p)return;
+    $("promoTitle").value=p.name;
+    $("promoDescription").value=p.description||`${p.brand} · ${p.model||""} · Precio: ${money(p.price)}`;
+    $("promoImage").value=p.image_url||"";
+    $("promoLink").value="";
+    $("promoButton").value="Ver producto";
+  });
   $("newPromotion").addEventListener("click",()=>openPromotion());
   $("cancelPromotion").addEventListener("click",()=>promoForm.hidden=true);
   async function refreshPromotions(){
+    if(!client)return;
     const {data,error}=await client.from("promotions").select("*").order("created_at",{ascending:false});
-    if(error){$("adminPromotions").innerHTML='<div class="notice">No se pudo cargar promociones. Ejecuta el schema.sql actualizado en Supabase → SQL Editor.</div>';return;}
+    if(error){
+      console.error("Error al cargar promociones:",error);
+      $("adminPromotions").innerHTML=`<div class="notice">No se pudieron cargar las promociones: ${safe(error.message||error.code||"Error desconocido")}. Si falta la tabla, ejecuta <b>promociones_supabase.sql</b> en Supabase → SQL Editor. No elimina tus productos.</div>`;
+      return;
+    }
     promoRows=data||[];drawPromotions();
   }
   function drawPromotions(){
     const el=$("adminPromotions");
-    if(!promoRows.length){el.innerHTML='<div class="empty">Todavía no hay promociones. Pulsa “Añadir promoción” para crear la primera.</div>';return;}
-    el.innerHTML=promoRows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✦"}</div><div class="admin-row-info"><b>${safe(p.title)}</b><span>${safe(p.description||"Sin descripción")}</span><strong>${p.active?"Visible en portada":"Oculta"}</strong></div><button class="button button-outline promo-edit" data-id="${p.id}" type="button">Editar</button><button class="button button-danger promo-delete" data-id="${p.id}" type="button">Eliminar</button></article>`).join("");
+    if(!promoRows.length){el.innerHTML='<div class="empty">Todavía no hay promociones. Pulsa “Añadir promoción” y selecciona un producto registrado.</div>';return;}
+    el.innerHTML=promoRows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✦"}</div><div class="admin-row-info"><b>${safe(p.title)}</b><span>${safe(p.description||"Sin descripción")}</span><strong>${p.active?"Visible en portada":"Oculta"}</strong></div><button class="button button-outline promo-edit" data-id="${safe(p.id)}" type="button">Editar</button><button class="button button-outline promo-toggle" data-id="${safe(p.id)}" type="button">${p.active?"Ocultar":"Activar"}</button><button class="button button-danger promo-delete" data-id="${safe(p.id)}" type="button">Eliminar</button></article>`).join("");
     el.querySelectorAll(".promo-edit").forEach(b=>b.onclick=()=>openPromotion(promoRows.find(p=>p.id===b.dataset.id)));
     el.querySelectorAll(".promo-delete").forEach(b=>b.onclick=()=>removePromotion(b.dataset.id));
+    el.querySelectorAll(".promo-toggle").forEach(b=>b.onclick=async()=>{const p=promoRows.find(p=>p.id===b.dataset.id);const {error}=await client.from("promotions").update({active:!p.active}).eq("id",p.id);if(error)note("No se pudo cambiar la visibilidad: "+error.message);else await refreshPromotions();});
   }
   function openPromotion(p=null){
+    populatePromoProducts();$("promoProduct").value="";showSelectedPromoProduct();
     $("promotionFormTitle").textContent=p?"Editar promoción":"Nueva promoción";
     $("promotionId").value=p?.id||"";$("promoTitle").value=p?.title||"";$("promoDescription").value=p?.description||"";
     $("promoImage").value=p?.image_url||"";$("promoLink").value=p?.link_url||"";$("promoButton").value=p?.button_text||"Ver oferta";
@@ -151,15 +176,18 @@
   promoForm.addEventListener("submit",async e=>{
     e.preventDefault();if(!client)return;
     const id=$("promotionId").value;
-    const item={title:$("promoTitle").value.trim(),description:$("promoDescription").value.trim()||null,image_url:$("promoImage").value.trim(),link_url:$("promoLink").value.trim()||null,button_text:$("promoButton").value.trim()||"Ver oferta",active:$("promoActive").checked};
+    const product=rows.find(p=>p.id===$("promoProduct").value);
+    const image=$("promoImage").value.trim();
+    if(!image){note("Añade una imagen al producto o pega una URL de imagen para esta promoción.");return;}
+    const item={title:$("promoTitle").value.trim(),description:$("promoDescription").value.trim()||null,image_url:image,link_url:$("promoLink").value.trim()||(product?`index.html?buscar=${encodeURIComponent(product.model||product.name)}#productos`:null),button_text:$("promoButton").value.trim()||"Ver oferta",active:$("promoActive").checked};
     const result=id?await client.from("promotions").update(item).eq("id",id):await client.from("promotions").insert(item);
-    if(result.error){note("No se pudo guardar la promoción. Verifica que ejecutaste el schema.sql actualizado en Supabase.");console.error(result.error);return;}
-    promoForm.hidden=true;note("Promoción guardada. La portada se actualizará automáticamente.");await refreshPromotions();
+    if(result.error){note("No se pudo guardar la promoción: "+(result.error.message||"Error desconocido")+". Comprueba la tabla y los permisos en Supabase.");console.error(result.error);return;}
+    promoForm.hidden=true;note("Promoción guardada correctamente.");await refreshPromotions();
   });
   async function removePromotion(id){
     const p=promoRows.find(x=>x.id===id);if(!p||!confirm(`¿Eliminar la promoción “${p.title}”?`))return;
     const {error}=await client.from("promotions").delete().eq("id",id);
-    if(error){note("No se pudo eliminar la promoción.");return;}note("Promoción eliminada.");refreshPromotions();
+    if(error){note("No se pudo eliminar la promoción: "+error.message);return;}note("Promoción eliminada.");refreshPromotions();
   }
   let reviewRows=[];
   const reviewStatus=$('reviewAdminStatus');

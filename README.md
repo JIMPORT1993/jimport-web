@@ -79,3 +79,12 @@ Este ZIP está organizado para que `index.html` quede directamente en la raíz d
 5. Para las imágenes de productos, pega una URL directa a la imagen. Se mostrarán dentro del marco sin deformarse ni salirse.
 
 No borres `config.js`: conserva la configuración de Supabase y WhatsApp de tu tienda.
+
+
+## Corrección de promociones y selección desde catálogo
+1. Ejecuta `promociones_supabase.sql` en Supabase → SQL Editor (una sola vez). No elimina productos ni promociones.
+2. Publica esta versión y entra en `admin.html` con tu cuenta de administrador.
+3. Pulsa **Añadir promoción**, elige un producto registrado y personaliza título, descripción, imagen, botón y enlace.
+4. El producto original no se modifica. Puedes editar, activar, ocultar o eliminar la promoción.
+5. Si el producto no tiene imagen, añade su URL o pega una imagen pública en la promoción.
+6. Si sigue fallando, el panel muestra el mensaje exacto de Supabase para diagnosticar el problema.

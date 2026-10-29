@@ -156,5 +156,7 @@
   loadReviews();
   function clearFilters(){search.value="";brandFilter.value="";if(categoryFilter)categoryFilter.value="";render();}
   document.getElementById("clearFilters")?.addEventListener("click",clearFilters);
+  const initialSearch=new URLSearchParams(location.search).get("buscar");
+  if(initialSearch){search.value=initialSearch;brandFilter.value="";if(categoryFilter)categoryFilter.value="";}
   search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
 })();
