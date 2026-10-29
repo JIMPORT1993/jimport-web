@@ -21,3 +21,8 @@ drop policy if exists "Admins can update promotions" on public.promotions;
 create policy "Admins can update promotions" on public.promotions for update to authenticated using (true) with check (true);
 drop policy if exists "Admins can delete promotions" on public.promotions;
 create policy "Admins can delete promotions" on public.promotions for delete to authenticated using (true);
+
+-- Campos para mostrar precios independientes en cada promoción.
+alter table public.promotions add column if not exists regular_price numeric(12,2);
+alter table public.promotions add column if not exists sale_price numeric(12,2);
+notify pgrst, 'reload schema';

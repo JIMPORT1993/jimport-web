@@ -19,7 +19,7 @@
       <label class="full">Seleccionar producto registrado<select id="promoProduct"><option value="">Selecciona un producto del catálogo (opcional)</option></select></label>
       <div class="full" id="promoProductInfo" aria-live="polite"></div>
       <label>Título de la promoción *<input id="promoTitle" required maxlength="120"></label>
-      <label>Texto del botón<input id="promoButton" maxlength="40" value="Ver oferta"></label>
+      <label>Precio normal (USD)<input id="promoRegularPrice" type="number" min="0" step="0.01" placeholder="Precio del catálogo"></label><label>Precio promocional (USD)<input id="promoSalePrice" type="number" min="0" step="0.01" placeholder="Nuevo precio de oferta"></label><label>Texto del botón<input id="promoButton" maxlength="40" value="Ver oferta"></label>
       <label class="full">Descripción<textarea id="promoDescription" rows="3" maxlength="500"></textarea></label>
       <label class="full">URL de imagen *<input id="promoImage" type="url" required placeholder="https://..."></label>
       <label class="full">Enlace al pulsar (opcional)<input id="promoLink" type="url" placeholder="https://... o https://wa.me/..."></label>

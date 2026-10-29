@@ -104,6 +104,7 @@
     if(error){ console.warn("Promociones: ejecuta el bloque actualizado de schema.sql en Supabase.",error); initPromoControls(); return; }
     promotions=data||[]; renderPromotion(); initPromoControls();
   }
+  const moneyPromo=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:"USD"}).format(Number(n));
   function renderPromotion(){
     const slide=document.getElementById("promoSlide"), dots=document.getElementById("promoDots");
     if(!slide||!dots)return;
@@ -113,7 +114,7 @@
     }
     promoIndex=((promoIndex%promotions.length)+promotions.length)%promotions.length;
     const p=promotions[promoIndex], href=p.link_url||"#productos";
-    slide.innerHTML=`<div class="promo-art"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" onerror="this.style.display='none'"><div class="promo-orbit"></div></div><div class="promo-copy"><span class="promo-kicker">JIMPORT · OFERTA ESPECIAL</span><h3>${esc(p.title)}</h3><p>${esc(p.description||"Descubre esta promoción especial de JIMPORT.")}</p><a class="button" href="${esc(href)}" ${/^https?:\/\//i.test(href)?'target=\"_blank\" rel=\"noopener\"':''}>${esc(p.button_text||"Ver oferta")} ↗</a></div>`;
+    slide.innerHTML=`<div class="promo-art"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" onerror="this.style.display='none'"><div class="promo-orbit"></div></div><div class="promo-copy"><span class="promo-kicker">JIMPORT · OFERTA ESPECIAL</span><h3>${esc(p.title)}</h3><p>${esc(p.description||"Descubre esta promoción especial de JIMPORT.")}</p>${p.sale_price!=null?`<p class="promo-price"><del>${p.regular_price!=null?esc(moneyPromo(p.regular_price)):""}</del> <strong>${esc(moneyPromo(p.sale_price))}</strong></p>`:""}<a class="button" href="${esc(href)}" ${/^https?:\/\//i.test(href)?'target=\"_blank\" rel=\"noopener\"':''}>${esc(p.button_text||"Ver oferta")} ↗</a></div>`;
     dots.innerHTML=promotions.map((_,i)=>`<button type="button" class="promo-dot ${i===promoIndex?"active":""}" data-index="${i}" aria-label="Ver promoción ${i+1}"></button>`).join("");
     dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{promoIndex=Number(b.dataset.index);renderPromotion();restartPromo();}));
   }

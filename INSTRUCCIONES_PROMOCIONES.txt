@@ -1,0 +1,6 @@
+1. Abre Supabase > SQL Editor > New query.
+2. Copia y ejecuta TODO el contenido de promociones_supabase.sql.
+3. Comprueba en Table Editor que existe public.promotions.
+4. Sube los archivos web a GitHub y recarga el panel.
+5. Selecciona un producto y define precio normal y precio promocional.
+Los precios promocionales no cambian el precio original del producto en products.
