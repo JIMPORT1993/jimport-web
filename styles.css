@@ -343,3 +343,6 @@ body{background:#080d16}
 .promo-controls>button{transition:background .2s,transform .2s,border-color .2s}
 .promo-dot{transition:width .3s ease,background .3s ease}
 @media(prefers-reduced-motion:reduce){.promotions-section::before,.promo-art::before,.promo-orbit,.promo-art img,.promo-spark,.promo-slide,.promo-copy h3,.promo-copy p,.promo-copy .button{animation:none!important}.promo-carousel:hover{transform:none}}
+
+/* Opiniones verificadas */
+.verified-badge{display:inline-block;margin:4px 8px;padding:4px 9px;border-radius:999px;background:#e5f7ed;color:#17683e;font-size:.75rem;font-weight:700}.google-reviews-card{border:1px solid #d9e5ed;border-radius:16px;padding:20px;margin-bottom:20px;background:linear-gradient(135deg,#f7fbff,#eefbf9)}.google-reviews-card h4{margin:0 0 8px}.google-reviews-card small{display:block;margin-top:10px;opacity:.75}

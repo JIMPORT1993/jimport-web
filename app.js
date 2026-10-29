@@ -135,9 +135,9 @@
   const reviewForm=document.getElementById('reviewForm'), reviewsList=document.getElementById('reviewsList');
   async function loadReviews(){
     if(!client){reviewsList.textContent='Las opiniones estarán disponibles cuando se conecte la base de datos.';return;}
-    const {data,error}=await client.from('reviews').select('name,rating,comment,created_at').eq('approved',true).order('created_at',{ascending:false}).limit(30);
+    const {data,error}=await client.from('reviews').select('name,rating,comment,created_at,verified_purchase').eq('approved',true).order('created_at',{ascending:false}).limit(30);
     if(error){reviewsList.textContent='Las opiniones estarán disponibles cuando se configure la tabla de reseñas.';return;}
-    const summary=document.getElementById('reviewSummary'); if(summary){const avg=data.length?data.reduce((a,r)=>a+Number(r.rating),0)/data.length:0;summary.textContent=data.length?`★ ${avg.toFixed(1)} / 5 · ${data.length} opiniones publicadas (últimas 30)`:'Sé la primera persona en compartir tu experiencia';} reviewsList.innerHTML=data.length?data.map(r=>`<article class="review-card"><strong>${esc(r.name)}</strong><span class="review-stars" aria-label="${r.rating} de 5 estrellas">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${esc(r.comment)}</p><small>${new Date(r.created_at).toLocaleDateString('es-EC')}</small></article>`).join(''):'Todavía no hay opiniones publicadas. ¡Sé el primero en compartir tu experiencia!';
+    const summary=document.getElementById('reviewSummary'); if(summary){const avg=data.length?data.reduce((a,r)=>a+Number(r.rating),0)/data.length:0;summary.textContent=data.length?`★ ${avg.toFixed(1)} / 5 · ${data.length} opiniones publicadas (últimas 30)`:'Sé la primera persona en compartir tu experiencia';} reviewsList.innerHTML=data.length?data.map(r=>`<article class="review-card"><strong>${esc(r.name)}</strong>${r.verified_purchase?'<span class="verified-badge">✓ Compra verificada</span>':''}<span class="review-stars" aria-label="${r.rating} de 5 estrellas">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${esc(r.comment)}</p><small>${new Date(r.created_at).toLocaleDateString('es-EC')}</small></article>`).join(''):'Todavía no hay opiniones publicadas. ¡Sé el primero en compartir tu experiencia!';
   }
   reviewForm?.addEventListener('submit',async e=>{
     e.preventDefault(); const msg=document.getElementById('reviewMessage'), btn=document.getElementById('reviewSubmit');
@@ -145,9 +145,10 @@
     const firstName=document.getElementById('reviewName').value.trim(), lastName=document.getElementById('reviewLastName').value.trim(), name=`${firstName} ${lastName}`.trim(), comment=document.getElementById('reviewComment').value.trim(), rating=Number(document.getElementById('reviewRating').value);
     if(!firstName||!lastName||name.length>70||comment.length<10||rating<1||rating>5){msg.textContent='Completa todos los campos correctamente.';return;}
     btn.disabled=true;msg.textContent='Enviando opinión…';
-    const {error}=await client.from('reviews').insert({name,comment,rating});
+    const code=document.getElementById('reviewCode').value.trim();
+    const {error}=await client.rpc('submit_verified_review',{purchase_code:code,reviewer_name:name,review_rating:rating,review_comment:comment});
     btn.disabled=false;
-    if(error){msg.textContent='No pudimos enviar tu opinión. Intenta nuevamente.';return;}
+    if(error){msg.textContent='No se pudo verificar la compra o el código ya fue utilizado. Comprueba el código y vuelve a intentarlo.';return;}
     reviewForm.reset();msg.textContent='¡Gracias! Tu opinión fue recibida y se publicará después de su aprobación.';
   });
   const ratingPicker=document.getElementById('ratingPicker'), ratingSelect=document.getElementById('reviewRating');

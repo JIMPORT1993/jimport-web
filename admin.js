@@ -12,7 +12,7 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();populatePromoProducts();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();populatePromoProducts();populateSaleProducts();}
   function draw(){const el=$("adminProducts");if(!rows.length){el.innerHTML='<div class="empty">Aún no hay productos. Pulsa “Añadir producto”.</div>';return;}el.innerHTML=rows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✳"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||"Sin modelo")} · Categoría: ${safe(p.category||"VARIOS")}</span><strong>${money(p.price)} ${p.active?"":"· Oculto"}</strong></div><span class="admin-stock">${safe(p.stock||"")}</span><button class="button button-outline edit" data-id="${p.id}">Editar</button><button class="button button-danger delete" data-id="${p.id}">Eliminar</button></article>`).join("");el.querySelectorAll(".edit").forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));el.querySelectorAll(".delete").forEach(b=>b.onclick=()=>remove(b.dataset.id));}
   function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
@@ -196,6 +196,20 @@
   }
   let reviewRows=[];
   const reviewStatus=$('reviewAdminStatus');
+
+  function populateSaleProducts(){const sel=$('saleProduct');if(!sel)return;sel.innerHTML='<option value="">Seleccionar producto</option>'+rows.map(p=>`<option value="${safe(p.id)}">${safe(p.brand)} · ${safe(p.name)}</option>`).join('');}
+  $('verifiedSaleForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();const out=$('saleResult');out.textContent='Generando código…';
+    const productId=$('saleProduct').value,reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim();
+    if(!productId||!reference){out.textContent='Selecciona un producto e indica la referencia de venta.';return;}
+    const {data,error}=await client.rpc('create_verified_purchase',{sold_product_id:productId,sale_reference:reference,customer_label:customer});
+    if(error){out.textContent='No se pudo generar el código: '+error.message;return;}
+    const code=String(data||'');const url=new URL('index.html',location.href);url.hash='opiniones';
+    out.innerHTML='';const heading=document.createElement('strong');heading.textContent='Código generado: '+code;out.append(heading);
+    const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent('Gracias por comprar en JIMPORT. Puedes dejar tu opinión de compra verificada aquí: '+url.href+' Código: '+code);out.append(document.createElement('br'),share);
+    $('verifiedSaleForm').reset();
+  });
+
   $('reloadReviews').addEventListener('click',refreshReviews);
   async function refreshReviews(){
     if(!client)return;
