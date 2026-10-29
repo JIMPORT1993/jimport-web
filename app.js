@@ -26,10 +26,15 @@
     const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();
     const old=brandFilter.value; brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option>${esc(b)}</option>`).join(""); brandFilter.value=brands.includes(old)?old:"";
     const categories=[...new Set(products.map(p=>p.category||"VARIOS").filter(Boolean))].sort(); const oldCategory=categoryFilter?.value||""; if(categoryFilter){categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");categoryFilter.value=categories.includes(oldCategory)?oldCategory:"";} const list=products.filter(p=>(!brand||p.brand===brand)&&(!category||(p.category||"VARIOS")===category)&&[p.name,p.brand,p.model,p.description,p.category].join(" ").toLowerCase().includes(q));
+    if(!brandFilter.value && !categoryFilter?.value){
+      grid.innerHTML='<div class="empty catalog-invite">Selecciona una marca o categoría para descubrir nuestros productos.</div>';
+      status.textContent="Elige una marca o categoría para ver el catálogo.";
+      renderHero();return;
+    }
     grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><span class="product-category">${esc(p.category||"VARIOS")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
-    if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esos filtros. <button type="button" id="emptyReset" class="clear-filters">Ver todos los productos</button></div>';
+    if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esos filtros. <button type="button" id="emptyReset" class="clear-filters">Elegir otra opción</button></div>';
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
-    if(products.length) status.textContent=`Mostrando ${list.length} de ${products.length} productos`;
+    if(products.length) status.textContent=`Mostrando ${list.length} producto(s) de tu selección`;
     renderHero();
   }
   function renderHero(){

@@ -286,11 +286,11 @@ body{background:#080d16}
 @media(max-width:650px){.review-name-grid{grid-template-columns:1fr}.premium-benefits{justify-content:flex-start;gap:12px;padding:16px 20px}.premium-benefits span{width:100%}.hero{padding-top:50px;padding-bottom:56px}.hero-actions{flex-direction:column;gap:10px}.topbar{padding-top:12px;padding-bottom:12px}.rating-picker button{min-width:40px}}
 @media(prefers-reduced-motion:reduce){.product-card,.review-form,.review-card,.promo-carousel{transition:none}}
 
-/* Animación de remolino JIMPORT: ciclo completo cada cinco segundos. */
+/* Animación de remolino JIMPORT: ciclo completo cada diez segundos. */
 .hero-logo-wrap{isolation:isolate;overflow:visible}
 .hero-logo-wrap .hero-main-logo{
   transform-origin:50% 50%;
-  animation:jimportRemolinoLogo5s 5s cubic-bezier(.22,.72,.3,1) infinite !important;
+  animation:jimportRemolinoLogo5s 10s cubic-bezier(.22,.72,.3,1) infinite !important;
   will-change:transform,opacity,filter;
 }
 .hero-logo-wrap::before,.hero-logo-wrap::after{
@@ -299,7 +299,7 @@ body{background:#080d16}
   border:5px solid transparent;
   border-top-color:#0989e8;border-right-color:#00ad82;
   box-shadow:0 0 22px #169ee733;
-  animation:jimportRemolinoEstela5s 5s ease-out infinite;
+  animation:jimportRemolinoEstela5s 10s ease-out infinite;
 }
 .hero-logo-wrap::after{width:min(300px,54vw);border-width:3px;border-top-color:#00b987;border-right-color:#1584df;animation-name:jimportRemolinoEstelaInversa5s}
 @keyframes jimportRemolinoLogo5s{
@@ -326,3 +326,5 @@ body{background:#080d16}
   .hero-logo-wrap .hero-main-logo{animation:none!important;opacity:1;transform:none;filter:none}
   .hero-logo-wrap::before,.hero-logo-wrap::after{display:none}
 }
+
+#productGrid .catalog-invite{grid-column:1/-1;text-align:center;padding:45px 24px;background:linear-gradient(115deg,#eff7ff,#ecfaf3);color:#264e69;border:1px solid #bcdedc;border-radius:20px;font-size:17px;font-weight:650}
