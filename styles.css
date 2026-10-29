@@ -285,3 +285,48 @@ body{background:#080d16}
 .review-summary{color:#ffca53;font-weight:800;margin:10px 0 18px}.review-form small{display:block;margin-top:12px;line-height:1.5}
 @media(max-width:650px){.review-name-grid{grid-template-columns:1fr}.premium-benefits{justify-content:flex-start;gap:12px;padding:16px 20px}.premium-benefits span{width:100%}.hero{padding-top:50px;padding-bottom:56px}.hero-actions{flex-direction:column;gap:10px}.topbar{padding-top:12px;padding-bottom:12px}.rating-picker button{min-width:40px}}
 @media(prefers-reduced-motion:reduce){.product-card,.review-form,.review-card,.promo-carousel{transition:none}}
+
+
+/* JIMPORT 2026 | Identidad luminosa Anker azul + UGREEN verde */
+:root{--ink:#183454;--muted:#587187;--blue:#0874e8;--blue-dark:#0759bb;--green:#00a86b;--line:#d9e8ee;--bg:#f3faff}
+body{background:#f3faff;color:var(--ink)}
+.topbar{background:linear-gradient(105deg,#f5fbff 0%,#e6f4ff 50%,#e5faf1 100%)!important;border-bottom:1px solid #d5e7ef;box-shadow:0 4px 24px #146ca010}
+.topbar::before,.topbar::after{display:none!important}
+.topbar nav{color:#254f72!important;text-shadow:none!important}
+.topbar nav a:hover{color:#009e71!important}
+.topbar .button{background:linear-gradient(110deg,#0874e8,#099c9b);box-shadow:0 8px 22px #0981c32a}
+.hero-centered{position:relative;isolation:isolate;background:radial-gradient(ellipse at 15% 25%,#cfe9ff 0%,transparent 44%),radial-gradient(ellipse at 85% 70%,#c8f4df 0%,transparent 45%),linear-gradient(125deg,#f8fcff,#edf7ff 53%,#e8f9f0)!important;min-height:580px}
+.hero-centered::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;background:repeating-radial-gradient(circle at 50% 43%,transparent 0 45px,#38a3d50b 47px 49px,transparent 51px 100px)}
+.hero-logo-wrap{position:relative;isolation:isolate;overflow:visible}
+.hero-logo-wrap::before{content:"";position:absolute;inset:-30px;border-radius:50%;border:3px solid transparent;border-top-color:#008eeb;border-right-color:#05b77e;filter:drop-shadow(0 0 12px #11bda455);animation:jimport-whirlpool 1.65s cubic-bezier(.2,.7,.25,1) both;pointer-events:none}
+.hero-logo-wrap::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px dashed #33c7b0;animation:jimport-whirlpool-reverse 1.75s ease-out both;pointer-events:none}
+.hero-centered .hero-main-logo{position:relative;z-index:2;animation:jimport-logo-vortex 2.1s cubic-bezier(.16,.9,.25,1) both,jimport-logo-hover 5s ease-in-out 2.2s infinite!important;filter:drop-shadow(0 15px 20px #0874e82c)}
+.hero-centered .hero-logo-ring{border-color:#20bca64a!important;animation:jimport-ring-glow 3s ease-in-out 2s infinite alternate!important}
+@keyframes jimport-logo-vortex{0%{opacity:0;transform:rotate(-650deg) scale(.04);filter:blur(16px)}35%{opacity:.65;filter:blur(5px)}75%{opacity:1;transform:rotate(15deg) scale(1.13);filter:blur(0)}88%{transform:rotate(-7deg) scale(.97)}100%{opacity:1;transform:rotate(0) scale(1);filter:blur(0)}}
+@keyframes jimport-whirlpool{0%{opacity:0;transform:rotate(0) scale(.1)}45%{opacity:1}100%{opacity:0;transform:rotate(850deg) scale(1.65)}}
+@keyframes jimport-whirlpool-reverse{0%{opacity:0;transform:rotate(0) scale(.15)}45%{opacity:.8}100%{opacity:0;transform:rotate(-670deg) scale(1.45)}}
+@keyframes jimport-logo-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes jimport-ring-glow{from{opacity:.2;transform:scale(.98)}to{opacity:.65;transform:scale(1.08)}}
+.hero-centered h1 span,.section-heading h2 span{color:#067cbd}
+.hero-highlights span,.premium-benefits span{background:#ffffffb8!important;color:#24536d!important;border:1px solid #d5e9f2!important}
+.button{background:linear-gradient(110deg,#0874e8,#087fd4);box-shadow:0 9px 22px #0675db24}
+.button:hover{background:linear-gradient(110deg,#0663c9,#009c73)}
+.hero-secondary{color:#0868b8!important}
+.premium-benefits{background:linear-gradient(95deg,#e8f5ff,#e6f9ee)!important}
+.section#productos{background:linear-gradient(180deg,#f7fcff,#ecf8ff 55%,#f1fbf6)}
+.product-card{border:1px solid #d8e9f1;box-shadow:0 8px 28px #175d8c0a}
+.product-image{background:linear-gradient(135deg,#eaf5ff,#effbf5)}
+.product-brand{color:#068f73}
+.brand-showcase{background:linear-gradient(115deg,#e5f8ef,#e8f4ff)!important}
+.brand-logos a{background:#ffffffd9!important;border:1px solid #d8eaf1!important}
+.promotions-section{background:linear-gradient(120deg,#d9edff,#e5faf0)!important}
+.promo-carousel{background:linear-gradient(125deg,#0e7fcb,#15a99b)!important}
+.trust-row{background:linear-gradient(100deg,#f0f9ff,#e8faf3)}
+.reviews-section{background:linear-gradient(120deg,#e8f5ff,#f0fbf5)!important}
+.review-form,.reviews-results{background:#fff!important}
+.faq-section{background:#f9fcff!important}
+.about{background:linear-gradient(115deg,#dcefff,#e1f7eb)!important}
+.contact{background:linear-gradient(110deg,#087bc5,#12a68b)!important}
+.contact .button-light{background:#fff!important;color:#0878b9!important}
+footer{background:#f0f8fd;border-top:1px solid #d7e8ef}
+@media(prefers-reduced-motion:reduce){.hero-centered .hero-main-logo,.hero-logo-wrap::before,.hero-logo-wrap::after,.hero-centered .hero-logo-ring{animation:none!important}}
