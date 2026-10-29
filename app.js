@@ -9,6 +9,7 @@
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
   let products = [], heroIndex = 0, heroTimer = null;
+  const knownBrands=["UGREEN","Anker","DJI","Marvo"];
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
     {id:"demo2",name:"Cargador rápido USB-C",brand:"Anker",model:"Ejemplo",price:24.90,old_price:null,stock:"Bajo pedido",image_url:"",description:"Carga práctica para tus dispositivos compatibles.",demo:true},
@@ -23,9 +24,10 @@
   }
   function render() {
     const q=(search.value||"").toLowerCase(), brand=brandFilter.value, category=categoryFilter?.value||"";
-    const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();
+    const brands=[...new Set([...knownBrands,...products.map(p=>p.brand).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"es"));
     const old=brandFilter.value; brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option>${esc(b)}</option>`).join(""); brandFilter.value=brands.includes(old)?old:"";
     const categories=[...new Set(products.map(p=>p.category||"VARIOS").filter(Boolean))].sort(); const oldCategory=categoryFilter?.value||""; if(categoryFilter){categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");categoryFilter.value=categories.includes(oldCategory)?oldCategory:"";} const list=products.filter(p=>(!brand||p.brand===brand)&&(!category||(p.category||"VARIOS")===category)&&[p.name,p.brand,p.model,p.description,p.category].join(" ").toLowerCase().includes(q));
+    renderCatalogTeasers();
     // El catálogo se mantiene oculto hasta que el visitante elija marca o categoría.
     if (!brandFilter.value && !categoryFilter?.value) {
       grid.innerHTML='<div class="empty catalog-welcome"><strong>¿Qué estás buscando?</strong><p>Selecciona una marca o categoría para explorar nuestros productos.</p></div>';
@@ -38,6 +40,18 @@
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
     if(products.length) status.textContent=`Mostrando ${list.length} producto(s) de tu selección`;
     renderHero();
+  }
+  function renderCatalogTeasers(){
+    const el=document.getElementById("catalogTeasers"); if(!el)return;
+    // Mostrar únicamente fotografías auténticas ya registradas en Supabase.
+    const withImages=products.filter(p=>p.image_url && /^https?:\/\//i.test(p.image_url));
+    const selected=[];
+    for(const brand of knownBrands){const p=withImages.find(p=>p.brand?.toLowerCase()===brand.toLowerCase()&&!selected.includes(p));if(p)selected.push(p);if(selected.length===3)break;}
+    for(const p of withImages){if(selected.length===3)break;if(!selected.includes(p))selected.push(p);}
+    el.hidden=Boolean(brandFilter.value || categoryFilter?.value);
+    if(!selected.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
+    el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="catalog-teaser-row">'+selected.map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('')+'</div>';
+    el.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=b.dataset.teaserBrand;categoryFilter.value='';render();}));
   }
   function renderHero(){
     const featured=products.filter(p=>p.active!==false);
