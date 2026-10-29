@@ -6,7 +6,7 @@
   let rows=[];
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
-  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();}}
+  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
   if(!client){note("Falta configurar Supabase. Abre config.js y pega la URL y la clave pública del proyecto.");}
   $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client)return;const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}note("Sesión iniciada.");setLoggedIn(true);});
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
@@ -160,6 +160,36 @@
     const p=promoRows.find(x=>x.id===id);if(!p||!confirm(`¿Eliminar la promoción “${p.title}”?`))return;
     const {error}=await client.from("promotions").delete().eq("id",id);
     if(error){note("No se pudo eliminar la promoción.");return;}note("Promoción eliminada.");refreshPromotions();
+  }
+  let reviewRows=[];
+  const reviewStatus=$('reviewAdminStatus');
+  $('reloadReviews').addEventListener('click',refreshReviews);
+  async function refreshReviews(){
+    if(!client)return;
+    reviewStatus.textContent='Cargando opiniones…';
+    const {data,error}=await client.from('reviews').select('id,name,rating,comment,approved,created_at').order('created_at',{ascending:false}).limit(200);
+    if(error){reviewStatus.textContent='No se pudieron cargar las opiniones. Ejecuta el schema.sql actualizado y comprueba los permisos de administrador.';return;}
+    reviewRows=data||[];
+    const pending=reviewRows.filter(r=>!r.approved).length;
+    reviewStatus.textContent=`${pending} pendiente(s) de aprobación · ${reviewRows.length} opinión(es) en total (máximo 200 recientes).`;
+    const el=$('adminReviews');
+    el.innerHTML=reviewRows.length?reviewRows.map(r=>`<article class="admin-row" style="align-items:start"><div class="admin-row-info"><b>${safe(r.name)} · ${'★'.repeat(Math.max(0,Math.min(5,r.rating)))}</b><span>${new Date(r.created_at).toLocaleDateString('es-EC')} · ${r.approved?'Publicada':'Pendiente'}</span><p style="white-space:pre-wrap;overflow-wrap:anywhere">${safe(r.comment)}</p></div><button type="button" class="button button-outline review-toggle" data-id="${r.id}">${r.approved?'Ocultar':'Aprobar'}</button><button type="button" class="button button-danger review-delete" data-id="${r.id}">Eliminar</button></article>`).join(''):'<p>Todavía no hay opiniones.</p>';
+    el.querySelectorAll('.review-toggle').forEach(b=>b.addEventListener('click',()=>toggleReview(b.dataset.id,b)));
+    el.querySelectorAll('.review-delete').forEach(b=>b.addEventListener('click',()=>deleteReview(b.dataset.id,b)));
+  }
+  async function toggleReview(id,button){
+    const review=reviewRows.find(r=>String(r.id)===String(id));if(!review)return;
+    button.disabled=true;
+    const {error}=await client.from('reviews').update({approved:!review.approved}).eq('id',id);
+    if(error){reviewStatus.textContent='No se pudo cambiar el estado de la opinión. Revisa los permisos de Supabase.';button.disabled=false;return;}
+    await refreshReviews();
+  }
+  async function deleteReview(id,button){
+    if(!confirm('¿Eliminar definitivamente esta opinión?'))return;
+    button.disabled=true;
+    const {error}=await client.from('reviews').delete().eq('id',id);
+    if(error){reviewStatus.textContent='No se pudo eliminar la opinión. Revisa los permisos de Supabase.';button.disabled=false;return;}
+    await refreshReviews();
   }
   if(client)client.auth.getSession().then(({data})=>setLoggedIn(!!data.session));
 })();

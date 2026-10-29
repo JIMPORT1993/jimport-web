@@ -27,8 +27,9 @@
     const old=brandFilter.value; brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option>${esc(b)}</option>`).join(""); brandFilter.value=brands.includes(old)?old:"";
     const categories=[...new Set(products.map(p=>p.category||"VARIOS").filter(Boolean))].sort(); const oldCategory=categoryFilter?.value||""; if(categoryFilter){categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");categoryFilter.value=categories.includes(oldCategory)?oldCategory:"";} const list=products.filter(p=>(!brand||p.brand===brand)&&(!category||(p.category||"VARIOS")===category)&&[p.name,p.brand,p.model,p.description,p.category].join(" ").toLowerCase().includes(q));
     grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><span class="product-category">${esc(p.category||"VARIOS")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
-    if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esa búsqueda.</div>';
-    if(products.length) status.textContent=`${products.length} producto(s) en catálogo`;
+    if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esos filtros. <button type="button" id="emptyReset" class="clear-filters">Ver todos los productos</button></div>';
+    document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
+    if(products.length) status.textContent=`Mostrando ${list.length} de ${products.length} productos`;
     renderHero();
   }
   function renderHero(){
@@ -74,5 +75,32 @@
     renderPromotion(); restartPromo();
   }
   function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  document.querySelectorAll('[data-brand]').forEach(link=>link.addEventListener('click',()=>{
+    search.value=''; if(categoryFilter)categoryFilter.value='';
+    const selected=link.dataset.brand;
+    const match=[...brandFilter.options].find(o=>o.value.toLowerCase()===selected.toLowerCase());
+    brandFilter.value=match?match.value:selected; render();
+  }));
+  const reviewForm=document.getElementById('reviewForm'), reviewsList=document.getElementById('reviewsList');
+  async function loadReviews(){
+    if(!client){reviewsList.textContent='Las opiniones estarán disponibles cuando se conecte la base de datos.';return;}
+    const {data,error}=await client.from('reviews').select('name,rating,comment,created_at').eq('approved',true).order('created_at',{ascending:false}).limit(30);
+    if(error){reviewsList.textContent='Las opiniones estarán disponibles cuando se configure la tabla de reseñas.';return;}
+    reviewsList.innerHTML=data.length?data.map(r=>`<article class="review-card"><strong>${esc(r.name)}</strong><span class="review-stars" aria-label="${r.rating} de 5 estrellas">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${esc(r.comment)}</p><small>${new Date(r.created_at).toLocaleDateString('es-EC')}</small></article>`).join(''):'Todavía no hay opiniones publicadas. ¡Sé el primero en compartir tu experiencia!';
+  }
+  reviewForm?.addEventListener('submit',async e=>{
+    e.preventDefault(); const msg=document.getElementById('reviewMessage'), btn=document.getElementById('reviewSubmit');
+    if(!client){msg.textContent='El formulario requiere configurar Supabase.';return;}
+    const name=document.getElementById('reviewName').value.trim(), comment=document.getElementById('reviewComment').value.trim(), rating=Number(document.getElementById('reviewRating').value);
+    if(!name||comment.length<10||rating<1||rating>5){msg.textContent='Completa todos los campos correctamente.';return;}
+    btn.disabled=true;msg.textContent='Enviando opinión…';
+    const {error}=await client.from('reviews').insert({name,comment,rating});
+    btn.disabled=false;
+    if(error){msg.textContent='No pudimos enviar tu opinión. Intenta nuevamente.';return;}
+    reviewForm.reset();msg.textContent='¡Gracias! Tu opinión fue recibida y se publicará después de su aprobación.';
+  });
+  loadReviews();
+  function clearFilters(){search.value="";brandFilter.value="";if(categoryFilter)categoryFilter.value="";render();}
+  document.getElementById("clearFilters")?.addEventListener("click",clearFilters);
   search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
 })();
