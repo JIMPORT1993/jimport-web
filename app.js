@@ -38,6 +38,14 @@
     }
   }
   function norm(v){return String(v??"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es");}
+  // Busca por palabras clave en todos los datos visibles del producto.
+  // Ej.: "100w", "100 W" y "100 watts" encuentran los artículos de 100 W.
+  function searchable(v){return norm(v).replace(/(\d+)\s*(watts?|w)(?![a-z])/g,"$1w").replace(/[^a-z0-9]+/g," ").trim();}
+  function matchesSearch(p, query){
+    const content=searchable([p.name,p.brand,p.model,p.description,p.category,p.sku,p.specifications,p.features].filter(v=>typeof v==="string"||typeof v==="number").join(" "));
+    const terms=searchable(query).split(/\s+/).filter(Boolean);
+    return terms.every(term=>content.includes(term));
+  }
   function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
     const brands=[...new Set([...knownBrands,...products.map(p=>String(p.brand||"").trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"es"));
@@ -49,7 +57,7 @@
       categoryFilter.value=categories.find(c=>norm(c)===norm(currentCategory))||"";
     }
     const brand=brandFilter.value, category=categoryFilter?.value||"";
-    const list=products.filter(p=>(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))&&(!q||norm([p.name,p.brand,p.model,p.description,p.category].join(" ")).includes(q)));
+    const list=products.filter(p=>q ? matchesSearch(p,q) : ((!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
     if(!brand && !category && !q){
       grid.innerHTML='<div class="empty catalog-welcome"><strong>¿Qué estás buscando?</strong><p>Selecciona una marca o categoría para explorar nuestros productos.</p></div>';
