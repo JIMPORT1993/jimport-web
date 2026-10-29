@@ -20,3 +20,10 @@ body,main{background:#f6faff!important}
 
 /* Ubicación JIMPORT */
 .location-section{scroll-margin-top:110px}.location-panel{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:stretch;padding:clamp(24px,4vw,52px);border:1px solid #dce8ef;border-radius:28px;background:linear-gradient(125deg,#f5fbff,#fff 65%);box-shadow:0 14px 45px rgba(24,62,85,.07)}.location-copy h2{font-size:clamp(1.8rem,3.3vw,3rem);line-height:1.13;margin:10px 0 18px}.location-copy p:not(.eyebrow){max-width:560px;color:#536879;line-height:1.7}.location-button{display:inline-flex;margin:22px 0 12px;text-decoration:none}.location-copy small{display:block;color:#687b89}.location-visual{min-height:255px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;border-radius:22px;color:#183b51;text-decoration:none;background:radial-gradient(circle at 55% 40%,#d9f6ee,transparent 48%),repeating-linear-gradient(35deg,transparent 0 45px,#dce9ed 46px 49px,transparent 50px 95px),#eaf3f7;border:1px solid #d6e5e9;transition:transform .2s,box-shadow .2s}.location-visual:hover{transform:translateY(-3px);box-shadow:0 12px 24px #1c5b7530}.location-pin{font-size:3.5rem}.location-visual strong{font-size:1.8rem}.location-map-cta{font-weight:700;color:#086e9e;margin-top:8px}@media(max-width:760px){.location-panel{grid-template-columns:1fr}.location-visual{min-height:210px}}
+
+/* Ubicación integrada debajo del logo principal, en lugar de los antiguos destacados */
+.hero-centered .hero-location{width:min(100%,960px);margin:24px auto 26px;text-align:left;scroll-margin-top:110px}
+.hero-centered .hero-location .location-panel{padding:clamp(20px,3vw,34px);gap:20px}
+.hero-centered .hero-location .location-copy h2{font-size:clamp(1.55rem,2.6vw,2.35rem)}
+.hero-centered .hero-location .location-visual{min-height:200px}
+@media(max-width:760px){.hero-centered .hero-location{margin:20px auto}.hero-centered .hero-location .location-visual{min-height:160px}}
