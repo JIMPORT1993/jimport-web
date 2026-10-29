@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Descubre accesorios y tecnología UGREEN, Anker y más en JIMPORT. Compara productos, consulta disponibilidad y recibe asesoría por WhatsApp.">
-  <meta name="theme-color" content="#080e19"><meta property="og:type" content="website"><meta property="og:title" content="JIMPORT | Tecnología que conecta"><meta property="og:description" content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp.">
+  <meta name="theme-color" content="#ffffff"><meta property="og:type" content="website"><meta property="og:title" content="JIMPORT | Tecnología que conecta"><meta property="og:description" content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp.">
   <title>JIMPORT | Tecnología y accesorios</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="premium-light.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -23,18 +23,19 @@
   <nav><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#opiniones">Opiniones</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a></nav>
   <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">Consultar por WhatsApp</a>
 </header>
-<section class="hero hero-centered">
-  <div class="hero-logo-wrap">
-    <span class="hero-logo-ring hero-logo-ring-one" aria-hidden="true"></span>
-    <span class="hero-logo-ring hero-logo-ring-two" aria-hidden="true"></span>
-    <img class="hero-main-logo" src="assets/logo-jimport.png" alt="JIMPORT — tecnología y accesorios">
-  </div>
-  <p class="eyebrow">TECNOLOGÍA · ACCESORIOS · CONECTIVIDAD</p>
-  <h1>Conecta con <span>JIMPORT</span></h1>
-  <p class="hero-intro">Accesorios y tecnología para conectar, cargar y potenciar tu día a día. Encuentra lo que necesitas con atención personalizada.</p>
-  <div class="hero-highlights"><span>✓ Marcas reconocidas</span><span>✓ Atención personalizada</span><span>✓ Compra por WhatsApp</span></div>
-  <div class="hero-actions"><a class="button" href="#productos">Explorar catálogo <span>↗</span></a><a class="hero-secondary" href="#opiniones">Conoce las opiniones de clientes →</a></div>
+<section class="hero catalog-hero">
+ <div class="hero-copy-premium">
+  <div class="hero-brandline"><img src="assets/ugreen.svg" alt="UGREEN"><span class="brand-divider">|</span><img src="assets/anker.svg" alt="Anker"></div>
+  <p class="eyebrow">JIMPORT · TECNOLOGÍA QUE TE CONECTA</p>
+  <h1>Tecnología original <span>para tu día a día.</span></h1>
+  <p class="hero-intro">Cargadores, cables, hubs y accesorios de las marcas que te gustan. Descubre los modelos disponibles en nuestro catálogo.</p>
+  <div class="hero-actions"><a class="button" href="#productos">Ver todos los productos ↗</a><a class="hero-secondary" id="heroWhatsapp" href="#contacto">Consultar por WhatsApp →</a></div>
+  <div class="hero-highlights"><span>✓ Modelos de nuestro catálogo</span><span>✓ Asesoría personalizada</span><span>✓ Consulta disponibilidad</span></div>
+ </div>
+ <div class="catalog-hero-visual"><div class="hero-image-stage" id="catalogHeroImages"><div class="hero-loading">Fotografías de nuestros productos disponibles próximamente</div></div><div class="hero-visual-label">PRODUCTOS DEL CATÁLOGO JIMPORT</div></div>
 </section>
+<section class="catalog-shortcuts" aria-label="Explorar marcas"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"><span>Ver productos UGREEN →</span></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="Anker"><span>Ver productos Anker →</span></a></section>
+<section class="catalog-categories" id="catalogCategories" aria-label="Categorías de nuestro catálogo"></section>
 <main>
   <div class="premium-benefits" aria-label="Ventajas de JIMPORT"><span>✦ Tecnología seleccionada</span><span>◈ Asesoría personalizada</span><span>✓ Compra con atención directa</span></div>
   <section class="section" id="productos">
