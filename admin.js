@@ -201,7 +201,7 @@
     if(!client)return;
     reviewStatus.textContent='Cargando opiniones…';
     const {data,error}=await client.from('reviews').select('id,name,rating,comment,approved,created_at').order('created_at',{ascending:false}).limit(200);
-    if(error){reviewStatus.textContent='No se pudieron cargar las opiniones. Ejecuta el schema.sql actualizado y comprueba los permisos de administrador.';return;}
+    if(error){reviewStatus.textContent='No se pudieron cargar las opiniones: '+(error.message||error.code||'Error desconocido')+'. Ejecuta REPARAR_PROMOCIONES_Y_OPINIONES.sql en el proyecto correcto de Supabase.';return;}
     reviewRows=data||[];
     const pending=reviewRows.filter(r=>!r.approved).length;
     reviewStatus.textContent=`${pending} pendiente(s) de aprobación · ${reviewRows.length} opinión(es) en total (máximo 200 recientes).`;
