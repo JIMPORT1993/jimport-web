@@ -119,7 +119,7 @@
     dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{promoIndex=Number(b.dataset.index);renderPromotion();restartPromo();}));
   }
   function stepPromo(dir){if(!promotions.length)return;promoIndex=(promoIndex+dir+promotions.length)%promotions.length;renderPromotion();restartPromo();}
-  function restartPromo(){if(promoTimer)clearInterval(promoTimer);if(promotions.length>1)promoTimer=setInterval(()=>stepPromo(1),3000);}
+  function restartPromo(){if(promoTimer)clearInterval(promoTimer);if(promotions.length>1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches)promoTimer=setInterval(()=>stepPromo(1),5500);}
   function initPromoControls(){
     document.getElementById("promoPrev")?.addEventListener("click",()=>stepPromo(-1));
     document.getElementById("promoNext")?.addEventListener("click",()=>stepPromo(1));

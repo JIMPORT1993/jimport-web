@@ -317,3 +317,29 @@ body{background:#080d16}
 @keyframes jimport-vortex-permanent{0%{opacity:.85;transform:translate(-50%,-50%) rotate(0deg) scale(1.06)}50%{opacity:1;transform:translate(-50%,-50%) rotate(180deg) scale(1.2)}100%{opacity:.85;transform:translate(-50%,-50%) rotate(360deg) scale(1.06)}}
 @keyframes jimport-vortex-permanent-reverse{0%{opacity:.9;transform:translate(-50%,-50%) rotate(360deg) scale(1.2)}50%{opacity:1;transform:translate(-50%,-50%) rotate(180deg) scale(1.05)}100%{opacity:.9;transform:translate(-50%,-50%) rotate(0deg) scale(1.2)}}
 @media(prefers-reduced-motion:reduce){.hero-logo-wrap::before,.hero-logo-wrap::after{animation:none!important;opacity:1!important;transform:translate(-50%,-50%) scale(1.1)!important}}
+
+/* Promociones: movimiento continuo, elegante y accesible */
+.promotions-section{position:relative;isolation:isolate}
+.promotions-section::before{content:"";position:absolute;inset:-35%;z-index:-1;pointer-events:none;background:conic-gradient(from 0deg at 65% 45%,transparent 0deg,#1974e21b 65deg,transparent 145deg,#25d6be18 220deg,transparent 310deg);animation:promoAtmosphere 24s linear infinite}
+@keyframes promoAtmosphere{to{transform:rotate(360deg)}}
+.promo-carousel{position:relative;isolation:isolate;box-shadow:0 22px 65px #0005,0 0 28px #198be51a;transition:box-shadow .35s ease,transform .35s ease}
+.promo-carousel:hover{box-shadow:0 28px 75px #0008,0 0 40px #19bdf13a;transform:translateY(-3px)}
+.promo-art{isolation:isolate}
+.promo-art::before{content:"";position:absolute;inset:-30%;background:conic-gradient(transparent,#43aaff33,transparent,#37edce2b,transparent);animation:promoAtmosphere 13s linear infinite}
+.promo-orbit{animation:promoOrbit 12s linear infinite,promoGlow 3.5s ease-in-out infinite alternate}
+.promo-orbit::after{content:"";position:absolute;width:11px;height:11px;top:10px;left:27px;background:#6ee6ff;border-radius:50%;box-shadow:0 0 18px 5px #31c9ff88}
+@keyframes promoOrbit{to{transform:rotate(360deg)}}
+@keyframes promoGlow{to{box-shadow:0 0 65px #21c5ef66,inset 0 0 42px #22c5e744}}
+.promo-art img{animation:promoFloat 4.8s ease-in-out infinite;filter:drop-shadow(0 14px 18px #0007)}
+.promo-spark{animation:promoFloat 4s ease-in-out infinite,promoTwinkle 2.8s ease-in-out infinite alternate}
+@keyframes promoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes promoTwinkle{to{opacity:.65;text-shadow:0 0 45px #40baff}}
+.promo-slide{animation:promoSlideIn .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes promoSlideIn{from{opacity:0;transform:translateX(22px) scale(.985)}to{opacity:1;transform:translateX(0) scale(1)}}
+.promo-copy h3{animation:promoTextIn .75s .12s both}
+.promo-copy p,.promo-copy .button{animation:promoTextIn .75s .22s both}
+@keyframes promoTextIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.promo-controls>button:hover{background:#1b4b72;border-color:#51c9ff;transform:scale(1.07)}
+.promo-controls>button{transition:background .2s,transform .2s,border-color .2s}
+.promo-dot{transition:width .3s ease,background .3s ease}
+@media(prefers-reduced-motion:reduce){.promotions-section::before,.promo-art::before,.promo-orbit,.promo-art img,.promo-spark,.promo-slide,.promo-copy h3,.promo-copy p,.promo-copy .button{animation:none!important}.promo-carousel:hover{transform:none}}
