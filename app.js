@@ -1,7 +1,7 @@
 (() => {
   const cfg = window.JIMPORT_CONFIG || {};
   const configured = cfg.SUPABASE_URL && !cfg.SUPABASE_URL.startsWith("PEGA_") && cfg.SUPABASE_ANON_KEY && !cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
-  const client = configured && window.supabase ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
+  const client = configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
   const grid = document.getElementById("productGrid"), status = document.getElementById("status");
   const search = document.getElementById("search"), brandFilter = document.getElementById("brandFilter"), categoryFilter = document.getElementById("categoryFilter");
   const money = n => new Intl.NumberFormat("es-EC", {style:"currency",currency:cfg.CURRENCY || "USD"}).format(Number(n || 0));
@@ -15,9 +15,9 @@
     {id:"demo3",name:"Cable USB-C",brand:"UGREEN",model:"Ejemplo",price:8.50,old_price:null,stock:"Agotado",image_url:"",description:"Accesorio para uso diario.",demo:true}
   ];
   async function load() {
-    if (!client) { products=[]; status.textContent="Conecta Supabase para mostrar tu catálogo real."; render(); return; }
+    if (!client) { products=demo; status.textContent="Vista de demostración. Configura Supabase para publicar tu catálogo real."; render(); return; }
     const {data,error}=await client.from("products").select("*").eq("active",true).order("created_at",{ascending:false});
-    if(error){ status.textContent="Error al consultar productos: revisa conexión y permisos de Supabase. Tus datos no se han borrado."; console.error(error); return; }
+    if(error){ status.textContent="No se pudo cargar el catálogo. Revisa la configuración de Supabase."; console.error(error); return; }
     products=data||[]; status.textContent=products.length ? `${products.length} producto(s) disponibles` : "Estamos actualizando el catálogo. Escríbenos por WhatsApp para consultar.";
     render();
   }
@@ -26,25 +26,11 @@
     const brands=[...new Set(products.map(p=>p.brand).filter(Boolean))].sort();
     const old=brandFilter.value; brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option>${esc(b)}</option>`).join(""); brandFilter.value=brands.includes(old)?old:"";
     const categories=[...new Set(products.map(p=>p.category||"VARIOS").filter(Boolean))].sort(); const oldCategory=categoryFilter?.value||""; if(categoryFilter){categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");categoryFilter.value=categories.includes(oldCategory)?oldCategory:"";} const list=products.filter(p=>(!brand||p.brand===brand)&&(!category||(p.category||"VARIOS")===category)&&[p.name,p.brand,p.model,p.description,p.category].join(" ").toLowerCase().includes(q));
-    renderHeroCatalogGallery();
     grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":p.stock==="Bajo pedido"?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><span class="product-category">${esc(p.category||"VARIOS")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
     if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esos filtros. <button type="button" id="emptyReset" class="clear-filters">Ver todos los productos</button></div>';
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
     if(products.length) status.textContent=`Mostrando ${list.length} de ${products.length} productos`;
     renderHero();
-  }
-  function renderHeroCatalogGallery(){
-    const target=document.getElementById("heroCatalogGallery");if(!target)return;
-    const items=products.filter(p=>p.image_url&&/^(https?:\/\/|assets\/)/i.test(p.image_url)&&/ugreen|anker/i.test(p.brand||""));
-    const rules=[
-      p=>/ugreen/i.test(p.brand||"")&&/robot|robotic|uno/i.test([p.name,p.model,p.description].join(" ")),
-      p=>/anker/i.test(p.brand||"")&&/140\s*w/i.test([p.name,p.model,p.description].join(" ")),
-      p=>/anker/i.test(p.brand||"")&&/cable/i.test([p.name,p.model,p.category].join(" "))
-    ];
-    const chosen=[];for(const rule of rules){const p=items.find(x=>rule(x)&&!chosen.includes(x));if(p)chosen.push(p);}
-    for(const p of items){if(chosen.length>=3)break;if(!chosen.includes(p))chosen.push(p);}
-    target.innerHTML=chosen.length?chosen.map((p,i)=>`<a class="hero-catalog-card" href="#productos" data-feature-brand="${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="${i===0?"eager":"lazy"}"><span class="hero-card-brand">${esc(p.brand)}</span><strong>${esc(p.name)}</strong></a>`).join(""):'<div class="hero-gallery-empty">Aquí aparecerán las fotografías de los modelos UGREEN y Anker que tengas registrados en el catálogo.</div>';
-    target.querySelectorAll("[data-feature-brand]").forEach(el=>el.addEventListener("click",()=>{const match=[...brandFilter.options].find(o=>o.value.toLowerCase()===el.dataset.featureBrand.toLowerCase());brandFilter.value=match?.value||"";search.value="";if(categoryFilter)categoryFilter.value="";render();}));
   }
   function renderHero(){
     const featured=products.filter(p=>p.active!==false);
