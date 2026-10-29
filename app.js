@@ -1,7 +1,7 @@
 (() => {
   const cfg = window.JIMPORT_CONFIG || {};
   const configured = cfg.SUPABASE_URL && !cfg.SUPABASE_URL.startsWith("PEGA_") && cfg.SUPABASE_ANON_KEY && !cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
-  const client = configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
+  const client = configured && window.supabase ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
   const grid = document.getElementById("productGrid"), status = document.getElementById("status");
   const search = document.getElementById("search"), brandFilter = document.getElementById("brandFilter"), categoryFilter = document.getElementById("categoryFilter");
   const money = n => new Intl.NumberFormat("es-EC", {style:"currency",currency:cfg.CURRENCY || "USD"}).format(Number(n || 0));
@@ -17,7 +17,7 @@
   async function load() {
     if (!client) { products=[]; status.textContent="Conecta Supabase para mostrar tu catálogo real."; render(); return; }
     const {data,error}=await client.from("products").select("*").eq("active",true).order("created_at",{ascending:false});
-    if(error){ status.textContent="No se pudo cargar el catálogo. Revisa la configuración de Supabase."; console.error(error); return; }
+    if(error){ status.textContent="Error al consultar productos: revisa conexión y permisos de Supabase. Tus datos no se han borrado."; console.error(error); return; }
     products=data||[]; status.textContent=products.length ? `${products.length} producto(s) disponibles` : "Estamos actualizando el catálogo. Escríbenos por WhatsApp para consultar.";
     render();
   }
@@ -35,10 +35,10 @@
   }
   function renderHeroCatalogGallery(){
     const target=document.getElementById("heroCatalogGallery");if(!target)return;
-    const items=products.filter(p=>p.image_url&&/^(https?:\\/\\/|assets\\/)/i.test(p.image_url)&&/ugreen|anker/i.test(p.brand||""));
+    const items=products.filter(p=>p.image_url&&/^(https?:\/\/|assets\/)/i.test(p.image_url)&&/ugreen|anker/i.test(p.brand||""));
     const rules=[
       p=>/ugreen/i.test(p.brand||"")&&/robot|robotic|uno/i.test([p.name,p.model,p.description].join(" ")),
-      p=>/anker/i.test(p.brand||"")&&/140\\s*w/i.test([p.name,p.model,p.description].join(" ")),
+      p=>/anker/i.test(p.brand||"")&&/140\s*w/i.test([p.name,p.model,p.description].join(" ")),
       p=>/anker/i.test(p.brand||"")&&/cable/i.test([p.name,p.model,p.category].join(" "))
     ];
     const chosen=[];for(const rule of rules){const p=items.find(x=>rule(x)&&!chosen.includes(x));if(p)chosen.push(p);}
