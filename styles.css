@@ -286,45 +286,23 @@ body{background:#080d16}
 @media(max-width:650px){.review-name-grid{grid-template-columns:1fr}.premium-benefits{justify-content:flex-start;gap:12px;padding:16px 20px}.premium-benefits span{width:100%}.hero{padding-top:50px;padding-bottom:56px}.hero-actions{flex-direction:column;gap:10px}.topbar{padding-top:12px;padding-bottom:12px}.rating-picker button{min-width:40px}}
 @media(prefers-reduced-motion:reduce){.product-card,.review-form,.review-card,.promo-carousel{transition:none}}
 
-/* Animación de remolino JIMPORT: ciclo completo cada diez segundos. */
-.hero-logo-wrap{isolation:isolate;overflow:visible}
-.hero-logo-wrap .hero-main-logo{
-  transform-origin:50% 50%;
-  animation:jimportRemolinoLogo5s 10s cubic-bezier(.22,.72,.3,1) infinite !important;
-  will-change:transform,opacity,filter;
+/* JIMPORT: remolino que se repite exactamente cada 10 segundos */
+.hero-logo-wrap{position:relative;isolation:isolate;overflow:visible}
+.hero-logo-wrap::before,.hero-logo-wrap::after{content:"";position:absolute;left:50%;top:50%;width:75%;height:95%;border-radius:50%;pointer-events:none;z-index:1;border:4px solid transparent;transform-origin:center center}
+.hero-logo-wrap::before{border-top-color:#0b8ce9;border-right-color:#06ba81;filter:drop-shadow(0 0 12px #09a8bd);animation:jimport-vortex-ring 10s linear infinite}
+.hero-logo-wrap::after{border-bottom-color:#08b68c;border-left-color:#3ba4fa;filter:drop-shadow(0 0 10px #3ba4fa);animation:jimport-vortex-ring-reverse 10s linear infinite}
+.hero-centered .hero-main-logo{position:relative;z-index:2;animation:jimport-vortex-logo 10s ease-in-out infinite!important;transform-origin:center center}
+@keyframes jimport-vortex-logo{
+0%{opacity:0;transform:rotate(-540deg) scale(.08);filter:blur(12px)}
+9%{opacity:1;transform:rotate(-110deg) scale(.75);filter:blur(3px)}
+17%{opacity:1;transform:rotate(15deg) scale(1.12);filter:blur(0)}
+22%{transform:rotate(-5deg) scale(.98)}
+26%,91%{opacity:1;transform:rotate(0deg) scale(1);filter:blur(0)}
+96%{opacity:.6;transform:rotate(150deg) scale(.7);filter:blur(2px)}
+100%{opacity:0;transform:rotate(360deg) scale(.08);filter:blur(12px)}
 }
-.hero-logo-wrap::before,.hero-logo-wrap::after{
-  content:"";position:absolute;left:50%;top:50%;width:min(400px,67vw);aspect-ratio:1;
-  border-radius:50%;pointer-events:none;z-index:1;
-  border:5px solid transparent;
-  border-top-color:#0989e8;border-right-color:#00ad82;
-  box-shadow:0 0 22px #169ee733;
-  animation:jimportRemolinoEstela5s 10s ease-out infinite;
-}
-.hero-logo-wrap::after{width:min(300px,54vw);border-width:3px;border-top-color:#00b987;border-right-color:#1584df;animation-name:jimportRemolinoEstelaInversa5s}
-@keyframes jimportRemolinoLogo5s{
-  0%{opacity:0;transform:rotate(-600deg) scale(.04);filter:blur(12px)}
-  13%{opacity:.75;filter:blur(3px)}
-  25%{opacity:1;transform:rotate(18deg) scale(1.12);filter:blur(0)}
-  32%{transform:rotate(-6deg) scale(.98)}
-  39%{transform:rotate(0) scale(1)}
-  45%,88%{opacity:1;transform:rotate(0) scale(1);filter:blur(0)}
-  94%{opacity:.7;transform:rotate(80deg) scale(.75);filter:blur(2px)}
-  100%{opacity:0;transform:rotate(360deg) scale(.04);filter:blur(12px)}
-}
-@keyframes jimportRemolinoEstela5s{
-  0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.15)}
-  10%{opacity:1}32%{opacity:.65;transform:translate(-50%,-50%) rotate(850deg) scale(1.13)}
-  42%,100%{opacity:0;transform:translate(-50%,-50%) rotate(1050deg) scale(1.4)}
-}
-@keyframes jimportRemolinoEstelaInversa5s{
-  0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.15)}
-  12%{opacity:1}35%{opacity:.5;transform:translate(-50%,-50%) rotate(-790deg) scale(1.2)}
-  44%,100%{opacity:0;transform:translate(-50%,-50%) rotate(-950deg) scale(1.4)}
-}
-@media(prefers-reduced-motion:reduce){
-  .hero-logo-wrap .hero-main-logo{animation:none!important;opacity:1;transform:none;filter:none}
-  .hero-logo-wrap::before,.hero-logo-wrap::after{display:none}
-}
-
-#productGrid .catalog-invite{grid-column:1/-1;text-align:center;padding:45px 24px;background:linear-gradient(115deg,#eff7ff,#ecfaf3);color:#264e69;border:1px solid #bcdedc;border-radius:20px;font-size:17px;font-weight:650}
+@keyframes jimport-vortex-ring{0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.2)}5%{opacity:1}22%{opacity:.8;transform:translate(-50%,-50%) rotate(960deg) scale(1.25)}28%,100%{opacity:0;transform:translate(-50%,-50%) rotate(1100deg) scale(1.45)}}
+@keyframes jimport-vortex-ring-reverse{0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.2)}5%{opacity:1}22%{opacity:.8;transform:translate(-50%,-50%) rotate(-900deg) scale(1.25)}28%,100%{opacity:0;transform:translate(-50%,-50%) rotate(-1050deg) scale(1.45)}}
+.catalog-welcome{grid-column:1/-1;padding:55px 25px!important;text-align:center;background:linear-gradient(110deg,#eaf5ff,#e8f9f0)!important;color:#173a58!important;border:1px solid #c4e6e7!important;border-radius:22px}
+.catalog-welcome strong{display:block;font-size:24px;margin-bottom:10px}.catalog-welcome p{font-size:16px;color:#4d6b80}
+@media(prefers-reduced-motion:reduce){.hero-centered .hero-main-logo,.hero-logo-wrap::before,.hero-logo-wrap::after{animation:none!important}.hero-centered .hero-main-logo{opacity:1!important;transform:none!important}}
