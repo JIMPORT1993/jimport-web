@@ -261,3 +261,27 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 .faq-section{padding:70px max(8vw,24px);background:#0c1420;color:#f4f8ff}.faq-section h2{font:800 clamp(28px,3.5vw,42px)/1.15 Manrope,sans-serif;margin:0 0 26px}.faq-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.faq-grid details{border:1px solid #293d54;border-radius:15px;background:#111e2e;padding:20px}.faq-grid summary{cursor:pointer;font-weight:750;line-height:1.5}.faq-grid summary::marker{color:#56bbff}.faq-grid p{color:#b7c7da;line-height:1.7;margin:12px 0 0}.product-card,.brand-logos a,.review-form,.reviews-results{transition:transform .2s ease,box-shadow .2s ease}.brand-logos a:hover{transform:translateY(-4px)}.product-card:focus-within{outline:2px solid #56baff;outline-offset:3px}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #5ac5ff;outline-offset:3px}.product-cta{min-height:44px}.filters{align-items:center}.reviews-section .section-heading h2{color:#f4f8ff}
 @media(max-width:700px){.faq-grid{grid-template-columns:1fr}.faq-section{padding:50px 20px}.hero-highlights{gap:8px}.hero-highlights span{font-size:11px}.topbar{height:auto;min-height:82px}.topbar nav{flex-wrap:wrap;justify-content:center;gap:10px 18px}.filters .clear-filters{width:100%}}
 @media(prefers-reduced-motion:reduce){.brand-logos a,.product-card{transition:none}}
+
+/* JIMPORT PREMIUM 2026 — mejoras de claridad, conversión y accesibilidad */
+:root{--blue:#368cff;--blue-dark:#1469f5;--radius:22px}
+body{background:#080d16}
+.topbar{position:sticky;top:0;z-index:100;min-height:76px;height:auto;backdrop-filter:blur(18px);box-shadow:0 8px 30px #0003}
+.topbar::before{opacity:.28;animation:none}
+.topbar::after{background:linear-gradient(90deg,#070d17ef,#0a1625df)}
+.topbar nav a{transition:color .2s}.topbar nav a:hover{color:#7fc4ff}
+.hero{padding-top:72px;padding-bottom:76px;animation:none;background:radial-gradient(ellipse at 50% 28%,#12385b 0%,transparent 50%),linear-gradient(145deg,#07101e,#101e32 60%,#080e1b)}
+.hero h1{letter-spacing:-.055em;text-wrap:balance}.hero-intro{max-width:680px;line-height:1.8}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:16px}
+.hero-secondary{font-weight:700;color:#d5e8ff;border-bottom:1px solid #8ba9c5;padding:12px 0}
+.premium-benefits{display:flex;align-items:center;justify-content:center;gap:clamp(16px,4vw,72px);flex-wrap:wrap;padding:20px 24px;color:#dce9f8;background:#102036;border-top:1px solid #284562;border-bottom:1px solid #284562;font-size:13px;font-weight:700;letter-spacing:.02em}
+.section-heading h2,.promo-heading h2{letter-spacing:-.04em;text-wrap:balance}
+.product-card,.review-form,.review-card,.promo-carousel{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.product-card:hover{transform:translateY(-5px);box-shadow:0 24px 50px #0005;border-color:#5681af}
+.product-image{background:radial-gradient(circle at 50% 45%,#243b57,#101a29 76%)}
+.filters input,.filters select,.review-form input,.review-form select,.review-form textarea{min-height:48px;border-radius:12px}
+:where(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #71bdff!important;outline-offset:3px}
+.review-name-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.review-name-grid>div{min-width:0}.review-name-grid input{width:100%}
+.rating-picker{display:flex;gap:5px;margin:8px 0 12px}.rating-picker button{background:transparent;border:1px solid #526478;color:#73859b;border-radius:10px;min-width:43px;height:43px;font-size:28px;cursor:pointer;transition:.15s}.rating-picker button.selected{color:#ffca53;background:#ffca5316;border-color:#ffca5370}.rating-picker button:hover{transform:translateY(-2px);color:#ffd66c}
+.review-summary{color:#ffca53;font-weight:800;margin:10px 0 18px}.review-form small{display:block;margin-top:12px;line-height:1.5}
+@media(max-width:650px){.review-name-grid{grid-template-columns:1fr}.premium-benefits{justify-content:flex-start;gap:12px;padding:16px 20px}.premium-benefits span{width:100%}.hero{padding-top:50px;padding-bottom:56px}.hero-actions{flex-direction:column;gap:10px}.topbar{padding-top:12px;padding-bottom:12px}.rating-picker button{min-width:40px}}
+@media(prefers-reduced-motion:reduce){.product-card,.review-form,.review-card,.promo-carousel{transition:none}}

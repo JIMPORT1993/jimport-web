@@ -86,19 +86,23 @@
     if(!client){reviewsList.textContent='Las opiniones estarán disponibles cuando se conecte la base de datos.';return;}
     const {data,error}=await client.from('reviews').select('name,rating,comment,created_at').eq('approved',true).order('created_at',{ascending:false}).limit(30);
     if(error){reviewsList.textContent='Las opiniones estarán disponibles cuando se configure la tabla de reseñas.';return;}
-    reviewsList.innerHTML=data.length?data.map(r=>`<article class="review-card"><strong>${esc(r.name)}</strong><span class="review-stars" aria-label="${r.rating} de 5 estrellas">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${esc(r.comment)}</p><small>${new Date(r.created_at).toLocaleDateString('es-EC')}</small></article>`).join(''):'Todavía no hay opiniones publicadas. ¡Sé el primero en compartir tu experiencia!';
+    const summary=document.getElementById('reviewSummary'); if(summary){const avg=data.length?data.reduce((a,r)=>a+Number(r.rating),0)/data.length:0;summary.textContent=data.length?`★ ${avg.toFixed(1)} / 5 · ${data.length} opiniones publicadas (últimas 30)`:'Sé la primera persona en compartir tu experiencia';} reviewsList.innerHTML=data.length?data.map(r=>`<article class="review-card"><strong>${esc(r.name)}</strong><span class="review-stars" aria-label="${r.rating} de 5 estrellas">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${esc(r.comment)}</p><small>${new Date(r.created_at).toLocaleDateString('es-EC')}</small></article>`).join(''):'Todavía no hay opiniones publicadas. ¡Sé el primero en compartir tu experiencia!';
   }
   reviewForm?.addEventListener('submit',async e=>{
     e.preventDefault(); const msg=document.getElementById('reviewMessage'), btn=document.getElementById('reviewSubmit');
     if(!client){msg.textContent='El formulario requiere configurar Supabase.';return;}
-    const name=document.getElementById('reviewName').value.trim(), comment=document.getElementById('reviewComment').value.trim(), rating=Number(document.getElementById('reviewRating').value);
-    if(!name||comment.length<10||rating<1||rating>5){msg.textContent='Completa todos los campos correctamente.';return;}
+    const firstName=document.getElementById('reviewName').value.trim(), lastName=document.getElementById('reviewLastName').value.trim(), name=`${firstName} ${lastName}`.trim(), comment=document.getElementById('reviewComment').value.trim(), rating=Number(document.getElementById('reviewRating').value);
+    if(!firstName||!lastName||name.length>70||comment.length<10||rating<1||rating>5){msg.textContent='Completa todos los campos correctamente.';return;}
     btn.disabled=true;msg.textContent='Enviando opinión…';
     const {error}=await client.from('reviews').insert({name,comment,rating});
     btn.disabled=false;
     if(error){msg.textContent='No pudimos enviar tu opinión. Intenta nuevamente.';return;}
     reviewForm.reset();msg.textContent='¡Gracias! Tu opinión fue recibida y se publicará después de su aprobación.';
   });
+  const ratingPicker=document.getElementById('ratingPicker'), ratingSelect=document.getElementById('reviewRating');
+  function paintRating(){const value=Number(ratingSelect?.value||0);ratingPicker?.querySelectorAll('button').forEach(button=>{const selected=Number(button.dataset.rating)<=value;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(Number(button.dataset.rating)===value));});}
+  ratingPicker?.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{ratingSelect.value=button.dataset.rating;paintRating();}));
+  ratingSelect?.addEventListener('change',paintRating);reviewForm?.addEventListener('reset',()=>requestAnimationFrame(paintRating));paintRating();
   loadReviews();
   function clearFilters(){search.value="";brandFilter.value="";if(categoryFilter)categoryFilter.value="";render();}
   document.getElementById("clearFilters")?.addEventListener("click",clearFilters);
