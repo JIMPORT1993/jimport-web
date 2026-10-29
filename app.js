@@ -15,7 +15,7 @@
     {id:"demo3",name:"Cable USB-C",brand:"UGREEN",model:"Ejemplo",price:8.50,old_price:null,stock:"Agotado",image_url:"",description:"Accesorio para uso diario.",demo:true}
   ];
   async function load() {
-    if (!client) { products=[]; status.textContent="Configura la conexión al catálogo para mostrar únicamente productos reales."; render(); return; }
+    if (!client) { products=demo; status.textContent="Vista de demostración. Configura Supabase para publicar tu catálogo real."; render(); return; }
     const {data,error}=await client.from("products").select("*").eq("active",true).order("created_at",{ascending:false});
     if(error){ status.textContent="No se pudo cargar el catálogo. Revisa la configuración de Supabase."; console.error(error); return; }
     products=data||[]; status.textContent=products.length ? `${products.length} producto(s) disponibles` : "Estamos actualizando el catálogo. Escríbenos por WhatsApp para consultar.";
@@ -30,26 +30,7 @@
     if(!list.length) grid.innerHTML='<div class="empty">No encontramos productos con esos filtros. <button type="button" id="emptyReset" class="clear-filters">Ver todos los productos</button></div>';
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
     if(products.length) status.textContent=`Mostrando ${list.length} de ${products.length} productos`;
-    renderHero(); renderCatalogHighlights();
-  }
-  function renderCatalogHighlights(){
-    const stage=document.getElementById("catalogHeroImages");
-    const categories=document.getElementById("catalogCategories");
-    if(!stage)return;
-    // Se muestran EXCLUSIVAMENTE imágenes registradas en la tabla products.
-    const actual=products.filter(p=>p.active!==false && p.image_url && /^(https?:\\/\\/|assets\\/)/i.test(p.image_url) && /^(UGREEN|ANKER)$/i.test((p.brand||"").trim()));
-    const unique=[];const seen=new Set();
-    for(const p of actual){const key=(p.brand+"|"+p.image_url).toLowerCase();if(!seen.has(key)){unique.push(p);seen.add(key);}}
-    unique.sort((a,b)=>(a.brand||"").localeCompare(b.brand||"") || (a.name||"").localeCompare(b.name||""));
-    const selected=[];for(const brand of ["UGREEN","ANKER"]){const item=unique.find(p=>(p.brand||"").toUpperCase()===brand);if(item)selected.push(item);}
-    for(const item of unique){if(selected.length>=4)break;if(!selected.includes(item))selected.push(item);}
-    stage.innerHTML=selected.length?selected.map((p,i)=>`<a class="catalog-feature catalog-feature-${i+1}" href="#productos" data-feature-brand="${esc(p.brand)}" title="${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="${i===0?"eager":"lazy"}"><span>${esc(p.brand)} · ${esc(p.name)}</span></a>`).join(""):'<div class="hero-loading">Las fotografías aparecerán aquí automáticamente cuando los productos de UGREEN y Anker tengan imágenes cargadas en tu catálogo.</div>';
-    stage.querySelectorAll("[data-feature-brand]").forEach(el=>el.addEventListener("click",()=>{search.value="";if(categoryFilter)categoryFilter.value="";brandFilter.value=[...brandFilter.options].find(o=>o.value.toLowerCase()===el.dataset.featureBrand.toLowerCase())?.value||"";render();}));
-    if(categories){
-      const cats=[...new Set(products.map(p=>p.category).filter(Boolean))].slice(0,6);
-      categories.innerHTML=cats.map(c=>`<a href="#productos" class="category-shortcut" data-cat="${esc(c)}"><span>${esc(c)}</span><b>Explorar →</b></a>`).join("");
-      categories.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>{search.value="";brandFilter.value="";categoryFilter.value=el.dataset.cat;render();}));
-    }
+    renderHero();
   }
   function renderHero(){
     const featured=products.filter(p=>p.active!==false);
