@@ -299,3 +299,10 @@ body{background:#080d16}
 @keyframes electricStrike{0%,7%,10%,15%,100%{opacity:0}8%,9%{opacity:1}11%,14%{opacity:.9}}
 @media(max-width:600px){.electric-storm{inset:-15% -7%}.electric-bolt{stroke-width:9}}
 @media(prefers-reduced-motion:reduce){.electric-bolt{animation:none!important;opacity:.22}}
+
+/* Indicadores de existencias exclusivos del panel administrativo */
+.admin-filter-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0}
+.admin-low-stock{border:2px solid #e63946!important;background:rgba(230,57,70,.075)!important;box-shadow:inset 5px 0 0 #d21f31}
+.admin-no-stock{background:rgba(190,25,35,.13)!important}
+.admin-quantity-tag{display:inline-block;margin-top:8px;padding:5px 11px;border-radius:8px;background:#e7f7ec;color:#155e31;font-weight:800;font-size:.82rem}
+.admin-quantity-tag.critical{background:#c81e31;color:white;letter-spacing:.025em}

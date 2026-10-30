@@ -3,14 +3,14 @@
   const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.startsWith("PEGA_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
   const client=configured && window.supabase?.createClient ? window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
   const $=id=>document.getElementById(id), loginPanel=$("loginPanel"), dashboard=$("dashboard"), form=$("productForm"), message=$("adminMessage");
-  let rows=[]; let privateInventory={}; let authorized=false;
+  let rows=[]; let privateInventory={}; let authorized=false; let onlyLowStock=false;
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
   function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
   if(!client){note("No se pudo iniciar Supabase. Verifica config.js y la conexión a Internet; el formulario permanece disponible.");}
   async function checkAdmin(){const {data,error}=await client.rpc('jimport_is_admin');if(error){note('No se pudo comprobar el administrador: '+error.message+'. Ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql.');return false;}if(!data){note('Este usuario no está autorizado. Añade su UUID a public.jimport_admins desde SQL Editor.');return false;}return true;}
   async function loadPrivate(){const {data,error}=await client.from('jimport_inventory_private').select('product_id,quantity,min_quantity,landed_cost');if(error){note('Inventario privado: '+error.message);return;}privateInventory=Object.fromEntries((data||[]).map(x=>[x.product_id,x]));draw();}
-  function showInventory(){const arr=rows.map(p=>({...p,...(privateInventory[p.id]||{})}));const low=arr.filter(p=>Number(p.quantity||0)<=Number(p.min_quantity??3));const sum=arr.reduce((a,p)=>a+Number(p.quantity||0)*Number(p.landed_cost||0),0);const el=$('inventorySummary');el.hidden=false;el.innerHTML='<span>Productos: '+arr.length+'</span><span>Capital en inventario: '+money(sum)+'</span><span>Alertas: '+low.length+'</span>';const alert=$('inventoryAlerts');alert.hidden=!low.length;alert.textContent=low.length?'Stock bajo o agotado: '+low.map(p=>p.name+' ('+(p.quantity||0)+')').join(' · '):'';}
+  function showInventory(){const arr=rows.map(p=>({...p,...(privateInventory[p.id]||{})}));const low=arr.filter(p=>privateInventory[p.id] && Number(p.quantity)<=Number(p.min_quantity));const sum=arr.reduce((a,p)=>a+Number(p.quantity||0)*Number(p.landed_cost||0),0);const el=$('inventorySummary');el.hidden=false;el.innerHTML='<span>Productos: '+arr.length+'</span><span>Capital en inventario: '+money(sum)+'</span><span>Alertas: '+low.length+'</span>';const alert=$('inventoryAlerts');alert.hidden=!low.length;alert.textContent=low.length?'Stock bajo o agotado: '+low.map(p=>p.name+' ('+(p.quantity||0)+')').join(' · '):'';}
   async function initSession(){if(!client){setLoggedIn(false);return;}try{const {data,error}=await client.auth.getSession();if(error)note("Error de sesión: "+error.message);if(data?.session){authorized=await checkAdmin();if(authorized){setLoggedIn(true);return;}}setLoggedIn(false);}catch(err){setLoggedIn(false);note("No se pudo verificar la sesión: "+err.message);}}
   initSession();
   $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client){note("No se cargó Supabase. Revisa config.js y tu conexión a Internet.");return;}const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}authorized=await checkAdmin();if(!authorized){await client.auth.signOut();return;}note("Sesión iniciada.");setLoggedIn(true);});
@@ -18,7 +18,20 @@
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
   async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();draw();populatePromoProducts();populateSaleProducts();}
-  function draw(){const el=$("adminProducts");if(!rows.length){el.innerHTML='<div class="empty">Aún no hay productos. Pulsa “Añadir producto”.</div>';return;}el.innerHTML=rows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✳"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||"Sin modelo")} · Categoría: ${safe(p.category||"VARIOS")}</span><strong>${money(p.price)} · Costo: ${money(privateInventory[p.id]?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(privateInventory[p.id]?.landed_cost||0))} · Cantidad: ${privateInventory[p.id]?.quantity??0} · Mínimo: ${privateInventory[p.id]?.min_quantity??3} ${p.active?"":"· Oculto"}</strong></div><span class="admin-stock">${safe(p.stock||"")}</span><button class="button button-outline edit" data-id="${p.id}">Editar</button><button class="button button-danger delete" data-id="${p.id}">Eliminar</button></article>`).join("");showInventory();el.querySelectorAll(".edit").forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));el.querySelectorAll(".delete").forEach(b=>b.onclick=()=>remove(b.dataset.id));}
+  function draw(){
+    const el=$('adminProducts');
+    const visible=rows.filter(p=>!onlyLowStock||(privateInventory[p.id] && privateInventory[p.id].quantity<=privateInventory[p.id].min_quantity));
+    if(!visible.length){el.innerHTML='<div class="empty">'+(onlyLowStock?'No hay productos con stock bajo.':'Aún no hay productos. Pulsa “Añadir producto”.')+'</div>';showInventory();return;}
+    el.innerHTML=visible.map(p=>{
+      const inv=privateInventory[p.id], qty=inv?.quantity, minimum=inv?.min_quantity;
+      const low=inv && qty<=minimum, empty=inv && qty===0;
+      const tag=!inv?'Inventario sin registrar':empty?'AGOTADO · 0 unidades':low?'⚠ STOCK BAJO · '+qty+' unidades':'✓ '+qty+' unidades';
+      return `<article class="admin-row ${low?'admin-low-stock':''} ${empty?'admin-no-stock':''}"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:'✳'}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||'Sin modelo')} · Categoría: ${safe(p.category||'VARIOS')}</span><strong>${money(p.price)} · Costo: ${money(inv?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(inv?.landed_cost||0))} · Mínimo: ${minimum??'—'} ${p.active?'':'· Oculto'}</strong><span class="admin-quantity-tag ${low?'critical':''}">${tag}</span></div><span class="admin-stock">${safe(p.stock||'')}</span><button class="button button-outline edit" data-id="${safe(p.id)}">Editar</button><button class="button button-danger delete" data-id="${safe(p.id)}">Eliminar</button></article>`;
+    }).join('');showInventory();
+    el.querySelectorAll('.edit').forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));
+    el.querySelectorAll('.delete').forEach(b=>b.onclick=()=>remove(b.dataset.id));
+  }
+  $('filterLowStock').addEventListener('click',()=>{onlyLowStock=!onlyLowStock;$('filterLowStock').textContent=onlyLowStock?'Mostrar todos los productos':'🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed',String(onlyLowStock));draw();});
   function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??3;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
     e.preventDefault();
@@ -206,14 +219,14 @@
   function populateSaleProducts(){const sel=$('saleProduct');if(!sel)return;sel.innerHTML='<option value="">Seleccionar producto</option>'+rows.map(p=>`<option value="${safe(p.id)}">${safe(p.brand)} · ${safe(p.name)}</option>`).join('');}
   $('verifiedSaleForm')?.addEventListener('submit',async e=>{
     e.preventDefault();const out=$('saleResult');out.textContent='Generando código…';
-    const productId=$('saleProduct').value,reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim();
-    if(!productId||!reference){out.textContent='Selecciona un producto e indica la referencia de venta.';return;}
-    const {data,error}=await client.rpc('create_verified_purchase',{sold_product_id:productId,sale_reference:reference,customer_label:customer});
+    const productId=$('saleProduct').value,reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),qty=Number($('saleQuantity').value),withCode=$('saleWithCode').checked;
+    if(!productId||!reference||!Number.isInteger(qty)||qty<1){out.textContent='Selecciona un producto, cantidad válida y referencia de venta.';return;}if(!confirm('¿Confirmas la venta de '+qty+' unidad(es)? El stock se descontará ahora.')){out.textContent='Venta cancelada.';return;}
+    const {data,error}=await client.rpc('jimport_register_sale',{sold_product_id:productId,sale_reference:reference,customer_label:customer,sold_quantity:qty,generate_code:withCode});
     if(error){out.textContent='No se pudo generar el código: '+error.message;return;}
-    const code=String(data||'');const url=new URL('index.html',location.href);url.hash='opiniones';
-    out.innerHTML='';const heading=document.createElement('strong');heading.textContent='Código generado: '+code;out.append(heading);
-    const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent('Gracias por comprar en JIMPORT. Puedes dejar tu opinión de compra verificada aquí: '+url.href+' Código: '+code);out.append(document.createElement('br'),share);
-    $('verifiedSaleForm').reset();
+    const code=String(data?.code||'');const url=new URL('index.html',location.href);url.hash='opiniones';
+    out.innerHTML='';const heading=document.createElement('strong');heading.textContent='Venta registrada: '+qty+' unidad(es) descontadas. '+(code?'Código: '+code:'Sin código de opinión.');out.append(heading);
+    const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent('Gracias por comprar en JIMPORT. Puedes dejar tu opinión de compra verificada aquí: '+url.href+' Código: '+code);if(code)out.append(document.createElement('br'),share);
+    $('verifiedSaleForm').reset();await refresh();
   });
 
   $('reloadReviews').addEventListener('click',refreshReviews);

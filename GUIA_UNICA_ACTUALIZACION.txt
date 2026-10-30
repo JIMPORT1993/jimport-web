@@ -1,16 +1,27 @@
-JIMPORT — GUÍA ÚNICA DE ACTUALIZACIÓN (30-10-2026)
+JIMPORT — ALERTAS PRIVADAS Y REGISTRO DE VENTAS
 
-1. Realiza una copia de seguridad del repositorio y de Supabase antes de actualizar.
-2. En Supabase > Authentication > Users, crea o identifica el usuario administrador y copia su UID.
-3. En Supabase > SQL Editor, ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql (si ya lo ejecutaste, puedes repetirlo).
-4. En SQL Editor ejecuta, sustituyendo el UID real:
-   INSERT INTO public.jimport_admins(user_id) VALUES ('TU_UUID_REAL') ON CONFLICT (user_id) DO NOTHING;
-5. Ejecuta: NOTIFY pgrst, 'reload schema';
-6. Comprueba que config.js tiene la URL y la clave PUBLICABLE correctas de tu proyecto (nunca uses service_role).
-7. Sube los archivos de esta carpeta a la raíz de tu repositorio GitHub, sin borrar datos de Supabase.
-8. Abre admin.html: ahora aparece el formulario de correo y contraseña. Inicia sesión con la cuenta de Authentication autorizada.
-9. Comprueba editar producto, cantidad, mínimo y costo; verifica alerta y ganancias.
-10. En index.html comprueba el efecto de rayos alrededor del logo; actualiza con Ctrl+F5 si tienes caché.
+1. Haz copia de seguridad de tu proyecto y de Supabase.
+2. Sube los archivos de este ZIP a GitHub, reemplazando los anteriores.
+3. En Supabase > SQL Editor ejecuta REGISTRO_VENTAS_Y_ALERTAS_SUPABASE.sql.
+   Antes deben existir el inventario privado, la función jimport_is_admin y
+   create_verified_purchase, creados por los scripts anteriores del proyecto.
+4. Inicia sesión en admin.html y revisa los productos con borde rojo.
+5. Pulsa «Ver solo stock bajo» para filtrar los que necesitan reposición.
+6. En «Compras verificadas», selecciona producto, cantidad y referencia única.
+   Confirma la venta para descontar unidades. Si dejas marcada la casilla,
+   se genera además un código de opinión para enviar por WhatsApp.
+   Si la desmarcas, se registra una venta manual sin código.
+7. Verifica que la cantidad se redujo y la alerta se actualizó.
 
-NOTA: La autorización requiere ejecutar el SQL y registrar tu UID en tu proyecto real. No puede hacerse desde el ZIP.
-Si Supabase informa que falta una tabla, confirma que el SQL se ejecutó sin errores y recarga el esquema.
+IMPORTANTE:
+- Un clic de WhatsApp en la tienda NO es una venta: no descuenta inventario.
+- Generar un código desde el formulario actualizado SÍ confirma la venta y descuenta stock.
+- Las ventas antiguas no se descuentan retroactivamente.
+- Cada combinación producto + referencia se puede registrar una sola vez.
+- El historial queda guardado en public.jimport_sales y solo se accede mediante
+  el SQL Editor con permisos del propietario; no está publicado a clientes.
+- Los costos y cantidades están en la tabla privada con RLS; las marcas rojas
+  aparecen solo en admin.html, nunca en index.html.
+- Si falla la creación del código, la transacción completa se revierte.
+- Para corregir ventas erróneas, ajusta el inventario desde el administrador
+  y documenta la corrección en tus registros internos.
