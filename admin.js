@@ -3,7 +3,7 @@
   const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.startsWith("PEGA_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
   const client=configured && window.supabase?.createClient ? window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
   const $=id=>document.getElementById(id), loginPanel=$("loginPanel"), dashboard=$("dashboard"), form=$("productForm"), message=$("adminMessage");
-  let rows=[]; let privateInventory={}; let authorized=false; let onlyLowStock=false;
+  let rows=[]; let privateInventory={}; let authorized=false; let onlyLowStock=false; let adminPage=1;
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
   function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
@@ -17,12 +17,29 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();draw();populatePromoProducts();populateSaleProducts();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();}
+  function updateAdminFilters(){
+    for(const [id,key] of [['adminCategory','category'],['adminBrand','brand']]){
+      const sel=$(id),current=sel.value;
+      const values=[...new Set(rows.map(p=>String(p[key]|| (key==='category'?'VARIOS':'SIN MARCA')).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+      sel.innerHTML='<option value="">'+(key==='category'?'Todas las categorías':'Todas las marcas')+'</option>'+values.map(v=>'<option value="'+safe(v)+'">'+safe(v)+'</option>').join('');
+      sel.value=values.includes(current)?current:'';
+    }
+  }
+  for(const id of ['adminSearch','adminCategory','adminBrand','adminPageSize']) $(id).addEventListener(id==='adminSearch'?'input':'change',()=>{adminPage=1;draw();});
+  $('adminClearFilters').addEventListener('click',()=>{$('adminSearch').value='';$('adminCategory').value='';$('adminBrand').value='';$('adminPageSize').value='10';onlyLowStock=false;$('filterLowStock').textContent='🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed','false');adminPage=1;draw();});
   function draw(){
     const el=$('adminProducts');
-    const visible=rows.filter(p=>!onlyLowStock||(privateInventory[p.id] && privateInventory[p.id].quantity<=privateInventory[p.id].min_quantity));
-    if(!visible.length){el.innerHTML='<div class="empty">'+(onlyLowStock?'No hay productos con stock bajo.':'Aún no hay productos. Pulsa “Añadir producto”.')+'</div>';showInventory();return;}
-    el.innerHTML=visible.map(p=>{
+    const query=$('adminSearch').value.trim().toLocaleLowerCase('es');
+    const category=$('adminCategory').value,brand=$('adminBrand').value;
+    const visible=rows.filter(p=>(!onlyLowStock||(privateInventory[p.id] && Number(privateInventory[p.id].quantity)<=Number(privateInventory[p.id].min_quantity)))&&(!category||(p.category||'VARIOS')===category)&&(!brand||(p.brand||'SIN MARCA')===brand)&&(!query||[p.name,p.model,p.brand,p.category,p.description].some(v=>String(v||'').toLocaleLowerCase('es').includes(query))));
+    const size=Number($('adminPageSize').value)||10,pages=Math.max(1,Math.ceil(visible.length/size));adminPage=Math.min(adminPage,pages);
+    $('adminResultCount').textContent=visible.length+' de '+rows.length+' productos encontrados';
+    const pagination=$('adminPagination');pagination.innerHTML='<button type="button" id="adminPrev" '+(adminPage===1?'disabled':'')+'>← Anterior</button><span>Página '+adminPage+' de '+pages+'</span><button type="button" id="adminNext" '+(adminPage===pages?'disabled':'')+'>Siguiente →</button>';
+    $('adminPrev').onclick=()=>{adminPage--;draw();};$('adminNext').onclick=()=>{adminPage++;draw();};
+    const pageRows=visible.slice((adminPage-1)*size,adminPage*size);
+    if(!visible.length){el.innerHTML='<div class="empty">'+(rows.length?'No se encontraron productos con estos filtros. Prueba otra búsqueda o limpia los filtros.':'Aún no hay productos. Pulsa “Añadir producto”.')+'</div>';showInventory();return;}
+    el.innerHTML=pageRows.map(p=>{
       const inv=privateInventory[p.id], qty=inv?.quantity, minimum=inv?.min_quantity;
       const low=inv && qty<=minimum, empty=inv && qty===0;
       const tag=!inv?'Inventario sin registrar':empty?'AGOTADO · 0 unidades':low?'⚠ STOCK BAJO · '+qty+' unidades':'✓ '+qty+' unidades';
