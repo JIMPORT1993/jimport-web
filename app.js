@@ -70,17 +70,23 @@
     status.textContent=q?`Resultados de búsqueda: ${list.length} producto(s) encontrado(s)`:`Mostrando ${list.length} de ${products.length} productos disponibles`;
     renderHero();
   }
+  let teaserTimer=null, teaserPosition=0;
   function renderCatalogTeasers(){
     const el=document.getElementById("catalogTeasers"); if(!el)return;
-    // Mostrar únicamente fotografías auténticas ya registradas en Supabase.
-    const withImages=products.filter(p=>p.image_url && /^https?:\/\//i.test(p.image_url));
-    const selected=[];
-    for(const brand of knownBrands){const p=withImages.find(p=>p.brand?.toLowerCase()===brand.toLowerCase()&&!selected.includes(p));if(p)selected.push(p);if(selected.length===3)break;}
-    for(const p of withImages){if(selected.length===3)break;if(!selected.includes(p))selected.push(p);}
+    const withImages=products.filter(p=>p.active!==false && p.image_url && /^https?:\/\//i.test(p.image_url));
     el.hidden=Boolean(brandFilter.value || categoryFilter?.value || search.value.trim());
-    if(!selected.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
-    el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="catalog-teaser-row">'+selected.map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('')+'</div>';
-    el.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));
+    if(teaserTimer){clearInterval(teaserTimer);teaserTimer=null;}
+    if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
+    const ordered=[...withImages].sort((a,b)=>knownBrands.indexOf(a.brand)-knownBrands.indexOf(b.brand));
+    teaserPosition=teaserPosition%ordered.length;
+    el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>';
+    const row=el.querySelector('.catalog-teaser-row');
+    function paint(){const count=Math.min(3,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
+    function step(dir){teaserPosition=(teaserPosition+dir+ordered.length)%ordered.length;paint();}
+    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>3&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},3500);}
+    el.querySelectorAll('[data-teaser-dir]').forEach(b=>b.addEventListener('click',()=>{step(Number(b.dataset.teaserDir));autoplay();}));
+    el.addEventListener('mouseenter',()=>{if(teaserTimer)clearInterval(teaserTimer);},{once:true});
+    paint();autoplay();
   }
   function renderHero(){
     const featured=products.filter(p=>p.active!==false);
