@@ -48,13 +48,32 @@
     el.querySelectorAll('.edit').forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));
     el.querySelectorAll('.delete').forEach(b=>b.onclick=()=>remove(b.dataset.id));
   }
+  $('setAllMinimumOne').addEventListener('click',async()=>{
+    if(!authorized||!client)return;
+    if(!confirm('¿Establecer el stock mínimo de alerta en 1 para TODOS los productos? No se modificarán las cantidades disponibles.'))return;
+    const button=$('setAllMinimumOne');button.disabled=true;
+    try{
+      const ids=rows.map(p=>p.id);
+      let updated=0;
+      for(let i=0;i<ids.length;i+=100){
+        const chunk=ids.slice(i,i+100);
+        const existing=chunk.filter(id=>privateInventory[id]);
+        const missing=chunk.filter(id=>!privateInventory[id]);
+        if(existing.length){const {error}=await client.from('jimport_inventory_private').update({min_quantity:1}).in('product_id',existing);if(error)throw error;updated+=existing.length;}
+        if(missing.length){const {error}=await client.from('jimport_inventory_private').upsert(missing.map(id=>({product_id:id,quantity:0,min_quantity:1,landed_cost:0})),{onConflict:'product_id'});if(error)throw error;updated+=missing.length;}
+      }
+      await loadPrivate();note('Stock mínimo de alerta establecido en 1 para '+updated+' productos. Las cantidades existentes no cambiaron.');
+    }catch(err){note('No se pudo completar la actualización: '+err.message+'; revisa los permisos de inventario.');await loadPrivate();}
+    finally{button.disabled=false;}
+  });
   $('filterLowStock').addEventListener('click',()=>{onlyLowStock=!onlyLowStock;$('filterLowStock').textContent=onlyLowStock?'Mostrar todos los productos':'🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed',String(onlyLowStock));draw();});
-  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??3;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
     e.preventDefault();
     if(!client){note("Supabase no está configurado. Revisa config.js.");return;}
     const id=$("productId").value;
-    const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),old_price:$("pOldPrice").value?Number($("pOldPrice").value):null,stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:true};
+    const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:true};
+    if(!id)item.old_price=null;
     const save=payload=>id?client.from("products").update(payload).eq("id",id):client.from("products").insert(payload).select("id").single();
     try {
       let result=await save(item);
