@@ -86,20 +86,9 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
   height:auto;
   object-fit:contain;
   filter:drop-shadow(0 0 12px rgba(72,184,255,.45)) drop-shadow(0 0 34px rgba(52,113,255,.26));
-  animation:jimportLogoFloat 5s ease-in-out infinite, jimportLogoGlow 3.8s ease-in-out infinite alternate;
+  animation:none;
 }
-.hero-logo-ring{
-  position:absolute;
-  z-index:1;
-  width:min(410px,66vw);
-  aspect-ratio:1;
-  border:1px solid rgba(93,193,255,.25);
-  border-radius:50%;
-  box-shadow:0 0 38px rgba(36,147,255,.12),inset 0 0 35px rgba(45,125,255,.08);
-  pointer-events:none;
-}
-.hero-logo-ring-one{animation:jimportRing 18s linear infinite}
-.hero-logo-ring-two{width:min(490px,76vw);border-style:dashed;border-color:rgba(142,109,255,.2);animation:jimportRing 28s linear infinite reverse}
+
 .hero-centered .eyebrow{margin:0 0 12px;color:#71d4ff}
 .hero-centered h1{font:800 clamp(32px,5vw,54px)/1.1 Manrope,sans-serif;letter-spacing:-1.8px;color:#f5f8ff;margin:0 0 14px}
 .hero-centered h1 span{color:#62c9ff;text-shadow:0 0 22px rgba(52,169,255,.25)}
@@ -115,15 +104,11 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 #productos .product-info h3{color:#f5f8ff}
 #productos .product-model,#productos .product-description{color:#aab8ca}
 #productos .price-line strong{color:#fff}
-@keyframes jimportLogoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@keyframes jimportLogoGlow{from{filter:drop-shadow(0 0 9px rgba(72,184,255,.35)) drop-shadow(0 0 22px rgba(52,113,255,.18))}to{filter:drop-shadow(0 0 17px rgba(72,184,255,.7)) drop-shadow(0 0 42px rgba(52,113,255,.35))}}
-@keyframes jimportRing{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @media(max-width:600px){
   .hero-centered{min-height:0;padding:38px 18px 42px}
   .hero-logo-wrap{min-height:175px;width:94vw;margin-bottom:16px}
   .hero-main-logo{width:90vw;max-height:210px}
-  .hero-logo-ring{width:54vw}
-  .hero-logo-ring-two{width:70vw}
+  
   .hero-intro{font-size:14px}
   #productos.section{padding:36px 18px 48px}
 }
@@ -286,37 +271,12 @@ body{background:#080d16}
 @media(max-width:650px){.review-name-grid{grid-template-columns:1fr}.premium-benefits{justify-content:flex-start;gap:12px;padding:16px 20px}.premium-benefits span{width:100%}.hero{padding-top:50px;padding-bottom:56px}.hero-actions{flex-direction:column;gap:10px}.topbar{padding-top:12px;padding-bottom:12px}.rating-picker button{min-width:40px}}
 @media(prefers-reduced-motion:reduce){.product-card,.review-form,.review-card,.promo-carousel{transition:none}}
 
-/* JIMPORT: remolino que se repite exactamente cada 10 segundos */
-.hero-logo-wrap{position:relative;isolation:isolate;overflow:visible}
-.hero-logo-wrap::before,.hero-logo-wrap::after{content:"";position:absolute;left:50%;top:50%;width:75%;height:95%;border-radius:50%;pointer-events:none;z-index:1;border:4px solid transparent;transform-origin:center center}
-.hero-logo-wrap::before{border-top-color:#0b8ce9;border-right-color:#06ba81;filter:drop-shadow(0 0 12px #09a8bd);animation:jimport-vortex-ring 10s linear infinite}
-.hero-logo-wrap::after{border-bottom-color:#08b68c;border-left-color:#3ba4fa;filter:drop-shadow(0 0 10px #3ba4fa);animation:jimport-vortex-ring-reverse 10s linear infinite}
-.hero-centered .hero-main-logo{position:relative;z-index:2;animation:jimport-vortex-logo 10s ease-in-out infinite!important;transform-origin:center center}
-@keyframes jimport-vortex-logo{
-0%{opacity:0;transform:rotate(-540deg) scale(.08);filter:blur(12px)}
-9%{opacity:1;transform:rotate(-110deg) scale(.75);filter:blur(3px)}
-17%{opacity:1;transform:rotate(15deg) scale(1.12);filter:blur(0)}
-22%{transform:rotate(-5deg) scale(.98)}
-26%,91%{opacity:1;transform:rotate(0deg) scale(1);filter:blur(0)}
-96%{opacity:.6;transform:rotate(150deg) scale(.7);filter:blur(2px)}
-100%{opacity:0;transform:rotate(360deg) scale(.08);filter:blur(12px)}
-}
-@keyframes jimport-vortex-ring{0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.2)}5%{opacity:1}22%{opacity:.8;transform:translate(-50%,-50%) rotate(960deg) scale(1.25)}28%,100%{opacity:0;transform:translate(-50%,-50%) rotate(1100deg) scale(1.45)}}
-@keyframes jimport-vortex-ring-reverse{0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.2)}5%{opacity:1}22%{opacity:.8;transform:translate(-50%,-50%) rotate(-900deg) scale(1.25)}28%,100%{opacity:0;transform:translate(-50%,-50%) rotate(-1050deg) scale(1.45)}}
 .catalog-welcome{grid-column:1/-1;padding:55px 25px!important;text-align:center;background:linear-gradient(110deg,#eaf5ff,#e8f9f0)!important;color:#173a58!important;border:1px solid #c4e6e7!important;border-radius:22px}
 .catalog-welcome strong{display:block;font-size:24px;margin-bottom:10px}.catalog-welcome p{font-size:16px;color:#4d6b80}
 @media(prefers-reduced-motion:reduce){.hero-centered .hero-main-logo,.hero-logo-wrap::before,.hero-logo-wrap::after{animation:none!important}.hero-centered .hero-main-logo{opacity:1!important;transform:none!important}}
 
 /* JIMPORT: invitación visual de tres productos reales, sin desplegar catálogo completo */
 .catalog-teasers{margin:18px auto 20px;max-width:800px;text-align:center}.catalog-teasers[hidden]{display:none!important}.catalog-teaser-title{color:#35536d;font-size:15px;margin:0 0 13px}.catalog-teaser-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.catalog-teaser{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;border:1px solid #d6e7ee;background:#fff;border-radius:16px;padding:11px;min-width:0;box-shadow:0 6px 22px #0d5d8e12;transition:transform .2s,box-shadow .2s}.catalog-teaser:hover{transform:translateY(-4px);box-shadow:0 12px 26px #0d5d8e23}.catalog-teaser img{width:100%;height:115px;object-fit:contain}.catalog-teaser span{color:#1d405b;font-weight:700;font-size:12px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.catalog-teaser small{color:#00976b;font-weight:750}.catalog-teaser-empty{background:linear-gradient(100deg,#edf7ff,#ebfaf3);padding:18px;border-radius:14px;color:#35536d}.brand-logos{flex-wrap:wrap}.brand-logos a{min-width:145px}.header-brand-track{width:max-content}@media(max-width:600px){.catalog-teaser-row{gap:7px}.catalog-teaser{padding:7px}.catalog-teaser img{height:75px}.catalog-teaser span{font-size:11px}}
-
-/* Logo siempre visible; remolino luminoso continuo alrededor del logo. */
-.hero-centered .hero-main-logo{animation:none!important;opacity:1!important;transform:none!important;filter:drop-shadow(0 12px 22px #184a8120)!important}
-.hero-logo-wrap::before{animation:jimport-vortex-permanent 7s linear infinite!important;opacity:1!important}
-.hero-logo-wrap::after{animation:jimport-vortex-permanent-reverse 9s linear infinite!important;opacity:1!important}
-@keyframes jimport-vortex-permanent{0%{opacity:.85;transform:translate(-50%,-50%) rotate(0deg) scale(1.06)}50%{opacity:1;transform:translate(-50%,-50%) rotate(180deg) scale(1.2)}100%{opacity:.85;transform:translate(-50%,-50%) rotate(360deg) scale(1.06)}}
-@keyframes jimport-vortex-permanent-reverse{0%{opacity:.9;transform:translate(-50%,-50%) rotate(360deg) scale(1.2)}50%{opacity:1;transform:translate(-50%,-50%) rotate(180deg) scale(1.05)}100%{opacity:.9;transform:translate(-50%,-50%) rotate(0deg) scale(1.2)}}
-@media(prefers-reduced-motion:reduce){.hero-logo-wrap::before,.hero-logo-wrap::after{animation:none!important;opacity:1!important;transform:translate(-50%,-50%) scale(1.1)!important}}
 
 /* Promociones: movimiento continuo, elegante y accesible */
 .promotions-section{position:relative;isolation:isolate}
@@ -347,16 +307,14 @@ body{background:#080d16}
 /* Opiniones verificadas */
 .verified-badge{display:inline-block;margin:4px 8px;padding:4px 9px;border-radius:999px;background:#e5f7ed;color:#17683e;font-size:.75rem;font-weight:700}.google-reviews-card{border:1px solid #d9e5ed;border-radius:16px;padding:20px;margin-bottom:20px;background:linear-gradient(135deg,#f7fbff,#eefbf9)}.google-reviews-card h4{margin:0 0 8px}.google-reviews-card small{display:block;margin-top:10px;opacity:.75}
 
-/* JIMPORT · remolino neón inspirado en referencia proporcionada */
-.hero-logo-wrap{isolation:isolate!important}
-.hero-logo-wrap .neon-vortex{position:absolute;left:50%;top:50%;width:min(540px,86vw);height:clamp(155px,27vw,260px);border-radius:50%;pointer-events:none;z-index:3;box-sizing:border-box;transform-style:preserve-3d;filter:drop-shadow(0 0 9px #26d7ff) drop-shadow(0 0 12px #ef43e7);border:5px solid transparent;border-top-color:#3bdfff;border-right-color:#ef4ce6;border-bottom-color:#45a7ff;border-left-color:#f779ff;animation:neonOrbitA 10s linear infinite}
-.hero-logo-wrap .neon-vortex-a{box-shadow:inset 0 0 14px #42cfff90,0 0 18px #f24cdb99}
-.hero-logo-wrap .neon-vortex-b{width:min(510px,81vw);height:clamp(145px,25vw,245px);border-width:3px;border-top-color:#fa65e7;border-right-color:#62d8ff;border-bottom-color:#b9ffff;border-left-color:#678aff;animation:neonOrbitB 8s linear infinite reverse;opacity:.9}
-.hero-logo-wrap .neon-vortex-c{width:min(460px,76vw);height:clamp(135px,23vw,225px);border-width:2px;border-color:#fff9 transparent #72e6ff transparent;animation:neonOrbitC 6s linear infinite;filter:drop-shadow(0 0 10px #fff)}
-@keyframes neonOrbitA{from{transform:translate(-50%,-50%) rotate(-18deg) rotateY(35deg) rotate(0)}to{transform:translate(-50%,-50%) rotate(-18deg) rotateY(35deg) rotate(360deg)}}
-@keyframes neonOrbitB{from{transform:translate(-50%,-50%) rotate(24deg) rotateX(50deg) rotate(0)}to{transform:translate(-50%,-50%) rotate(24deg) rotateX(50deg) rotate(360deg)}}
-@keyframes neonOrbitC{from{transform:translate(-50%,-50%) rotate(-30deg) rotateY(55deg) rotate(0)}to{transform:translate(-50%,-50%) rotate(-30deg) rotateY(55deg) rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.hero-logo-wrap .neon-vortex{animation:none!important}}
 .inventory-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin:14px 0 20px}.inventory-stat{padding:16px;border:1px solid #dbe8f6;border-radius:15px;background:#f6faff}.inventory-stat b{font-size:26px;display:block;color:#174d91}.inventory-stat small{color:#596c80}.inventory-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.inventory-controls input{width:100px;padding:9px;border:1px solid #ccd8e5;border-radius:9px}.inventory-controls button{padding:9px 12px}.inventory-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px;border-bottom:1px solid #e7edf5;flex-wrap:wrap}.inventory-row small{display:block;color:#697a90}.inventory-warning{color:#b45d06;font-weight:700}.inventory-section{margin:25px 0}.inventory-hint{color:#596b82}
 
 .movement-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:18px 0}.movement-form label{display:flex;flex-direction:column;gap:7px;font-weight:600}.movement-form input,.movement-form select{width:100%;padding:11px;border:1px solid #bac9d5;border-radius:9px;background:white;color:#172b42}.movement-form button{align-self:end}.movement-history{max-height:480px;overflow:auto}
+
+/* ÚNICO efecto de portada: un remolino de luz alrededor del logo. */
+.hero-logo-wrap::before,.hero-logo-wrap::after{content:none!important;display:none!important}
+.hero-logo-wrap .hero-main-logo{position:relative;z-index:2;animation:none!important;transform:none!important;opacity:1!important;filter:drop-shadow(0 9px 20px rgba(35,88,155,.16))!important}
+.jimport-single-vortex{position:absolute;inset:50% auto auto 50%;width:min(640px,98vw);height:auto;overflow:visible;z-index:3;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 0 7px #23b9ff) drop-shadow(0 0 14px #d745ed);animation:jimportSingleSwirl 7s linear infinite;will-change:transform}
+@keyframes jimportSingleSwirl{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@media(max-width:600px){.jimport-single-vortex{width:98vw}}
+@media(prefers-reduced-motion:reduce){.jimport-single-vortex{animation:none!important}}
