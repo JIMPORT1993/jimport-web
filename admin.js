@@ -1,19 +1,19 @@
 (() => {
   const cfg=window.JIMPORT_CONFIG||{};
   const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.startsWith("PEGA_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
-  const client=configured?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
+  const client=configured && window.supabase?.createClient ? window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
   const $=id=>document.getElementById(id), loginPanel=$("loginPanel"), dashboard=$("dashboard"), form=$("productForm"), message=$("adminMessage");
   let rows=[]; let privateInventory={}; let authorized=false;
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
   function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
-  if(!client){note("No se pudo iniciar Supabase. Comprueba config.js y que la biblioteca de Supabase cargue correctamente.");}
+  if(!client){note("No se pudo iniciar Supabase. Verifica config.js y la conexión a Internet; el formulario permanece disponible.");}
   async function checkAdmin(){const {data,error}=await client.rpc('jimport_is_admin');if(error){note('No se pudo comprobar el administrador: '+error.message+'. Ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql.');return false;}if(!data){note('Este usuario no está autorizado. Añade su UUID a public.jimport_admins desde SQL Editor.');return false;}return true;}
   async function loadPrivate(){const {data,error}=await client.from('jimport_inventory_private').select('product_id,quantity,min_quantity,landed_cost');if(error){note('Inventario privado: '+error.message);return;}privateInventory=Object.fromEntries((data||[]).map(x=>[x.product_id,x]));draw();}
   function showInventory(){const arr=rows.map(p=>({...p,...(privateInventory[p.id]||{})}));const low=arr.filter(p=>Number(p.quantity||0)<=Number(p.min_quantity??3));const sum=arr.reduce((a,p)=>a+Number(p.quantity||0)*Number(p.landed_cost||0),0);const el=$('inventorySummary');el.hidden=false;el.innerHTML='<span>Productos: '+arr.length+'</span><span>Capital en inventario: '+money(sum)+'</span><span>Alertas: '+low.length+'</span>';const alert=$('inventoryAlerts');alert.hidden=!low.length;alert.textContent=low.length?'Stock bajo o agotado: '+low.map(p=>p.name+' ('+(p.quantity||0)+')').join(' · '):'';}
-  async function initSession(){if(!client)return;const {data}=await client.auth.getSession();if(data?.session){authorized=await checkAdmin();if(authorized)setLoggedIn(true);}}
+  async function initSession(){if(!client){setLoggedIn(false);return;}try{const {data,error}=await client.auth.getSession();if(error)note("Error de sesión: "+error.message);if(data?.session){authorized=await checkAdmin();if(authorized){setLoggedIn(true);return;}}setLoggedIn(false);}catch(err){setLoggedIn(false);note("No se pudo verificar la sesión: "+err.message);}}
   initSession();
-  $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client)return;const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}authorized=await checkAdmin();if(!authorized){await client.auth.signOut();return;}note("Sesión iniciada.");setLoggedIn(true);});
+  $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client){note("No se cargó Supabase. Revisa config.js y tu conexión a Internet.");return;}const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}authorized=await checkAdmin();if(!authorized){await client.auth.signOut();return;}note("Sesión iniciada.");setLoggedIn(true);});
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
@@ -244,5 +244,5 @@
     if(error){reviewStatus.textContent='No se pudo eliminar la opinión. Revisa los permisos de Supabase.';button.disabled=false;return;}
     await refreshReviews();
   }
-  if(client)client.auth.getSession().then(({data})=>setLoggedIn(!!data.session));
+  // No mostrar el panel hasta que checkAdmin confirme la autorización.
 })();
