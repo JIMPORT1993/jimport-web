@@ -1,0 +1,14 @@
+JIMPORT — GUÍA DE ACTUALIZACIÓN
+
+1. Haz copia de seguridad de tu proyecto GitHub y base de datos Supabase.
+2. En Supabase > Authentication > Users comprueba que existe tu usuario y copia su UUID (no su contraseña).
+3. En Supabase > SQL Editor ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql.
+4. Ejecuta esta consulta sustituyendo el UUID por el tuyo:
+   insert into public.jimport_admins(user_id) values ('TU_UUID_REAL') on conflict do nothing;
+5. Comprueba que config.js tiene la URL y clave PUBLICABLE del proyecto correcto. Nunca coloques service_role ni contraseñas en config.js.
+6. Sube todos los archivos del ZIP a la raíz del repositorio GitHub (conservando assets/), y publica.
+7. Abre admin.html, inicia sesión con el usuario de Supabase, crea o edita productos y registra cantidad, mínimo y costo de llegada.
+8. Comprueba alertas y utilidades brutas. El inventario es privado y los costos no se publican en la tienda.
+9. Los registros de ventas de WhatsApp no descuentan existencias automáticamente; actualiza la cantidad desde el panel.
+
+NOTA: El mensaje anterior de configuración era texto fijo en HTML. Ahora el acceso verifica el usuario administrador en Supabase. No se ha probado contra tu proyecto Supabase real.

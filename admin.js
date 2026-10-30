@@ -3,24 +3,29 @@
   const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.startsWith("PEGA_")&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.startsWith("PEGA_");
   const client=configured?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
   const $=id=>document.getElementById(id), loginPanel=$("loginPanel"), dashboard=$("dashboard"), form=$("productForm"), message=$("adminMessage");
-  let rows=[];
+  let rows=[]; let privateInventory={}; let authorized=false;
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
   function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
-  if(!client){note("Falta configurar Supabase. Abre config.js y pega la URL y la clave pública del proyecto.");}
-  $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client)return;const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}note("Sesión iniciada.");setLoggedIn(true);});
-  $("logout").addEventListener("click",async()=>{await client.auth.signOut();setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
+  if(!client){note("No se pudo iniciar Supabase. Comprueba config.js y que la biblioteca de Supabase cargue correctamente.");}
+  async function checkAdmin(){const {data,error}=await client.rpc('jimport_is_admin');if(error){note('No se pudo comprobar el administrador: '+error.message+'. Ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql.');return false;}if(!data){note('Este usuario no está autorizado. Añade su UUID a public.jimport_admins desde SQL Editor.');return false;}return true;}
+  async function loadPrivate(){const {data,error}=await client.from('jimport_inventory_private').select('product_id,quantity,min_quantity,landed_cost');if(error){note('Inventario privado: '+error.message);return;}privateInventory=Object.fromEntries((data||[]).map(x=>[x.product_id,x]));draw();}
+  function showInventory(){const arr=rows.map(p=>({...p,...(privateInventory[p.id]||{})}));const low=arr.filter(p=>Number(p.quantity||0)<=Number(p.min_quantity??3));const sum=arr.reduce((a,p)=>a+Number(p.quantity||0)*Number(p.landed_cost||0),0);const el=$('inventorySummary');el.hidden=false;el.innerHTML='<span>Productos: '+arr.length+'</span><span>Capital en inventario: '+money(sum)+'</span><span>Alertas: '+low.length+'</span>';const alert=$('inventoryAlerts');alert.hidden=!low.length;alert.textContent=low.length?'Stock bajo o agotado: '+low.map(p=>p.name+' ('+(p.quantity||0)+')').join(' · '):'';}
+  async function initSession(){if(!client)return;const {data}=await client.auth.getSession();if(data?.session){authorized=await checkAdmin();if(authorized)setLoggedIn(true);}}
+  initSession();
+  $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client)return;const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}authorized=await checkAdmin();if(!authorized){await client.auth.signOut();return;}note("Sesión iniciada.");setLoggedIn(true);});
+  $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();populatePromoProducts();populateSaleProducts();}
-  function draw(){const el=$("adminProducts");if(!rows.length){el.innerHTML='<div class="empty">Aún no hay productos. Pulsa “Añadir producto”.</div>';return;}el.innerHTML=rows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✳"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||"Sin modelo")} · Categoría: ${safe(p.category||"VARIOS")}</span><strong>${money(p.price)} ${p.active?"":"· Oculto"}</strong></div><span class="admin-stock">${safe(p.stock||"")}</span><button class="button button-outline edit" data-id="${p.id}">Editar</button><button class="button button-danger delete" data-id="${p.id}">Eliminar</button></article>`).join("");el.querySelectorAll(".edit").forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));el.querySelectorAll(".delete").forEach(b=>b.onclick=()=>remove(b.dataset.id));}
-  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();draw();populatePromoProducts();populateSaleProducts();}
+  function draw(){const el=$("adminProducts");if(!rows.length){el.innerHTML='<div class="empty">Aún no hay productos. Pulsa “Añadir producto”.</div>';return;}el.innerHTML=rows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✳"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||"Sin modelo")} · Categoría: ${safe(p.category||"VARIOS")}</span><strong>${money(p.price)} · Costo: ${money(privateInventory[p.id]?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(privateInventory[p.id]?.landed_cost||0))} · Cantidad: ${privateInventory[p.id]?.quantity??0} · Mínimo: ${privateInventory[p.id]?.min_quantity??3} ${p.active?"":"· Oculto"}</strong></div><span class="admin-stock">${safe(p.stock||"")}</span><button class="button button-outline edit" data-id="${p.id}">Editar</button><button class="button button-danger delete" data-id="${p.id}">Eliminar</button></article>`).join("");showInventory();el.querySelectorAll(".edit").forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));el.querySelectorAll(".delete").forEach(b=>b.onclick=()=>remove(b.dataset.id));}
+  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??3;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
     e.preventDefault();
     if(!client){note("Supabase no está configurado. Revisa config.js.");return;}
     const id=$("productId").value;
     const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),old_price:$("pOldPrice").value?Number($("pOldPrice").value):null,stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:true};
-    const save=payload=>id?client.from("products").update(payload).eq("id",id):client.from("products").insert(payload);
+    const save=payload=>id?client.from("products").update(payload).eq("id",id):client.from("products").insert(payload).select("id").single();
     try {
       let result=await save(item);
       // Compatibility with an older database that has not yet received the category migration.
@@ -35,7 +40,8 @@
         note("No se pudo guardar el producto: "+(detail||result.error.code||"error desconocido")+". Revisa el mensaje para identificar qué corregir.");
         return;
       }
-      form.hidden=true;note("Producto guardado correctamente.");await refresh();
+      {const inventory={product_id:id||result.data?.id,quantity:Number($('pQuantity').value),min_quantity:Number($('pMinimum').value),landed_cost:Number($('pCost').value)};const {error:invError}=await client.from('jimport_inventory_private').upsert(inventory,{onConflict:'product_id'});if(invError){note('Producto guardado, pero inventario no actualizado: '+invError.message);await refresh();return;}}
+      form.hidden=true;note("Producto e inventario guardados correctamente.");await refresh();
     } catch(err) { console.error(err); note("Error inesperado al guardar: "+(err?.message||String(err))); }
   });
 
