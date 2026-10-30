@@ -6,13 +6,13 @@
   let rows=[];
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
-  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
+  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();refreshInventory();refreshFinance();}}
   if(!client){note("Falta configurar Supabase. Abre config.js y pega la URL y la clave pública del proyecto.");}
   $("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!client)return;const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){note("No se pudo iniciar sesión: revisa correo y contraseña.");return;}note("Sesión iniciada.");setLoggedIn(true);});
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();populatePromoProducts();populateSaleProducts();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];draw();populatePromoProducts();populateSaleProducts();movementProducts();refreshInventory();refreshMovements();refreshFinance();}
   function draw(){const el=$("adminProducts");if(!rows.length){el.innerHTML='<div class="empty">Aún no hay productos. Pulsa “Añadir producto”.</div>';return;}el.innerHTML=rows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✳"}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||"Sin modelo")} · Categoría: ${safe(p.category||"VARIOS")}</span><strong>${money(p.price)} ${p.active?"":"· Oculto"}</strong></div><span class="admin-stock">${safe(p.stock||"")}</span><button class="button button-outline edit" data-id="${p.id}">Editar</button><button class="button button-danger delete" data-id="${p.id}">Eliminar</button></article>`).join("");el.querySelectorAll(".edit").forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));el.querySelectorAll(".delete").forEach(b=>b.onclick=()=>remove(b.dataset.id));}
   function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pOldPrice").value=p?.old_price??"";$("pStock").value=p?.stock||"En stock";$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
@@ -71,6 +71,7 @@
     const stockRaw=String(getVal(r,["Disponibilidad","Estado de stock","stock"])||"").trim().toLowerCase();
     let stock="En stock";
     if(["agotado","sin stock","out of stock"].includes(stockRaw) || qty===0) stock="Agotado";
+    else if(["producto llegando","llegando","proximamente","próximamente"].includes(stockRaw)) stock="Producto llegando";
     else if(["bajo pedido","por pedido","on order"].includes(stockRaw)) stock="Bajo pedido";
     else if(["en stock","disponible","in stock"].includes(stockRaw)) stock="En stock";
     const active=asBool(getVal(r,["Estado (activo/inactivo)","Estado","active"]),true);
@@ -239,4 +240,45 @@
     await refreshReviews();
   }
   if(client)client.auth.getSession().then(({data})=>setLoggedIn(!!data.session));
+
+  // Historial de movimientos: la función SQL realiza el cambio de forma atómica.
+  function movementProducts(){const sel=$("movementProduct");if(!sel)return;const old=sel.value;sel.innerHTML='<option value="">Selecciona un producto</option>'+rows.map(p=>`<option value="${safe(p.id)}">${safe(p.brand)} · ${safe(p.name)} · ${safe(p.model||"")}</option>`).join("");sel.value=old;}
+  async function refreshMovements(){if(!client)return;const box=$("movementHistory"),msg=$("movementMessage");const {data,error}=await client.from("inventory_movements").select("id,product_id,movement_type,quantity,reference,notes,created_at").order("created_at",{ascending:false}).limit(100);if(error){msg.textContent="No se pudo leer el historial. Ejecuta MOVIMIENTOS_INVENTARIO_SUPABASE.sql. "+error.message;return;}box.innerHTML=(data||[]).map(m=>{const product=rows.find(p=>p.id===m.product_id);return `<div class="inventory-row"><div><b>${safe(product?.name||"Producto eliminado")}</b><small>${safe(m.movement_type)} · ${m.quantity} unidad(es) · ${safe(m.reference||"Sin referencia")}</small><small>${safe(m.notes||"")}</small></div><small>${new Date(m.created_at).toLocaleString("es-EC")}</small></div>`}).join("")||'<p>No hay movimientos registrados todavía.</p>';}
+  $("reloadMovements").addEventListener("click",refreshMovements);
+  $("movementForm").addEventListener("submit",async e=>{e.preventDefault();const msg=$("movementMessage"),btn=$("movementSave"),qty=Number($("movementQty").value);if(!$("movementProduct").value||!Number.isSafeInteger(qty)||qty<1){msg.textContent="Selecciona un producto y una cantidad entera mayor que cero.";return;}btn.disabled=true;const {error}=await client.rpc("record_inventory_movement",{p_product_id:$("movementProduct").value,p_movement_type:$("movementType").value,p_quantity:qty,p_reference:$("movementRef").value.trim()||null,p_notes:$("movementNotes").value.trim()||null});btn.disabled=false;if(error){msg.textContent="No se pudo registrar el movimiento: "+error.message;return;}msg.textContent="Movimiento registrado y existencias actualizadas.";$("movementQty").value="";$("movementRef").value="";$("movementNotes").value="";await refreshInventory();await refreshMovements();await refreshFinance();});
+  // Finanzas: costos almacenados en tabla privada con RLS; no se publican en la tienda.
+  let financeCosts=[];
+  const finMoney=n=>new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD'}).format(n);
+  async function refreshFinance(){
+    if(!client||!$("financeProducts")||dashboard.hidden)return;
+    const msg=$("financeMessage"),box=$("financeProducts");
+    const {data,error}=await client.from('private_product_costs').select('product_id,unit_cost');
+    if(error){msg.textContent='No se pudieron cargar los costos privados. Ejecuta FINANZAS_PRIVADAS_SUPABASE.sql y autoriza al administrador. '+error.message;box.innerHTML='';return;}
+    financeCosts=data||[];const costs=new Map(financeCosts.map(c=>[c.product_id,Number(c.unit_cost)]));
+    const quantities=new Map(inventoryEntries.map(i=>[i.product_id,Number(i.quantity)]));
+    let invested=0,retail=0,expected=0;
+    for(const p of rows){const qty=quantities.get(p.id)||0,cost=costs.get(p.id)||0,price=Number(p.price)||0;invested+=qty*cost;retail+=qty*price;expected+=qty*(price-cost);}
+    $("financeSummary").innerHTML=`<div class="inventory-stat"><b>${finMoney(invested)}</b><small>Capital en inventario (costo)</small></div><div class="inventory-stat"><b>${finMoney(retail)}</b><small>Valor de venta potencial</small></div><div class="inventory-stat"><b>${finMoney(expected)}</b><small>Margen bruto potencial (antes de gastos)</small></div>`;
+    box.innerHTML=rows.map(p=>{const qty=quantities.get(p.id)||0,cost=costs.get(p.id),price=Number(p.price)||0,margin=cost===undefined?'—':finMoney(price-cost),pct=cost===undefined||price<=0?'—':((price-cost)/price*100).toFixed(1)+'%';return `<div class="inventory-row"><div><b>${safe(p.name)}</b><small>${safe(p.brand)} · ${safe(p.model||'Sin SKU')} · ${qty} unidades</small><small>Precio venta: ${finMoney(price)} · Ganancia bruta/unidad: ${margin} · Margen: ${pct}</small><small>Capital: ${finMoney(qty*(cost||0))}</small></div><div class="inventory-controls"><label>Costo unitario USD <input class="fin-cost" type="number" min="0" step="0.01" value="${cost??''}" placeholder="0.00"></label><button type="button" class="button button-outline fin-save" data-id="${safe(p.id)}">Guardar costo</button></div></div>`}).join('')||'<p>No hay productos.</p>';
+    box.querySelectorAll('.fin-save').forEach(btn=>btn.addEventListener('click',async()=>{const raw=btn.closest('.inventory-row').querySelector('.fin-cost').value.trim();const cost=Number(raw);if(raw===''||!Number.isFinite(cost)||cost<0){msg.textContent='Introduce un costo válido mayor o igual a cero.';return;}btn.disabled=true;const {error}=await client.from('private_product_costs').upsert({product_id:btn.dataset.id,unit_cost:Math.round(cost*100)/100,updated_at:new Date().toISOString()},{onConflict:'product_id'});btn.disabled=false;if(error){msg.textContent='Error al guardar: '+error.message;return;}await refreshFinance();msg.textContent='Costo guardado correctamente.';}));
+    msg.textContent='Datos financieros visibles únicamente para administradores autorizados. Las utilidades son estimadas, no ganancias netas realizadas.';
+  }
+  $("reloadFinance").addEventListener('click',refreshFinance);
+  // Inventario: tabla separada y protegida por políticas RLS de Supabase.
+  let inventoryEntries=[];
+  $("reloadInventory").addEventListener("click",refreshInventory);
+  async function refreshInventory(){
+    const box=$("inventoryProducts"),msg=$("inventoryMessage");
+    if(!client)return;
+    const {data,error}=await client.from("private_inventory").select("product_id,quantity,min_quantity,updated_at");
+    if(error){msg.textContent="Inventario privado no disponible: ejecuta INVENTARIO_PRIVADO_SUPABASE.sql y autoriza tu usuario. Detalle: "+error.message;box.innerHTML="";return;}
+    inventoryEntries=data||[];msg.textContent="Inventario protegido: las unidades son privadas y solo se editan aquí.";
+    const inv=new Map(inventoryEntries.map(x=>[x.product_id,x]));
+    const total=rows.reduce((a,p)=>a+Number(inv.get(p.id)?.quantity||0),0);
+    const low=rows.filter(p=>inv.has(p.id)&&Number(inv.get(p.id).quantity)<=Number(inv.get(p.id).min_quantity)).length;
+    $("inventorySummary").innerHTML=`<div class="inventory-stat"><b>${rows.length}</b><small>Productos registrados</small></div><div class="inventory-stat"><b>${total}</b><small>Unidades contabilizadas</small></div><div class="inventory-stat"><b>${low}</b><small>Productos con stock bajo</small></div>`;
+    box.innerHTML=rows.map(p=>{const i=inv.get(p.id);const qty=i?.quantity??0;const min=i?.min_quantity??2;return `<div class="inventory-row"><div><b>${safe(p.name)}</b><small>${safe(p.brand)} · ${safe(p.model||"Sin SKU")} · ${safe(p.stock||"Sin estado")}</small>${i&&qty<=min?'<small class="inventory-warning">⚠ Existencias bajas</small>':''}</div><div class="inventory-controls"><label>Unidades <input type="number" min="0" step="1" class="inv-qty" value="${qty}" aria-label="Unidades de ${safe(p.name)}"></label><label>Mínimo <input type="number" min="0" step="1" class="inv-min" value="${min}" aria-label="Mínimo de ${safe(p.name)}"></label><button type="button" class="button button-outline inv-save" data-id="${safe(p.id)}">Guardar</button></div></div>`}).join("");
+    refreshFinance();
+    box.querySelectorAll(".inv-save").forEach(btn=>btn.addEventListener("click",async()=>{const parent=btn.closest(".inventory-row");const quantity=Number(parent.querySelector(".inv-qty").value);const min_quantity=Number(parent.querySelector(".inv-min").value);if(!Number.isSafeInteger(quantity)||quantity<0||!Number.isSafeInteger(min_quantity)||min_quantity<0){msg.textContent="Introduce cantidades enteras no negativas.";return;}btn.disabled=true;const {error}=await client.from("private_inventory").upsert({product_id:btn.dataset.id,quantity,min_quantity,updated_at:new Date().toISOString()},{onConflict:"product_id"});btn.disabled=false;if(error){msg.textContent="No se pudo guardar: "+error.message;return;}msg.textContent="Cantidad guardada correctamente.";await refreshInventory();}));
+  }
 })();

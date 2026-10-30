@@ -1,0 +1,96 @@
+JIMPORT — GUÍA ÚNICA PARA ACTUALIZAR TU PÁGINA WEB
+===================================================
+
+ESTE ES EL ÚNICO ARCHIVO DE INSTRUCCIONES. NO BORRES LOS ARCHIVOS .SQL:
+son scripts necesarios para configurar las funciones en Supabase.
+
+CAMBIOS INCLUIDOS
+- Logo de portada con efecto de remolino luminoso azul/fucsia.
+- Estados: En stock, Bajo pedido, No disponible (internamente Agotado) y Producto llegando.
+- Inventario privado: unidades, mínimo, avisos de existencias bajas.
+- Movimientos: entradas, ventas, devoluciones y ajustes con historial.
+- Finanzas privadas: costo unitario, margen bruto estimado y valoración de existencias.
+- Ventas por WhatsApp: registro MANUAL; no existe descuento automático desde WhatsApp.
+
+ANTES DE EMPEZAR — PROTEGE TU INFORMACIÓN
+1. Haz copia de seguridad del repositorio actual de GitHub y de tus datos en Supabase.
+2. No elimines las tablas existentes ni ejecutes scripts destructivos sin revisarlos.
+3. Si ya usas Supabase, conserva el MISMO proyecto, usuario y configuración de config.js.
+4. No compartas contraseñas ni claves service_role. La clave publishable del navegador es pública.
+
+PASO 1 — PREPARAR SUPABASE (https://supabase.com)
+1. Abre tu proyecto actual de JIMPORT > Authentication > Users.
+2. Verifica que existe el usuario con el que entras a admin.html y conoce su correo exacto.
+3. Abre SQL Editor > New query.
+4. Abre INVENTARIO_PRIVADO_SUPABASE.sql en un editor de texto.
+5. Busca el bloque comentado que empieza por '-- insert into public.jimport_admins'.
+   Sustituye TU_CORREO_ADMIN@EJEMPLO.COM por tu correo real y elimina los prefijos '--'
+   de las tres líneas insert/select/on conflict. Ejecuta el script completo con Run.
+6. Abre MOVIMIENTOS_INVENTARIO_SUPABASE.sql, pega todo en otra consulta y pulsa Run.
+7. Abre FINANZAS_PRIVADAS_SUPABASE.sql, pega todo en otra consulta y pulsa Run.
+8. En SQL Editor ejecuta también estas instrucciones si el estado nuevo no se guarda:
+   ALTER TABLE public.products DROP CONSTRAINT IF EXISTS products_stock_check;
+   ALTER TABLE public.products ADD CONSTRAINT products_stock_check
+   CHECK (stock IN ('En stock','Bajo pedido','Agotado','Producto llegando'));
+   ATENCIÓN: antes de añadir la restricción, verifica que tus estados existentes
+   sean compatibles; de lo contrario el comando fallará.
+9. Si nunca configuraste promociones u opiniones, revisa por separado los scripts
+   promociones_supabase.sql, OPINIONES_VERIFICADAS_SUPABASE.sql y
+   REPARAR_PROMOCIONES_Y_OPINIONES.sql. NO los ejecutes indiscriminadamente:
+   pueden corresponder a funciones ya instaladas. schema.sql es para la instalación
+   base, no para reinstalar sobre una base en producción sin revisión.
+
+PASO 2 — SUBIR LOS ARCHIVOS A GITHUB
+1. Entra a https://github.com y abre el repositorio que publica tu JIMPORT.
+2. Entra en la rama que usa tu hosting (habitualmente main).
+3. Usa Add file > Upload files, o actualiza los archivos con Git.
+4. Abre la carpeta jimport-web-main DE ESTE ZIP y sube SU CONTENIDO, no la carpeta
+   contenedora: index.html, admin.html, app.js, admin.js, CSS, config.js, assets/, etc.
+5. Mantén la estructura: index.html debe quedar en la raíz del sitio y los logos
+   dentro de assets/. Si GitHub no permite subir carpetas arrastrando, usa Git o
+   sube los archivos respetando sus rutas.
+6. Confirma el commit. Si utilizas Vercel conectado al repositorio, espera el deploy.
+   Si usas otro hosting, publica esos mismos archivos conforme a tu proveedor.
+7. Verifica que config.js mantiene la URL y la clave pública de TU Supabase, además
+   del número de WhatsApp correcto. No cambies la configuración por la de otro sitio.
+
+PASO 3 — COMPROBAR LA PÁGINA
+1. Abre la portada y recarga forzadamente (Ctrl+F5) para evitar CSS/JS en caché.
+2. Confirma que el logo presenta el remolino y que los productos/categorías cargan.
+3. Abre https://TU-DOMINIO/admin.html e inicia sesión con el usuario autorizado.
+4. Edita un producto y prueba En stock, Agotado/No disponible y Producto llegando.
+5. En Inventario privado, registra una cantidad y un mínimo de existencias.
+6. Registra una entrada, una venta de prueba y una devolución; comprueba el saldo
+   y el historial. Nunca registres ventas superiores a la cantidad disponible.
+7. En Costos, márgenes y valoración introduce el costo unitario de prueba.
+8. Comprueba que el público NO puede ver unidades, costos ni datos financieros.
+9. Si algo falla, revisa errores del navegador (F12 > Console) y de Supabase.
+
+USO DIARIO
+- Entrada: al recibir mercadería, registra las unidades que llegaron.
+- Venta: registra manualmente las unidades vendidas, incluso si fue por WhatsApp.
+- Devolución: registra las unidades que regresan al inventario.
+- Ajuste: úsalo para corregir diferencias y deja una referencia clara.
+- El botón Guardar de cantidades puede ajustar el saldo SIN dejar movimiento:
+  para trazabilidad usa preferentemente el registro de movimientos.
+- Cambia manualmente el estado público del producto cuando corresponda;
+  el estado no se sincroniza automáticamente con la cantidad.
+- El costo unitario es una referencia única por producto, no un promedio por lotes.
+- Las ganancias y márgenes son BRUTOS ESTIMADOS, no utilidad neta ni contabilidad.
+
+SEGURIDAD Y LIMITACIONES
+- Los scripts protegen inventario y costos mediante RLS y la tabla de administradores.
+- Revisa también las políticas antiguas de public.products: si permiten a cualquier
+  usuario autenticado editar, deben restringirse antes de producción.
+- No se ha verificado aquí la conexión con tu proyecto Supabase en producción.
+- No borres los archivos SQL aunque haya un único archivo de instrucciones.
+- Si tu repositorio tiene cambios posteriores, compáralos antes de reemplazar archivos.
+
+ARCHIVOS CLAVE
+index.html, admin.html: tienda y panel.
+app.js, admin.js, styles.css, premium-light.css: funciones y presentación.
+config.js: configuración de Supabase y WhatsApp.
+assets/: imágenes y logotipos.
+INVENTARIO_PRIVADO_SUPABASE.sql: acceso privado e inventario.
+MOVIMIENTOS_INVENTARIO_SUPABASE.sql: entradas, ventas, devoluciones y ajustes.
+FINANZAS_PRIVADAS_SUPABASE.sql: costos y valoraciones privadas.

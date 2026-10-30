@@ -346,3 +346,17 @@ body{background:#080d16}
 
 /* Opiniones verificadas */
 .verified-badge{display:inline-block;margin:4px 8px;padding:4px 9px;border-radius:999px;background:#e5f7ed;color:#17683e;font-size:.75rem;font-weight:700}.google-reviews-card{border:1px solid #d9e5ed;border-radius:16px;padding:20px;margin-bottom:20px;background:linear-gradient(135deg,#f7fbff,#eefbf9)}.google-reviews-card h4{margin:0 0 8px}.google-reviews-card small{display:block;margin-top:10px;opacity:.75}
+
+/* JIMPORT · remolino neón inspirado en referencia proporcionada */
+.hero-logo-wrap{isolation:isolate!important}
+.hero-logo-wrap .neon-vortex{position:absolute;left:50%;top:50%;width:min(540px,86vw);height:clamp(155px,27vw,260px);border-radius:50%;pointer-events:none;z-index:3;box-sizing:border-box;transform-style:preserve-3d;filter:drop-shadow(0 0 9px #26d7ff) drop-shadow(0 0 12px #ef43e7);border:5px solid transparent;border-top-color:#3bdfff;border-right-color:#ef4ce6;border-bottom-color:#45a7ff;border-left-color:#f779ff;animation:neonOrbitA 10s linear infinite}
+.hero-logo-wrap .neon-vortex-a{box-shadow:inset 0 0 14px #42cfff90,0 0 18px #f24cdb99}
+.hero-logo-wrap .neon-vortex-b{width:min(510px,81vw);height:clamp(145px,25vw,245px);border-width:3px;border-top-color:#fa65e7;border-right-color:#62d8ff;border-bottom-color:#b9ffff;border-left-color:#678aff;animation:neonOrbitB 8s linear infinite reverse;opacity:.9}
+.hero-logo-wrap .neon-vortex-c{width:min(460px,76vw);height:clamp(135px,23vw,225px);border-width:2px;border-color:#fff9 transparent #72e6ff transparent;animation:neonOrbitC 6s linear infinite;filter:drop-shadow(0 0 10px #fff)}
+@keyframes neonOrbitA{from{transform:translate(-50%,-50%) rotate(-18deg) rotateY(35deg) rotate(0)}to{transform:translate(-50%,-50%) rotate(-18deg) rotateY(35deg) rotate(360deg)}}
+@keyframes neonOrbitB{from{transform:translate(-50%,-50%) rotate(24deg) rotateX(50deg) rotate(0)}to{transform:translate(-50%,-50%) rotate(24deg) rotateX(50deg) rotate(360deg)}}
+@keyframes neonOrbitC{from{transform:translate(-50%,-50%) rotate(-30deg) rotateY(55deg) rotate(0)}to{transform:translate(-50%,-50%) rotate(-30deg) rotateY(55deg) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.hero-logo-wrap .neon-vortex{animation:none!important}}
+.inventory-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin:14px 0 20px}.inventory-stat{padding:16px;border:1px solid #dbe8f6;border-radius:15px;background:#f6faff}.inventory-stat b{font-size:26px;display:block;color:#174d91}.inventory-stat small{color:#596c80}.inventory-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.inventory-controls input{width:100px;padding:9px;border:1px solid #ccd8e5;border-radius:9px}.inventory-controls button{padding:9px 12px}.inventory-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px;border-bottom:1px solid #e7edf5;flex-wrap:wrap}.inventory-row small{display:block;color:#697a90}.inventory-warning{color:#b45d06;font-weight:700}.inventory-section{margin:25px 0}.inventory-hint{color:#596b82}
+
+.movement-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:18px 0}.movement-form label{display:flex;flex-direction:column;gap:7px;font-weight:600}.movement-form input,.movement-form select{width:100%;padding:11px;border:1px solid #bac9d5;border-radius:9px;background:white;color:#172b42}.movement-form button{align-self:end}.movement-history{max-height:480px;overflow:auto}
