@@ -311,3 +311,27 @@ body{background:#080d16}
 .catalog-teasers{max-width:930px}.teaser-carousel{display:flex;align-items:center;gap:12px}.teaser-carousel .catalog-teaser-row{flex:1;min-width:0}.teaser-arrow{flex:0 0 38px;height:44px;border:1px solid #b9d7eb;background:linear-gradient(145deg,#fff,#eaf6ff);border-radius:13px;color:#18547e;font-size:22px;cursor:pointer;box-shadow:0 5px 16px #1b62921a}.teaser-arrow:hover{background:#d9efff}.teaser-progress{height:3px;background:#dbeaf3;border-radius:10px;overflow:hidden;margin:14px 50px 0}.teaser-progress span{display:block;height:100%;background:linear-gradient(90deg,#1f9ddc,#53dfd5);transition:width .35s ease}.catalog-teaser-row .catalog-teaser{animation:teaserEnter .45s ease both}@keyframes teaserEnter{from{opacity:.3;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 /* Tormenta eléctrica premium: brillo energético, destellos y rayos escalonados */
 .hero-centered .hero-main-logo{animation:premiumLogoFloat 6s ease-in-out infinite!important;filter:drop-shadow(0 0 15px #51a9ff90) drop-shadow(0 0 38px #3a8cff44)!important}.hero-logo-wrap{isolation:isolate}.hero-logo-wrap::before{content:"";display:block!important;position:absolute;inset:9% 15%;border-radius:50%;background:radial-gradient(ellipse,#63caff44 0%,#2278ef24 35%,transparent 70%);filter:blur(22px);animation:stormAura 4s ease-in-out infinite;pointer-events:none}.electric-bolt{animation-duration:2.8s;stroke-width:9}.bolt-b{animation-delay:-.35s}.bolt-c{animation-delay:-.85s}.bolt-d{animation-delay:-1.3s}.bolt-e{animation-delay:-1.8s}.bolt-f{animation-delay:-2.35s}@keyframes premiumLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.025)}}@keyframes stormAura{0%,100%{opacity:.45;transform:scale(.92)}50%{opacity:1;transform:scale(1.12)}}@media(max-width:600px){.teaser-carousel{gap:5px}.teaser-arrow{flex-basis:27px;width:27px;height:38px;font-size:17px}.teaser-progress{margin-inline:32px}}@media(prefers-reduced-motion:reduce){.hero-centered .hero-main-logo,.hero-logo-wrap::before,.catalog-teaser-row .catalog-teaser{animation:none!important}}
+
+
+/* JIMPORT · Presentación 3D de producto y accesos directos a WhatsApp */
+.product-card{perspective:1100px;transform-style:preserve-3d;}
+.product-image{perspective:900px;transform-style:preserve-3d;isolation:isolate;}
+.product-image img{transform:translateZ(0) scale(.96);transform-origin:center;transition:transform .55s cubic-bezier(.2,.75,.25,1),filter .55s ease;filter:drop-shadow(0 12px 12px #07182a22);will-change:transform;}
+.product-card:hover .product-image img,.product-card:focus-within .product-image img{transform:perspective(900px) rotateX(4deg) rotateY(-6deg) translateZ(24px) scale(1.055);filter:drop-shadow(0 22px 16px #07182a35);}
+.catalog-teaser img,.hero-product-visual img{filter:drop-shadow(0 12px 12px #07182a2b);transition:transform .5s ease,filter .5s ease;}
+.catalog-teaser:hover img,.hero-product-visual:hover img{transform:perspective(800px) rotateY(-8deg) rotateX(4deg) translateZ(16px) scale(1.06);filter:drop-shadow(0 20px 14px #07182a38);}
+.promo-art{perspective:900px;transform-style:preserve-3d;}
+.promo-art img{transform:translateZ(12px);filter:drop-shadow(0 18px 15px #102b4a30);transition:transform .6s cubic-bezier(.2,.75,.25,1),filter .6s ease;}
+.promo-carousel:hover .promo-art img{transform:perspective(900px) rotateY(-8deg) rotateX(4deg) translateZ(35px) scale(1.06);filter:drop-shadow(0 26px 20px #102b4a40);}
+.promo-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.promo-whatsapp{background:#18a957!important;box-shadow:0 8px 20px #18a95725!important;}
+.promo-whatsapp:hover{background:#128b46!important;}
+@media(hover:none){.product-image img{transform:translateZ(10px) scale(1.025);filter:drop-shadow(0 15px 12px #07182a30)}.promo-art img{transform:translateZ(18px) scale(1.025)}}
+@media(max-width:520px){.promo-actions{display:grid;grid-template-columns:1fr}.promo-actions .button{width:100%;font-size:12px;padding:12px 10px}.promo-art img{max-width:88%;max-height:190px}}
+@media(prefers-reduced-motion:reduce){.product-image img,.catalog-teaser img,.hero-product-visual img,.promo-art img{transition:none!important;transform:none!important}}
+
+/* Etiqueta visible únicamente para productos marcados como Producto llegando */
+.product-image{position:relative}
+.coming-soon-badge{position:absolute;top:14px;left:12px;z-index:5;padding:9px 13px;border-radius:999px;background:linear-gradient(115deg,#f59e0b,#f97316);color:#fff;font-size:12px;font-weight:900;letter-spacing:.065em;box-shadow:0 7px 20px rgba(194,65,12,.28);animation:comingGlow 2.8s ease-in-out infinite;pointer-events:none}
+@keyframes comingGlow{0%,100%{box-shadow:0 7px 20px rgba(194,65,12,.24);transform:scale(1)}50%{box-shadow:0 8px 26px rgba(249,115,22,.48);transform:scale(1.035)}}
+@media(prefers-reduced-motion:reduce){.coming-soon-badge{animation:none}}

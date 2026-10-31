@@ -1,0 +1,23 @@
+ACTUALIZACION JIMPORT - 30 OCTUBRE 2026
+
+CAMBIOS REALIZADOS
+1. Efecto visual 3D para las imágenes de productos del catálogo: perspectiva, profundidad, sombras y movimiento suave al interactuar.
+2. Efecto de profundidad también para las imágenes del carrusel de productos destacados, las tarjetas de vista previa y las imágenes de promociones.
+3. En cada promoción activa se muestra un botón adicional verde "Consultar por WhatsApp". El mensaje identifica el título de la promoción y solicita información y disponibilidad.
+4. En móviles se aplica un efecto de profundidad permanente y los botones de promoción se apilan para facilitar el toque.
+5. Se respeta la preferencia del dispositivo por reducir animaciones.
+6. Se conserva el enlace original "Ver oferta" y se mantienen destinos externos HTTPS y enlaces internos admitidos.
+
+ARCHIVOS MODIFICADOS
+- app.js
+- styles.css
+
+PRUEBAS
+- node --check app.js: correcto.
+- node --check admin.js: correcto.
+- index.html y admin.html procesados correctamente por el analizador HTML.
+
+NOTAS
+- No se modificaron productos, precios, imágenes almacenadas, categorías, marcas ni registros de Supabase.
+- El número de WhatsApp sigue tomando el valor de config.js (WHATSAPP_NUMBER).
+- El efecto 3D es una presentación visual CSS; no convierte los archivos de imagen en modelos 3D reales.

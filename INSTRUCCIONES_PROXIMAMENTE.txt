@@ -1,0 +1,1 @@
+Para mostrar PRÓXIMAMENTE: entra al administrador, edita el producto y selecciona Disponibilidad > Producto llegando. Guarda. En el catálogo aparecerá la etiqueta y el botón Avisarme cuando llegue, que abre WhatsApp con el nombre del producto. Cuando llegue, cambia la disponibilidad a En stock. No se necesita modificar Supabase.
