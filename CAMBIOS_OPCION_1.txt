@@ -1,0 +1,1 @@
+JIMPORT OPCIÓN 1: Se conserva el sitio, catálogo, administración y lógica existente. En la portada se muestra el logo original con aro neón azul y la imagen PNG UGREEN facilitada por el usuario. Se eliminó la carga automática de cuatro imágenes de producto en la portada. El catálogo continúa conectado como antes. No se alteraron precios ni inventario.

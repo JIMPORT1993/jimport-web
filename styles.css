@@ -468,3 +468,18 @@ body{background:#f7f7f9}
 .sale-ticker{background:linear-gradient(90deg,#5407a3,#b800d6,#0358cf)!important}
 @media(max-width:760px){.sale-blue-art.new-showcase{min-height:360px;padding:25px 0 30px}.showcase-brand{height:95px}.showcase-product img{height:105px}.showcase-product span{font-size:9px}.showcase-stage{bottom:20px;height:52px}.new-header-logo{width:130px;height:45px}}
 @media(prefers-reduced-motion:reduce){.neon-orbit{animation:none}}
+
+
+/* OPCIÓN 1: neón azul, logotipo original y PNG suministrado por JIMPORT */
+.sale-hero{background:radial-gradient(ellipse at 78% 44%,#064b9c 0%,#06235c 35%,transparent 65%),linear-gradient(120deg,#030d28,#041943 60%,#06112f)!important;min-height:590px}
+.sale-hero h1 em{background:linear-gradient(110deg,#ffe92b,#ffb900)!important;color:#06132e!important;box-shadow:0 0 25px #ffd4007a,0 6px 0 #ae7b00!important}
+.sale-blue-art.new-showcase{min-height:490px;overflow:hidden;padding:24px 12px 44px}
+.neon-orbit{width:92%;height:79%;left:4%;top:1%;border-color:#00cfff;box-shadow:0 0 16px #00d9ff,0 0 40px #006aff,inset 0 0 30px #0348e9}
+.showcase-brand{width:min(92%,490px);height:145px;object-fit:contain;z-index:4;position:relative;filter:drop-shadow(0 0 12px #ff38e5)}
+.showcase-feature-product{position:relative;z-index:3;width:100%;max-width:670px;display:flex;align-items:flex-end;justify-content:center;margin:0 auto -4px;min-height:205px}
+.showcase-feature-product img{width:100%;height:auto;max-height:300px;object-fit:contain;filter:drop-shadow(0 18px 22px #0009);animation:jimportProductFloat 5s ease-in-out infinite}
+.showcase-stage{z-index:1!important;bottom:45px!important}
+.showcase-brands{z-index:5!important;position:relative!important;margin-top:10px!important}
+@keyframes jimportProductFloat{50%{transform:translateY(-7px)}}
+@media(max-width:760px){.sale-blue-art.new-showcase{min-height:330px;padding:16px 4px 30px}.showcase-brand{height:100px}.showcase-feature-product{min-height:145px}.showcase-feature-product img{max-height:230px}.neon-orbit{height:75%}}
+@media(prefers-reduced-motion:reduce){.showcase-feature-product img{animation:none}}
