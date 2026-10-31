@@ -1,0 +1,1 @@
+JIMPORT: ofertas especiales muestran título y botón Ver descripción y características; se conserva precio, imagen, navegación y botones de consulta. Se refina el diseño de tarjetas, fondos, navegación, enfoque accesible y móvil. No se modificaron archivos de Supabase ni panel administrador.

@@ -341,3 +341,31 @@ body{background:#080d16}
 @media(max-width:800px){.topbar{position:relative;z-index:50;gap:10px}.mobile-menu-toggle{display:inline-flex;align-items:center;gap:8px;border:1px solid #b8d9ed;background:linear-gradient(135deg,#ffffff,#eaf6ff);color:#154768;border-radius:14px;padding:11px 15px;font-weight:800;box-shadow:0 6px 18px #153e5c20;cursor:pointer}.topbar #mainNav{display:none;position:absolute;top:100%;left:12px;right:12px;width:auto;order:unset;z-index:70;padding:12px;background:#fff;border:1px solid #d5e7f1;border-radius:20px;box-shadow:0 22px 45px #08283b40;flex-direction:column;gap:3px}.topbar #mainNav.mobile-open{display:flex}.topbar #mainNav a{display:block;color:#193c54;font-weight:750;padding:13px 16px;border-radius:12px}.topbar #mainNav a:hover,.topbar #mainNav a:focus-visible{background:#eaf7ff;color:#006baf}.topbar>.button{margin-left:auto}.catalog-teaser-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:600px){.catalog-teaser-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.catalog-teaser img{height:95px}.catalog-teaser{min-height:154px}.catalog-teaser span{font-size:11px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.product-image{height:160px!important}.product-info{padding:12px}.product-info h3{font-size:13px;min-height:2.8em}.product-info .price-line strong{font-size:18px}.product-cta{font-size:10px;padding:10px 6px}.topbar>.button{display:none}.header-brand-carousel{max-width:100%}.mobile-menu-toggle{margin-left:auto}.teaser-carousel{align-items:center}}
 @media(max-width:370px){.product-grid{grid-template-columns:1fr}.product-image{height:220px!important}}
+
+/* JIMPORT premium refinement — catálogo y promociones */
+:root{scroll-behavior:smooth;accent-color:#067ac0}
+body{background:linear-gradient(180deg,#f4faff 0%,#fff 24%,#f5faff 62%,#fff 100%)}
+.section,.promotions-section,.brand-showcase,.reviews-section,.faq-section,.location-section{scroll-margin-top:95px}
+.section-heading h2,.promo-heading h2,.faq-section h2{letter-spacing:-.035em;text-wrap:balance}
+.topbar{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 6px 30px #153c5812}
+.button{transition:transform .24s ease,box-shadow .24s ease,background .24s ease}
+.button:hover{transform:translateY(-2px);box-shadow:0 12px 26px #0479bb25}
+.product-card,.catalog-teaser,.brand-logos a,.faq-grid details{transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.product-card:hover,.catalog-teaser:hover,.brand-logos a:hover{transform:translateY(-5px);box-shadow:0 20px 42px #0b52751d;border-color:#9bd4ef}
+.product-info .product-model{display:none}
+.product-info h3{line-height:1.4;min-height:2.8em}
+.product-details summary,.promo-details summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none}
+.product-details summary::-webkit-details-marker,.promo-details summary::-webkit-details-marker{display:none}
+.promo-details{margin:14px 0 18px;max-width:520px;border:1px solid #cce6f3;border-radius:14px;background:#ffffffb8;color:#234b65;overflow:hidden}
+.promo-details summary{padding:13px 16px;color:#086aa5;font-size:14px;font-weight:800;transition:background .2s ease}
+.promo-details summary:hover{background:#e9f7ff}
+.promo-details summary span{font-size:23px;line-height:1;font-weight:400;transition:transform .2s}
+.promo-details[open] summary span{transform:rotate(45deg)}
+.promo-details p{padding:0 16px 15px!important;margin:0!important;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.promo-copy h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.2;min-height:2.4em;text-wrap:balance}
+.promo-carousel{border:1px solid #cde5f3;box-shadow:0 25px 60px #0b46621b}
+.promo-art{background:radial-gradient(circle at 50% 45%,#fff 0%,#e6f7ff 52%,#d6edfc 100%)}
+.premium-benefits{box-shadow:0 12px 30px #0c6eaa12}
+:focus-visible{outline:3px solid #0a96e0;outline-offset:3px}
+@media(max-width:600px){.promo-copy h3{min-height:0}.promo-details{margin:12px 0}.promo-details summary{padding:12px;font-size:13px}.product-card:hover,.catalog-teaser:hover{transform:none}.section-heading h2,.promo-heading h2{text-wrap:pretty}}
+@media(prefers-reduced-motion:reduce){html,:root{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
