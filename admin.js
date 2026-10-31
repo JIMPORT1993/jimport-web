@@ -6,7 +6,7 @@
   let rows=[]; let privateInventory={}; let authorized=false; let onlyLowStock=false; let adminPage=1;
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
-  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();}}
+  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();window.dispatchEvent(new Event("jimport-admin-ready"));}}
   if(!client){note("No se pudo iniciar Supabase. Verifica config.js y la conexión a Internet; el formulario permanece disponible.");}
   async function checkAdmin(){const {data,error}=await client.rpc('jimport_is_admin');if(error){note('No se pudo comprobar el administrador: '+error.message+'. Ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql.');return false;}if(!data){note('Este usuario no está autorizado. Añade su UUID a public.jimport_admins desde SQL Editor.');return false;}return true;}
   async function loadPrivate(){const {data,error}=await client.from('jimport_inventory_private').select('product_id,quantity,min_quantity,landed_cost');if(error){note('Inventario privado: '+error.message);return;}privateInventory=Object.fromEntries((data||[]).map(x=>[x.product_id,x]));draw();}
