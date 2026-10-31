@@ -392,3 +392,20 @@ body{background:linear-gradient(180deg,#f4faff 0%,#fff 24%,#f5faff 62%,#fff 100%
 .teaser-stock--unknown{background:#e8eef5;color:#344054;}
 .promo-details[open]{max-height:none;}
 .promo-details p{white-space:pre-line;overflow-wrap:anywhere;}
+
+/* Corrección de contraste: texto de características legible dentro de ofertas especiales. */
+.promo-slide .promo-copy .promo-details{background:#f5faff!important;border:1px solid #a9cce6!important;color:#18344e!important;box-shadow:0 6px 20px rgba(7,55,95,.10)}
+.promo-slide .promo-copy .promo-details summary{color:#07669c!important}
+.promo-slide .promo-copy .promo-details p,
+.promo-slide .promo-copy .promo-details[open] p{color:#18344e!important;opacity:1!important;-webkit-text-fill-color:#18344e!important;font-size:clamp(14px,1.25vw,16px)!important;line-height:1.75!important;white-space:pre-line}
+.promo-slide .promo-copy .promo-details[open] summary{border-bottom:1px solid #d7e7f3;margin-bottom:12px}
+
+/* JIMPORT: etiquetas de disponibilidad premium para destacados */
+.catalog-teaser .teaser-stock{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:34px;max-width:calc(100% - 14px);margin:10px auto 5px;padding:7px 14px;border:1px solid var(--status-border,#cbd5e1);border-radius:12px;background:linear-gradient(145deg,var(--status-light,#f8fafc),var(--status-soft,#e2e8f0));color:var(--status-ink,#334155);box-shadow:0 3px 10px rgba(15,23,42,.07),inset 0 1px 0 rgba(255,255,255,.9);font-family:inherit;font-size:12px;font-weight:800;letter-spacing:.045em;line-height:1.2;font-style:normal;text-transform:uppercase;white-space:normal;text-align:center;transition:transform .2s ease,box-shadow .2s ease}
+.catalog-teaser:hover .teaser-stock{transform:translateY(-2px);box-shadow:0 6px 15px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.9)}
+.teaser-stock .teaser-stock-dot{display:block;flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:var(--status-dot,#64748b);box-shadow:0 0 0 3px var(--status-ring,rgba(100,116,139,.14))}
+.teaser-stock--available{--status-light:#f1fdf5;--status-soft:#dcfce7;--status-border:#a7e8be;--status-ink:#12643c;--status-dot:#17b26a;--status-ring:rgba(23,178,106,.15)}
+.teaser-stock--out{--status-light:#fff6f5;--status-soft:#ffe4e3;--status-border:#f8b8b6;--status-ink:#a52c35;--status-dot:#e5484d;--status-ring:rgba(229,72,77,.15)}
+.teaser-stock--coming{--status-light:#fffaf0;--status-soft:#ffefca;--status-border:#f5d58e;--status-ink:#93580e;--status-dot:#e7a125;--status-ring:rgba(231,161,37,.18)}
+.teaser-stock--unknown{--status-light:#f8fafc;--status-soft:#e8eef5;--status-border:#cbd5e1;--status-ink:#475569;--status-dot:#64748b;--status-ring:rgba(100,116,139,.15)}
+@media(max-width:600px){.catalog-teaser .teaser-stock{font-size:10px;min-height:30px;padding:6px 9px;gap:6px;border-radius:10px}.teaser-stock .teaser-stock-dot{flex-basis:7px;width:7px;height:7px}}
