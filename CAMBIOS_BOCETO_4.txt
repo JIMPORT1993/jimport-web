@@ -1,0 +1,6 @@
+JIMPORT — Boceto 4 (cian tecnológico)
+Se agregó option4-cyan.css como capa de estilo de la portada.
+Se conservan los archivos originales de catálogo, administrador, Supabase e inventario.
+Imagen de producto: assets/ugreen-portada-original.png.
+Logo: assets/logo-jimport.png.
+Para revertir el cambio, eliminar la referencia a option4-cyan.css y la clase option4-hero del index.html.
