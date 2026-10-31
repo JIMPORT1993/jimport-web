@@ -113,7 +113,7 @@
         setTimeout(()=>{row.classList.remove('wave-in');turning=false;},760);
       },760);
     }
-    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>12)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},4000);}
+    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>12)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},8000);}
     el.querySelectorAll('[data-teaser-dir]').forEach(b=>b.addEventListener('click',()=>{step(Number(b.dataset.teaserDir));autoplay();}));
     el.addEventListener('mouseenter',()=>{if(teaserTimer)clearInterval(teaserTimer);});
     el.addEventListener('mouseleave',()=>autoplay());
