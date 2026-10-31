@@ -83,19 +83,24 @@
     const row=el.querySelector('.catalog-teaser-row');
     function paint(){const count=Math.min(12,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
     let turning=false;
+    const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
     function step(dir){
       if(turning)return;
       turning=true;
-      row.classList.remove('page-turn-in','page-turn-out');
-      row.style.setProperty('--turn-direction',dir>0?'1':'-1');
-      row.classList.add('page-turn-out');
+      if(reduceMotion.matches){
+        teaserPosition=(teaserPosition+dir*12+ordered.length*12)%ordered.length;
+        paint();turning=false;return;
+      }
+      row.classList.remove('wave-out','wave-in');
+      row.style.setProperty('--wave-direction',dir>0?'1':'-1');
+      row.classList.add('wave-out');
       setTimeout(()=>{
         teaserPosition=(teaserPosition+dir*12+ordered.length*12)%ordered.length;
-        paint();row.classList.remove('page-turn-out');row.classList.add('page-turn-in');
-        setTimeout(()=>{row.classList.remove('page-turn-in');turning=false;},440);
-      },300);
+        paint();row.classList.remove('wave-out');row.classList.add('wave-in');
+        setTimeout(()=>{row.classList.remove('wave-in');turning=false;},760);
+      },760);
     }
-    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>12&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},3500);}
+    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>12)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},4000);}
     el.querySelectorAll('[data-teaser-dir]').forEach(b=>b.addEventListener('click',()=>{step(Number(b.dataset.teaserDir));autoplay();}));
     el.addEventListener('mouseenter',()=>{if(teaserTimer)clearInterval(teaserTimer);});
     el.addEventListener('mouseleave',()=>autoplay());
