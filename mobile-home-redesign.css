@@ -1,0 +1,35 @@
+
+/* JIMPORT — Portada móvil rediseñada según boceto aprobado.
+   No afecta escritorio ni lógica de catálogo/administración. */
+.mobile-showcase-badge{display:none}
+@media(max-width:800px){
+ .topbar{min-height:54px!important;height:54px!important;padding:5px 14px!important;background:#030d2a!important;border-bottom:1px solid #06d9ff!important}
+ .topbar .brand-wordmark{display:flex!important;align-items:center!important;flex:1!important;text-decoration:none!important}
+ .topbar .brand-wordmark .new-header-logo{display:none!important}
+ .topbar .brand-wordmark:before{content:"JIMPORT";color:#eafaff;font-size:16px;font-weight:900;letter-spacing:.15em;text-shadow:0 0 8px #03bfff}
+ .topbar .mobile-menu-toggle{font-size:13px!important;padding:8px 14px!important}
+ .sale-hero{display:flex!important;flex-direction:column!important;gap:0!important;padding:5px 10px 10px!important;min-height:0!important}
+ .sale-hero-content{display:contents!important}
+ .sale-hero-content>.sale-pill,.sale-hero-content>.sale-overline,.sale-hero-content>h1,.sale-hero-content>.sale-description,.sale-hero-content>.sale-assurance{display:none!important}
+ .sale-blue-art.new-showcase{order:1!important;position:relative!important;width:100%!important;max-width:430px!important;height:clamp(320px,93vw,420px)!important;min-height:0!important;margin:0 auto!important;padding:0!important;overflow:visible!important;isolation:isolate!important;transform:none!important}
+ .sale-blue-art.new-showcase .showcase-brand{display:block!important;position:absolute!important;z-index:6!important;top:5%!important;left:8%!important;width:84%!important;height:29%!important;margin:0!important;object-fit:contain!important;filter:drop-shadow(0 0 5px #ffb5ff) drop-shadow(0 0 15px #ff00e6)!important}
+ .sale-blue-art.new-showcase .mobile-showcase-badge{display:block!important;position:absolute!important;z-index:9!important;top:34%!important;left:12%!important;width:76%!important;padding:8px 4px!important;text-align:center!important;white-space:nowrap!important;font-size:clamp(11px,3vw,15px)!important;font-weight:850!important;letter-spacing:.025em!important;color:white!important;border:2px solid #00eaff!important;border-radius:30px!important;background:#04153de8!important;box-shadow:0 0 11px #00eaff,0 0 19px #006bff!important}
+ .sale-blue-art.new-showcase .neon-orbit{position:absolute!important;z-index:0!important;top:2%!important;left:4%!important;width:92%!important;height:85%!important;border-width:4px!important;transform:rotate(-6deg)!important;box-shadow:0 0 8px #eaffff,0 0 21px #00eaff,0 0 31px #007aff!important}
+ .sale-blue-art.new-showcase .showcase-feature-product{position:absolute!important;z-index:7!important;top:42%!important;left:0!important;width:100%!important;height:43%!important;margin:0!important;display:flex!important;align-items:flex-end!important}
+ .sale-blue-art.new-showcase .showcase-feature-product img{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important;object-position:center bottom!important}
+ .sale-blue-art.new-showcase .showcase-stage{position:absolute!important;z-index:3!important;bottom:12%!important;left:2%!important;width:96%!important;height:16%!important;border-width:3px!important;box-shadow:0 0 13px #00eaff,0 0 24px #007aff!important}
+ .sale-blue-art.new-showcase .showcase-brands{position:absolute!important;z-index:10!important;bottom:2%!important;left:0!important;right:0!important;gap:6px!important}
+ .sale-blue-art.new-showcase .showcase-brands span{padding:6px 10px!important;font-size:clamp(9px,2.7vw,12px)!important}
+ .sale-hero-actions{order:2!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;max-width:430px!important;margin:0 auto!important}
+ .sale-hero-actions a{min-height:44px!important;width:100%!important;min-width:0!important;padding:10px 4px!important;font-size:clamp(11px,3vw,14px)!important;white-space:nowrap!important;text-align:center!important}
+ .hero-trust-strip{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;margin:0 10px 8px!important;padding:9px!important;gap:6px!important}
+ .hero-trust-strip span{font-size:11px!important}
+ .hero-trust-strip span:nth-child(n+5){display:none!important}
+ .hero-trust-strip span:last-child{grid-column:auto!important}
+ .whatsapp-float{width:49px!important;height:49px!important;right:12px!important;bottom:18px!important}
+}
+@media(max-width:360px){
+ .sale-blue-art.new-showcase{height:320px!important}
+ .sale-hero-actions{grid-template-columns:1fr 1fr!important}
+ .sale-hero-actions a{font-size:10px!important}
+}
