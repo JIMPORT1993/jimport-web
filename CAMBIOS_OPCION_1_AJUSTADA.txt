@@ -1,0 +1,1 @@
+Portada ajustada para acercarse al boceto opción 1: aro azul y magenta más brillante, logo original con resplandor, producto PNG UGREEN sobre plataforma tridimensional y botones de marca de color. Se conservaron los archivos de catálogo, administrador, inventario y conexiones sin modificarlos. Revisar en Vercel tras desplegar y recargar sin caché.
