@@ -1,0 +1,1 @@
+Nuevo diseño azul eléctrico y amarillo para la portada JIMPORT. Conserva el catálogo, promociones, administrador y scripts existentes. Imagen optimizada en assets/hero-azul-productos.webp. No se alteraron precios ni base de datos.
