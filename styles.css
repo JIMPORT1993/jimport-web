@@ -382,3 +382,13 @@ body{background:linear-gradient(180deg,#f4faff 0%,#fff 24%,#f5faff 62%,#fff 100%
 .catalog-teasers{max-width:1200px}
 .catalog-teaser-row{grid-template-columns:repeat(4,minmax(0,1fr));align-content:start}
 @media(max-width:600px){.catalog-teaser-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Estados visibles en los doce productos destacados */
+.catalog-teaser{position:relative;}
+.teaser-stock{display:inline-flex;align-items:center;justify-content:center;align-self:center;margin:5px auto 2px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;font-style:normal;letter-spacing:.02em;white-space:nowrap;background:#e8eef5;color:#344054;}
+.teaser-stock--available{background:#dcfce7;color:#166534;}
+.teaser-stock--out{background:#fee2e2;color:#991b1b;}
+.teaser-stock--coming{background:#fef3c7;color:#92400e;}
+.teaser-stock--unknown{background:#e8eef5;color:#344054;}
+.promo-details[open]{max-height:none;}
+.promo-details p{white-space:pre-line;overflow-wrap:anywhere;}
