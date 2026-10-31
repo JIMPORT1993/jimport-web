@@ -1,0 +1,1 @@
+Portada neón azul/violeta con logo JIMPORT original. Las cuatro fotografías se obtienen de los productos activos con image_url de Supabase; no se insertan productos ficticios. Mantiene administración, inventario y funciones previas. Si un producto carece de imagen no aparece en portada. Verificar en Vercel después de publicar.

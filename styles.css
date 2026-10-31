@@ -439,3 +439,32 @@ body{background:#f7f7f9}
 .sale-ticker{background:linear-gradient(90deg,#0263b7,#00c9e7,#0061a9)!important;color:white}.promotions-section{border-top:5px solid #00bff7!important}.promotions-section .eyebrow{color:#007ecb!important}.promo-carousel{box-shadow:0 18px 55px #0a7eea20}
 @media(max-width:760px){.sale-hero{grid-template-columns:1fr;padding:38px 20px 28px!important;gap:10px;min-height:auto}.sale-hero h1{font-size:clamp(39px,10vw,67px)!important}.sale-hero h1 em{font-size:.83em;padding:5px 10px 10px}.sale-blue-art{min-height:0}.sale-showcase{max-height:380px}.sale-assurance{gap:8px 14px}}
 @media(prefers-reduced-motion:reduce){.sale-showcase{animation:none}}
+
+/* JIMPORT · Portada neón violeta y azul con fotografías reales del catálogo */
+:root{--j-neon:#e628ee;--j-cyan:#00dcff}
+.topbar{background:#050a22!important;border-bottom:1px solid #493d9b!important}
+.new-header-logo{width:175px;height:54px;object-fit:contain;display:block;filter:drop-shadow(0 0 8px #ee20ed80)}
+.topbar .brand-wordmark{gap:8px!important;font-size:0!important}.topbar .brand-wordmark span{font-size:11px!important;color:#e4e9ff!important}
+.sale-hero{background:radial-gradient(ellipse at 76% 45%,#1529a3 0%,#090e4d 39%,transparent 67%),linear-gradient(120deg,#040d2b,#080b31 58%,#130d3a)!important}
+.sale-hero:before{background:linear-gradient(155deg,transparent 20%,#7b00ff24 40%,transparent 55%)!important}
+.sale-pill{border-color:#c12cff!important;box-shadow:0 0 20px #d328f266!important}
+.sale-hero h1 em{background:linear-gradient(105deg,#f600bf,#a619ec)!important;color:#fff!important;box-shadow:0 0 26px #f000e8a6,0 7px 0 #5d117b!important}
+.sale-primary{background:linear-gradient(110deg,#ffe724,#ffae00)!important;color:#0b1431!important}
+.sale-outline{border-color:#eb3aff!important;box-shadow:0 0 22px #dc1cf36e!important}
+.sale-blue-art.new-showcase{position:relative;min-height:490px;isolation:isolate;padding:25px 12px 42px;overflow:visible}
+.neon-orbit{position:absolute;z-index:-1;width:96%;height:76%;top:0;left:2%;border:6px solid #05e0ff;border-radius:50%;transform:rotate(-15deg);box-shadow:0 0 12px #03d9ff,0 0 36px #056aff,inset 0 0 22px #e500ff;animation:orbitGlow 4s ease-in-out infinite alternate}
+.neon-orbit:after{content:'';position:absolute;inset:7px;border:3px solid #f12af0;border-radius:50%;filter:drop-shadow(0 0 14px #e92cff)}
+@keyframes orbitGlow{to{filter:hue-rotate(28deg);transform:rotate(-10deg) scale(1.02)}}
+.showcase-brand{width:min(90%,490px);height:145px;object-fit:contain;filter:drop-shadow(0 0 12px #ed21f9);z-index:2;margin:4px auto 0}
+.showcase-products{position:relative;z-index:3;width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:end;margin-top:18px}
+.showcase-product{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;color:#fff;text-decoration:none;transition:transform .25s}
+.showcase-product:hover{transform:translateY(-10px) scale(1.03)}
+.showcase-product img{width:100%;height:155px;object-fit:contain;filter:drop-shadow(0 12px 13px #000a)}
+.showcase-product span{font-size:10px;line-height:1.25;font-weight:750;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 2px 5px #000}
+.showcase-stage{position:absolute;z-index:0;bottom:29px;left:2%;width:96%;height:72px;border-radius:50%;background:radial-gradient(ellipse,#176af9aa,#0b1d74 65%,#07103b);border:3px solid #12ddff;box-shadow:0 0 16px #00d8ff,0 0 28px #d31af8,inset 0 0 25px #067eff}
+.showcase-brands{z-index:4;position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.showcase-brands span{background:#111943;color:white;border:1px solid #eb39f0;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:800}
+.showcase-loading{grid-column:1/-1;color:#dfe8ff;text-align:center;min-height:110px;display:grid;place-items:center}
+.sale-ticker{background:linear-gradient(90deg,#5407a3,#b800d6,#0358cf)!important}
+@media(max-width:760px){.sale-blue-art.new-showcase{min-height:360px;padding:25px 0 30px}.showcase-brand{height:95px}.showcase-product img{height:105px}.showcase-product span{font-size:9px}.showcase-stage{bottom:20px;height:52px}.new-header-logo{width:130px;height:45px}}
+@media(prefers-reduced-motion:reduce){.neon-orbit{animation:none}}

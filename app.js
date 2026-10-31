@@ -59,6 +59,7 @@
     const brand=brandFilter.value, category=categoryFilter?.value||"";
     const list=products.filter(p=>q ? matchesSearch(p,q) : ((!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
+    renderShowcaseProducts();
     if(!brand && !category && !q){
       grid.innerHTML='<div class="empty catalog-welcome"><strong>¿Qué estás buscando?</strong><p>Selecciona una marca o categoría para explorar nuestros productos.</p></div>';
       status.textContent=products.length?`${products.length} productos disponibles. Selecciona una marca o categoría.`:'Selecciona una marca o categoría para ver los productos.';
@@ -69,6 +70,17 @@
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
     status.textContent=q?`Resultados de búsqueda: ${list.length} producto(s) encontrado(s)`:`Mostrando ${list.length} de ${products.length} productos disponibles`;
     renderHero();
+  }
+  // La portada usa exclusivamente las fotografías registradas en Supabase.
+  function renderShowcaseProducts(){
+    const target=document.getElementById('showcaseProducts'); if(!target)return;
+    const real=products.filter(p=>p.active!==false && p.image_url && /^https?:\/\//i.test(p.image_url));
+    if(!real.length){target.innerHTML='<p class="showcase-loading">Explora nuestros productos en el catálogo</p>';return;}
+    const chosen=[];
+    for(const brand of knownBrands){const found=real.find(p=>norm(p.brand)===norm(brand));if(found && !chosen.includes(found))chosen.push(found);}
+    for(const item of real){if(chosen.length>=4)break;if(!chosen.includes(item))chosen.push(item);}
+    target.innerHTML=chosen.map(p=>`<a class="showcase-product" href="#productos" data-showcase-brand="${esc(p.brand||'')}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="eager" referrerpolicy="no-referrer"><span>${esc(p.name)}</span></a>`).join('');
+    target.querySelectorAll('[data-showcase-brand]').forEach(link=>link.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(link.dataset.showcaseBrand))?.value||'';if(categoryFilter)categoryFilter.value='';search.value='';render();}));
   }
   let teaserTimer=null, teaserPosition=0;
   function renderCatalogTeasers(){
