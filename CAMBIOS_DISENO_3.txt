@@ -1,0 +1,6 @@
+JIMPORT - DISEÑO 3 OFERTAS Y PROMOCIONES
+
+Se reemplazó la portada por un hero promocional negro/naranja, llamadas a promociones y catálogo, banda animada y retoques visuales.
+No se alteraron app.js, admin.js, SQL, inventario, productos, conexiones Supabase ni lógica de ventas.
+No se inventaron descuentos: las promociones reales siguen siendo las configuradas en el administrador.
+Sube el contenido de jimport-web-main a tu repositorio GitHub.

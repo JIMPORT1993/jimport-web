@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Descubre accesorios y tecnología UGREEN, Anker y más en JIMPORT. Compara productos, consulta disponibilidad y recibe asesoría por WhatsApp.">
-  <meta name="theme-color" content="#f2f8fc"><meta property="og:type" content="website"><meta property="og:title" content="JIMPORT | Tecnología que conecta"><meta property="og:description" content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp.">
+  <meta name="theme-color" content="#100d12"><meta property="og:type" content="website"><meta property="og:title" content="JIMPORT | Tecnología que conecta"><meta property="og:description" content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp.">
   <title>JIMPORT | Tecnología y accesorios</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -28,28 +28,29 @@
   <nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#opiniones">Opiniones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
   <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">Consultar por WhatsApp</a>
 </header>
-<section class="hero hero-centered">
-  <div class="hero-logo-wrap">
-    <div class="electric-storm" aria-hidden="true"><svg viewBox="0 0 800 430" preserveAspectRatio="none" focusable="false"><defs><filter id="electricGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g class="electric-bolt bolt-a"><path d="M 16 10 L 135 82 L 100 123 L 216 170 L 151 206 L 242 235"/></g><g class="electric-bolt bolt-b"><path d="M 785 4 L 674 83 L 713 126 L 605 170 L 661 205 L 557 242"/></g><g class="electric-bolt bolt-c"><path d="M 0 224 L 115 242 L 77 290 L 181 307 L 126 350 L 251 398"/></g><g class="electric-bolt bolt-d"><path d="M 800 235 L 694 255 L 730 294 L 625 320 L 670 356 L 551 415"/></g><g class="electric-bolt bolt-e"><path d="M 355 0 L 317 67 L 368 99 L 304 144"/></g><g class="electric-bolt bolt-f"><path d="M 459 430 L 493 367 L 449 334 L 518 283"/></g></svg></div>
-    <img class="hero-main-logo" src="assets/logo-jimport.png" alt="JIMPORT — tecnología y accesorios">
+<section class="hero hero-centered sale-hero" aria-label="JIMPORT ofertas y promociones">
+  <div class="sale-hero-content">
+    <span class="sale-pill">⚡ JIMPORT · OFERTAS Y NOVEDADES</span>
+    <p class="sale-overline">ACCESORIOS TECNOLÓGICOS PARA TU DÍA A DÍA</p>
+    <h1>OFERTAS <em>ESPECIALES</em><span> EN TECNOLOGÍA</span></h1>
+    <p class="sale-description">Descubre accesorios UGREEN, ANKER, DJI y MARVO. Explora promociones vigentes, novedades y productos seleccionados.</p>
+    <div class="sale-hero-actions"><a class="sale-primary" href="#promociones">Ver promociones ↗</a><a class="sale-outline" href="#productos">Explorar catálogo →</a></div>
+    <div class="sale-assurance"><span>✓ Atención personalizada</span><span>✓ Consulta por WhatsApp</span><span>✓ Disponibilidad actualizada</span></div>
   </div>
-  <p class="eyebrow">TECNOLOGÍA · ACCESORIOS · CONECTIVIDAD</p>
-  <h1>Conecta con <span>JIMPORT</span></h1>
-  <p class="hero-intro">Accesorios y tecnología para conectar, cargar y potenciar tu día a día. Encuentra lo que necesitas con atención personalizada.</p>
-  <div class="hero-highlights"><span>✓ Marcas reconocidas</span><span>✓ Atención personalizada</span><span>✓ Compra por WhatsApp</span></div>
-  <div class="hero-actions"><a class="button" href="#productos">Explorar catálogo <span>↗</span></a><a class="hero-secondary" href="#opiniones">Conoce las opiniones de clientes →</a></div>
+  <div class="sale-hero-art" aria-hidden="true"><div class="sale-halo"></div><img class="sale-hero-logo" src="assets/logo-jimport.png" alt=""><div class="sale-brand-pills"><span>UGREEN</span><span>ANKER</span><span>DJI</span><span>MARVO</span></div></div>
 </section>
 <main>
+<div class="sale-ticker" aria-label="Descubre las promociones de JIMPORT"><div>✦ OFERTAS ESPECIALES &nbsp; ✦ NOVEDADES TECNOLÓGICAS &nbsp; ✦ ACCESORIOS UGREEN Y ANKER &nbsp; ✦ COMPRA POR WHATSAPP &nbsp; ✦ OFERTAS ESPECIALES &nbsp; ✦ NOVEDADES TECNOLÓGICAS</div></div>
   <div class="premium-benefits" aria-label="Ventajas de JIMPORT"><span>✦ Tecnología seleccionada</span><span>◈ Asesoría personalizada</span><span>✓ Compra con atención directa</span></div>
   <section class="section" id="productos">
-    <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Productos destacados</h2></div><p>Selecciona una categoría para que veas nuestros productos.</p></div>
+    <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Descubre tus próximos favoritos</h2></div><p>Selecciona una categoría para que veas nuestros productos.</p></div>
     <div class="filters"><label class="sr-only" for="search">Buscar productos</label><input id="search" type="search" placeholder="Buscar por nombre, modelo o característica (ej. 100W)…" aria-label="Buscar productos"><select id="brandFilter" aria-label="Filtrar por marca"><option value="">Todas las marcas</option><option value="UGREEN">UGREEN</option><option value="Anker">Anker</option><option value="DJI">DJI</option><option value="Marvo">Marvo</option></select><select id="categoryFilter" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select><button type="button" class="clear-filters" id="clearFilters">Cambiar selección</button></div>
     <div id="catalogTeasers" class="catalog-teasers" aria-label="Doce productos destacados de nuestro catálogo"></div>
     <div id="status" class="status">Cargando catálogo…</div><div id="productGrid" class="product-grid"></div>
   </section>
   <section class="brand-showcase" aria-label="Marcas disponibles"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"><span>Conectividad y carga</span></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="Anker"><span>Carga inteligente</span></a><a href="#productos" data-brand="DJI"><img src="assets/dji.svg" alt="DJI"><span>Tecnología creativa</span></a><a href="#productos" data-brand="Marvo"><img src="assets/marvo.svg" alt="Marvo"><span>Accesorios gaming</span></a></div></section>
   <section class="promotions-section" id="promociones" aria-label="Promociones JIMPORT">
-    <div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Promociones que te conectan</h2><p>Descubre nuestras ofertas por tiempo limitado.</p></div>
+    <div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Ofertas que no querrás perderte</h2><p>Revisa las promociones disponibles y consulta sus condiciones antes de comprar.</p></div>
     <div class="promo-carousel" id="promoCarousel" aria-live="polite">
       <div class="promo-slide" id="promoSlide">
         <div class="promo-art"><div class="promo-orbit"></div><span class="promo-spark">✦</span></div>
