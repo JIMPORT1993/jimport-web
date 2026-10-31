@@ -1,0 +1,1 @@
+Portada revisada: arco neón intensificado, logo original, PNG UGREEN original, plataforma con profundidad, rayos decorativos y franja de beneficios. No se modificaron JS, SQL, precios ni inventario. Revisar visualmente en Vercel.
