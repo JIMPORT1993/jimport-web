@@ -1,0 +1,54 @@
+
+/* Portada móvil compacta: un solo logo, productos y accesos visibles */
+@media (max-width: 800px) {
+  .topbar { min-height:64px!important; padding:5px 12px!important; }
+  .topbar .new-header-logo { height:48px!important; width:clamp(132px,39vw,175px)!important; }
+  .topbar .mobile-menu-toggle { padding:8px 12px!important; font-size:13px!important; }
+  .sale-hero { padding:12px 12px 8px!important; gap:0!important; }
+  .sale-pill { padding:8px 12px!important; font-size:clamp(9px,2.5vw,12px)!important; }
+  .sale-hero-actions { margin:12px auto 0!important; gap:8px!important; }
+  .sale-hero-actions a { padding:11px 4px!important; min-height:42px!important; }
+  /* El logo del encabezado es el único logo en la portada móvil */
+  .sale-blue-art.new-showcase .showcase-brand { display:none!important; }
+  .sale-blue-art.new-showcase {
+    position:relative!important; width:100%!important; max-width:420px!important;
+    height:clamp(205px,59vw,280px)!important; min-height:0!important;
+    margin:7px auto 0!important; padding:0!important;
+    overflow:visible!important; isolation:isolate!important;
+  }
+  .sale-blue-art.new-showcase .neon-orbit {
+    position:absolute!important; width:87%!important; height:72%!important;
+    left:6.5%!important; top:5%!important; transform:rotate(-9deg)!important;
+    border-width:3px!important; opacity:.92!important;
+    box-shadow:0 0 10px #00efff,0 0 24px #008bff!important;
+  }
+  .sale-blue-art.new-showcase .showcase-feature-product {
+    position:absolute!important; z-index:6!important; left:0!important; top:9%!important;
+    width:100%!important; height:75%!important; min-height:0!important;
+    margin:0!important; display:flex!important; align-items:flex-end!important;
+  }
+  .sale-blue-art.new-showcase .showcase-feature-product img {
+    width:100%!important; height:100%!important; max-height:none!important;
+    object-fit:contain!important; object-position:center bottom!important;
+  }
+  .sale-blue-art.new-showcase .showcase-stage {
+    position:absolute!important; z-index:3!important; left:2%!important; width:96%!important;
+    bottom:10%!important; height:21%!important; border-width:3px!important;
+    box-shadow:0 0 12px #00eaff,0 0 24px #008bff!important;
+  }
+  .sale-blue-art.new-showcase .showcase-brands {
+    position:absolute!important; z-index:8!important; left:0!important; right:0!important;
+    bottom:0!important; gap:5px!important; justify-content:center!important;
+  }
+  .sale-blue-art.new-showcase .showcase-brands span {
+    padding:5px 9px!important; font-size:clamp(9px,2.3vw,11px)!important;
+  }
+  .hero-trust-strip { margin:3px 9px 12px!important; padding:9px!important; gap:6px!important; }
+  .hero-trust-strip span { font-size:11px!important; }
+  .option4-wave, .neon-lightning { pointer-events:none!important; }
+}
+@media (max-width: 360px) {
+  .sale-hero-actions { grid-template-columns:1fr 1fr!important; }
+  .sale-hero-actions a { font-size:10px!important; }
+  .sale-blue-art.new-showcase { height:205px!important; }
+}
