@@ -49,3 +49,11 @@
  .topbar #mainNav a:active,.topbar #mainNav a:focus-visible{background:#143c83!important;outline:2px solid #00dfff!important}
  #productos,#promociones,#opiniones,#nosotros,#ubicacion,#contacto{scroll-margin-top:16px}
 }
+
+/* Solicitud: ocultar exclusivamente el bloque de título y descripción promocional en móvil. */
+@media (max-width: 800px) {
+  .sale-hero .sale-overline,
+  .sale-hero .sale-hero-content > h1,
+  .sale-hero .sale-description { display: none !important; }
+  .sale-hero .sale-hero-actions { margin-top: 18px !important; }
+}
