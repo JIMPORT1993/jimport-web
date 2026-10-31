@@ -378,3 +378,8 @@ body{background:linear-gradient(180deg,#f4faff 0%,#fff 24%,#f5faff 62%,#fff 100%
 @keyframes jimportPageOut{0%{transform:rotateY(0);opacity:1;filter:brightness(1)}100%{transform:rotateY(calc(var(--turn-direction,1)* -78deg));opacity:.15;filter:brightness(.88)}}
 @keyframes jimportPageIn{0%{transform:rotateY(calc(var(--turn-direction,1)* 78deg));opacity:.15;filter:brightness(.9)}100%{transform:rotateY(0);opacity:1;filter:brightness(1)}}
 @media(prefers-reduced-motion:reduce){.catalog-teaser-row.page-turn-out,.catalog-teaser-row.page-turn-in{animation:none!important}}
+
+/* Destacados: tres filas por cuatro columnas en escritorio, rotación por páginas de doce */
+.catalog-teasers{max-width:1200px}
+.catalog-teaser-row{grid-template-columns:repeat(4,minmax(0,1fr));align-content:start}
+@media(max-width:600px){.catalog-teaser-row{grid-template-columns:repeat(2,minmax(0,1fr))}}

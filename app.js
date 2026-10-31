@@ -77,11 +77,11 @@
     el.hidden=Boolean(brandFilter.value || categoryFilter?.value || search.value.trim());
     if(teaserTimer){clearInterval(teaserTimer);teaserTimer=null;}
     if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
-    const ordered=[...withImages].sort((a,b)=>knownBrands.indexOf(a.brand)-knownBrands.indexOf(b.brand)).slice(0,12);
-    teaserPosition=teaserPosition%ordered.length;
+    const ordered=[...withImages].sort((a,b)=>knownBrands.indexOf(a.brand)-knownBrands.indexOf(b.brand));
+    teaserPosition=0;
     el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>';
     const row=el.querySelector('.catalog-teaser-row');
-    function paint(){const count=Math.min(4,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
+    function paint(){const count=Math.min(12,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
     let turning=false;
     function step(dir){
       if(turning)return;
@@ -90,14 +90,15 @@
       row.style.setProperty('--turn-direction',dir>0?'1':'-1');
       row.classList.add('page-turn-out');
       setTimeout(()=>{
-        teaserPosition=(teaserPosition+dir+ordered.length)%ordered.length;
+        teaserPosition=(teaserPosition+dir*12+ordered.length*12)%ordered.length;
         paint();row.classList.remove('page-turn-out');row.classList.add('page-turn-in');
         setTimeout(()=>{row.classList.remove('page-turn-in');turning=false;},440);
       },300);
     }
-    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>4&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},3500);}
+    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>12&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},3500);}
     el.querySelectorAll('[data-teaser-dir]').forEach(b=>b.addEventListener('click',()=>{step(Number(b.dataset.teaserDir));autoplay();}));
-    el.addEventListener('mouseenter',()=>{if(teaserTimer)clearInterval(teaserTimer);},{once:true});
+    el.addEventListener('mouseenter',()=>{if(teaserTimer)clearInterval(teaserTimer);});
+    el.addEventListener('mouseleave',()=>autoplay());
     paint();autoplay();
   }
   function renderHero(){
