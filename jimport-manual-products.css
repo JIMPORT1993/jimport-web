@@ -13,3 +13,8 @@
 .jimport-product-dialog h3{margin:12px 0 5px;font-size:21px}
 .jimport-dialog-model{color:#64766e}.jimport-dialog-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.jimport-dialog-price{display:block;font-size:20px;margin:12px 0}
 @media(max-width:600px){.catalog-teaser .teaser-info-button,.teaser-brand-button{font-size:11px;padding:8px 4px}.jimport-product-dialog{padding:16px}}
+
+/* WhatsApp individual en los doce productos destacados */
+.catalog-teaser .teaser-whatsapp-button{display:flex;align-items:center;justify-content:center;min-height:40px;width:100%;box-sizing:border-box;margin-top:6px;padding:9px 6px;border-radius:10px;background:#128c54;color:#fff!important;font-size:12px;font-weight:750;text-align:center;text-decoration:none;line-height:1.2}
+.catalog-teaser .teaser-whatsapp-button:hover,.catalog-teaser .teaser-whatsapp-button:focus-visible{background:#086d3f;color:#fff!important;outline-offset:2px}
+@media(max-width:600px){.catalog-teaser .teaser-whatsapp-button{font-size:11px;padding:8px 3px;min-height:38px}}
