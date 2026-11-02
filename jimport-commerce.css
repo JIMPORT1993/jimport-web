@@ -15,3 +15,5 @@
 #jxComboAdmin .jx-choice-details small{color:#475569;font-size:.78rem}
 #jxComboAdmin .jx-choice-details b{color:#047857;margin-top:auto}
 @media(max-width:600px){#jxComboAdmin .jx-product-choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#jxComboAdmin .jx-choice-photo{padding:8px}#jxComboAdmin .jx-choice-image{height:115px}}
+
+.jx-compare-tools{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}.jx-compare-tools .button:disabled{opacity:.5;cursor:not-allowed}.jx-compare-result{margin-top:15px;padding:18px 20px;border:1px solid #478a77;border-radius:14px;background:#122d2c;color:#f1fff9;line-height:1.6}.jx-compare-result h3{margin:0 0 10px}.jx-compare-result p{margin:10px 0}.jx-compare-result small{color:#c3e1da}
