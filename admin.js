@@ -11,45 +11,59 @@
     try{return JSON.parse(localStorage.getItem(categoryStoreKey)||'[]').filter(x=>typeof x==='string');}catch{return [];}
   }
   function updateCategoryChoices(){
-    const select=$('pCategory'); if(!select)return;
+    const select=$('pCategory');if(!select)return;
     const previous=select.value;
     const values=[...new Set([...baseCategories,...customCategories,...rows.map(p=>String(p.category||'').trim()).filter(Boolean)])];
     select.replaceChildren(...values.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o;}));
     if(values.includes(previous))select.value=previous;
-    const grid=document.querySelector('.category-admin-grid');
-    if(grid){
-      const original=grid.querySelectorAll('[data-added-category]');original.forEach(n=>n.remove());
-      values.filter(v=>!baseCategories.includes(v)).forEach(v=>{
-        const el=document.createElement('div');el.dataset.addedCategory='true';const b=document.createElement('b');b.textContent=v;el.append('📦 ',b);grid.append(el);
-      });
+    const grid=$('managedCategories');if(!grid)return;
+    grid.replaceChildren();
+    for(const name of values){
+      const count=rows.filter(p=>String(p.category||'').toUpperCase()===name.toUpperCase()).length;
+      const item=document.createElement('div');item.className='managed-taxonomy-item';
+      const label=document.createElement('span');label.textContent=name+' · '+count+' producto(s)';
+      item.append(label);
+      if(customCategories.includes(name)){
+        const button=document.createElement('button');button.type='button';button.className='button button-danger';
+        button.textContent='Quitar categoría';
+        button.onclick=()=>removeTaxonomy('jimport_categories',name,count);
+        item.append(button);
+      }else{
+        const note=document.createElement('small');note.textContent='Categoría original';item.append(note);
+      }
+      grid.append(item);
     }
   }
   async function loadCustomCategories(){
-    customCategories=getCustomCategories();
-    if(client){
-      const {data,error}=await client.from('jimport_categories').select('name').order('name');
-      if(!error && Array.isArray(data))customCategories=[...new Set([...customCategories,...data.map(x=>x.name)])];
-    }
-    updateCategoryChoices();
+    if(!client||!authorized)return;
+    const {data,error}=await client.from('jimport_categories').select('name').order('name');
+    if(error){$('categoryCreateStatus').textContent='No se pudieron cargar categorías: '+error.message;return;}
+    customCategories=(data||[]).map(x=>x.name);updateCategoryChoices();
+  }
+  async function removeTaxonomy(table,name,count){
+    if(!authorized)return;
+    const label=table==='jimport_brands'?'marca':'categoría';
+    if(count){note('No se puede quitar '+label+' «'+name+'»: tiene '+count+' producto(s). Primero reasígnalos a otra '+label+'.');return;}
+    if(!confirm('¿Quitar '+label+' «'+name+'» de las opciones? Esta acción se guardará en Supabase.'))return;
+    const {error}=await client.from(table).delete().eq('name',name);
+    if(error){note('No se pudo quitar '+label+': '+error.message);return;}
+    note('Se quitó la '+label+' «'+name+'».');
+    if(table==='jimport_brands')await refreshBrands();else await loadCustomCategories();
   }
   $('newCategoryForm')?.addEventListener('submit',async e=>{
-    e.preventDefault();
+    e.preventDefault();if(!authorized)return;
     const status=$('categoryCreateStatus');
-    if(!authorized){status.textContent='Debes iniciar sesión como administrador.';return;}
-    const name=$('newCategoryName').value.trim().replace(/\\s+/g,' ').toLocaleUpperCase('es');
-    if(name.length<2){status.textContent='Escribe un nombre de al menos 2 caracteres.';return;}
-    if([...baseCategories,...customCategories].some(v=>v.toLocaleUpperCase('es')===name)){status.textContent='Esa categoría ya existe.';return;}
-    if(!client){status.textContent='No se ha configurado Supabase. No se guardó la categoría.';return;}
+    const name=$('newCategoryName').value.trim().replace(/\\s+/g,' ').toUpperCase();
+    if(name.length<2){status.textContent='Escribe al menos 2 caracteres.';return;}
+    if([...baseCategories,...customCategories,...rows.map(p=>p.category)].some(v=>String(v||'').toUpperCase()===name)){status.textContent='Esta categoría ya existe.';return;}
     const {error}=await client.from('jimport_categories').insert({name});
-    if(error){status.textContent='No se pudo guardar en Supabase: '+error.message+'. Ejecuta JIMPORT_CATEGORIAS_ADMIN.sql si falta la tabla.';return;}
-    customCategories.push(name);localStorage.setItem(categoryStoreKey,JSON.stringify(customCategories));
-    updateCategoryChoices();$('pCategory').value=name;$('newCategoryName').value='';
-    status.textContent='Categoría «'+name+'» creada. Ya puedes seleccionarla al editar o añadir productos.';
+    if(error){status.textContent='No se pudo guardar: '+error.message;return;}
+    $('newCategoryName').value='';status.textContent='Categoría guardada correctamente.';
+    await loadCustomCategories();$('pCategory').value=name;
   });
-  loadCustomCategories();
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
-  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();window.dispatchEvent(new Event("jimport-admin-ready"));}}
+  function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();loadCustomCategories();refreshPromotions();refreshReviews();window.dispatchEvent(new Event("jimport-admin-ready"));}}
   if(!client){note("No se pudo iniciar Supabase. Verifica config.js y la conexión a Internet; el formulario permanece disponible.");}
   async function checkAdmin(){const {data,error}=await client.rpc('jimport_is_admin');if(error){note('No se pudo comprobar el administrador: '+error.message+'. Ejecuta ACTUALIZACION_JIMPORT_SUPABASE.sql.');return false;}if(!data){note('Este usuario no está autorizado. Añade su UUID a public.jimport_admins desde SQL Editor.');return false;}return true;}
   async function loadPrivate(){const {data,error}=await client.from('jimport_inventory_private').select('product_id,quantity,min_quantity,landed_cost');if(error){note('Inventario privado: '+error.message);return;}privateInventory=Object.fromEntries((data||[]).map(x=>[x.product_id,x]));draw();}
@@ -60,16 +74,29 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await refreshBrands();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await refreshBrands();updateCategoryChoices();}
 
   let extraBrands=[];
   async function refreshBrands(){
+    if(!client||!authorized)return;
     const {data,error}=await client.from('jimport_brands').select('name').order('name');
     if(!error)extraBrands=(data||[]).map(x=>x.name);
     const all=[...new Set([...rows.map(x=>x.brand).filter(Boolean),...extraBrands])].sort((a,b)=>a.localeCompare(b,'es'));
     $('knownBrands').replaceChildren(...all.map(v=>{const el=document.createElement('option');el.value=v;return el;}));
-    $('brandsList').textContent='Marcas registradas: '+(all.join(' · ')||'Ninguna');
-    if(error)$('brandCreateStatus').textContent='Para crear marcas, ejecuta JIMPORT_MARCAS_Y_VISITAS.sql en Supabase.';
+    const list=$('brandsList');list.replaceChildren();
+    for(const name of all){
+      const count=rows.filter(p=>String(p.brand||'').toUpperCase()===name.toUpperCase()).length;
+      const item=document.createElement('div');item.className='managed-taxonomy-item';
+      const label=document.createElement('span');label.textContent=name+' · '+count+' producto(s)';item.append(label);
+      if(extraBrands.includes(name)){
+        const button=document.createElement('button');button.type='button';button.className='button button-danger';button.textContent='Quitar marca';
+        button.onclick=()=>removeTaxonomy('jimport_brands',name,count);item.append(button);
+      }else{
+        const note=document.createElement('small');note.textContent='Marca utilizada en productos';item.append(note);
+      }
+      list.append(item);
+    }
+    if(error)$('brandCreateStatus').textContent='No se pudieron cargar marcas: '+error.message;
   }
   $('newBrandForm')?.addEventListener('submit',async e=>{
     e.preventDefault();if(!authorized)return;
@@ -295,7 +322,7 @@
         if(!x.item.brand)errors.push(`Fila ${x.rowNumber}: falta la marca.`);
         if(x.item.price===null||x.item.price<0)errors.push(`Fila ${x.rowNumber}: el precio de venta debe ser un número igual o mayor que 0.`);
         if(x.item.old_price!==null&&x.item.old_price<0)errors.push(`Fila ${x.rowNumber}: el precio anterior no puede ser negativo.`);
-        if(x.item.category&&!["CABLES","CARGADORES","TECLADOS MECÁNICOS","MICRÓFONOS","HUBS","POWER BANKS","AUDIO","PERIFÉRICOS","ACCESORIOS PARA CELULARES","VARIOS"].includes(x.item.category))errors.push(`Fila ${x.rowNumber}: categoría no reconocida (${x.item.category}).`);
+
         if(x.item.image_url&&!/^https?:\/\//i.test(x.item.image_url))errors.push(`Fila ${x.rowNumber}: la URL de imagen debe empezar por http:// o https://.`);
       }
       if(errors.length){importNote("No se importó ningún producto. Corrige estos errores y vuelve a intentarlo: "+errors.slice(0,8).join(" ")+(errors.length>8?` Y ${errors.length-8} error(es) más.`:""));return;}
