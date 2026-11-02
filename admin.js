@@ -53,7 +53,7 @@
   $('newCategoryForm')?.addEventListener('submit',async e=>{
     e.preventDefault();if(!authorized)return;
     const status=$('categoryCreateStatus');
-    const name=$('newCategoryName').value.trim().replace(/\\s+/g,' ').toUpperCase();
+    const name=$('newCategoryName').value.trim().replace(/\s+/g,' ').toUpperCase();
     if(name.length<2){status.textContent='Escribe al menos 2 caracteres.';return;}
     if([...baseCategories,...customCategories,...rows.map(p=>p.category)].some(v=>String(v||'').toUpperCase()===name)){status.textContent='Esta categoría ya existe.';return;}
     const {error}=await client.from('jimport_categories').insert({name});
@@ -81,22 +81,31 @@
     if(!client||!authorized)return;
     const {data,error}=await client.from('jimport_brands').select('name').order('name');
     if(!error)extraBrands=(data||[]).map(x=>x.name);
-    const all=[...new Set([...rows.map(x=>x.brand).filter(Boolean),...extraBrands])].sort((a,b)=>a.localeCompare(b,'es'));
-    $('knownBrands').replaceChildren(...all.map(v=>{const el=document.createElement('option');el.value=v;return el;}));
+    const normalize=v=>String(v||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es');
+    const groups=new Map();
+    for(const name of [...rows.map(x=>x.brand).filter(Boolean),...extraBrands]){
+      const key=normalize(name);if(!key)continue;
+      if(!groups.has(key))groups.set(key,{name:String(name).trim().toLocaleUpperCase('es'),rawNames:new Set(),registered:[]});
+      groups.get(key).rawNames.add(String(name).trim());
+    }
+    for(const name of extraBrands){const group=groups.get(normalize(name));if(group)group.registered.push(name);}
+    const all=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
+    $('knownBrands').replaceChildren(...all.map(g=>{const el=document.createElement('option');el.value=g.name;return el;}));
     const list=$('brandsList');list.replaceChildren();
-    for(const name of all){
-      const count=rows.filter(p=>String(p.brand||'').toUpperCase()===name.toUpperCase()).length;
+    for(const group of all){
+      const count=rows.filter(p=>normalize(p.brand)===normalize(group.name)).length;
       const item=document.createElement('div');item.className='managed-taxonomy-item';
-      const label=document.createElement('span');label.textContent=name+' · '+count+' producto(s)';item.append(label);
-      if(extraBrands.includes(name)){
+      const label=document.createElement('span');label.textContent=group.name+' · '+count+' producto(s)';item.append(label);
+      if(group.rawNames.size>1){const detail=document.createElement('small');detail.textContent='Variantes detectadas: '+[...group.rawNames].join(' / ');item.append(detail);}
+      if(group.registered.length){
         const button=document.createElement('button');button.type='button';button.className='button button-danger';button.textContent='Quitar marca';
-        button.onclick=()=>removeTaxonomy('jimport_brands',name,count);item.append(button);
+        button.onclick=()=>removeTaxonomy('jimport_brands',group.registered[0],count);item.append(button);
       }else{
-        const note=document.createElement('small');note.textContent='Marca utilizada en productos';item.append(note);
+        const note=document.createElement('small');note.textContent=count?'Marca presente en productos (sin registro independiente)':'Marca sin registro';item.append(note);
       }
       list.append(item);
     }
-    if(error)$('brandCreateStatus').textContent='No se pudieron cargar marcas: '+error.message;
+    if(error)$('brandCreateStatus').textContent='No se pudieron cargar marcas de la tabla: '+error.message+'; se muestran las utilizadas por los productos.';
   }
   $('newBrandForm')?.addEventListener('submit',async e=>{
     e.preventDefault();if(!authorized)return;

@@ -9,7 +9,7 @@
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
   let products = [], heroIndex = 0, heroTimer = null;
-  const knownBrands=["UGREEN","Anker","DJI","Marvo"];
+  const knownBrands=[]; // Las marcas se obtienen de los productos reales, no de una lista fija.
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
     {id:"demo2",name:"Cargador rápido USB-C",brand:"Anker",model:"Ejemplo",price:24.90,old_price:null,stock:"Bajo pedido",image_url:"",description:"Carga práctica para tus dispositivos compatibles.",demo:true},
@@ -83,10 +83,10 @@
   }
   function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
-    const brands=[...new Set([...knownBrands,...products.map(p=>String(p.brand||"").trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"es"));
+    const brands=[...new Map(products.map(p=>String(p.brand||"").trim()).filter(Boolean).map(b=>[norm(b),b.toLocaleUpperCase("es")])).values()].sort((a,b)=>a.localeCompare(b,"es"));
     brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("");
     brandFilter.value=brands.find(b=>norm(b)===norm(currentBrand))||"";
-    const categories=[...new Set([...products.map(p=>String(p.category||"VARIOS").trim()||"VARIOS"),...(window.JIMPORT_EXTRA_CATEGORIES||[])])].sort((a,b)=>a.localeCompare(b,"es"));
+    const categories=[...new Map([...products.map(p=>String(p.category||"VARIOS").trim()||"VARIOS"),...(window.JIMPORT_EXTRA_CATEGORIES||[])].map(c=>[norm(c),c])).values()].sort((a,b)=>a.localeCompare(b,"es"));
     if(categoryFilter){
       categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
       categoryFilter.value=categories.find(c=>norm(c)===norm(currentCategory))||"";
