@@ -1,0 +1,18 @@
+JIMPORT — SUPER COMBOS Y HERRAMIENTAS COMERCIALES
+
+1. Subir el contenido completo del ZIP a tu proyecto Vercel (sin perder config.js).
+2. En Supabase > SQL Editor ejecutar SUPER_COMBOS_SUPABASE.sql.
+3. Abrir admin.html e iniciar sesión con el administrador autorizado.
+4. En «Súper Combos» seleccionar 2 o más productos existentes, poner título y precio FINAL de oferta.
+5. Activar «Publicar» y guardar. El combo aparece en la sección «Súper Combos» de la tienda.
+6. Desde la misma pantalla puedes editar el precio, ocultar, publicar y eliminar combos.
+7. En la tienda, el cliente añade productos o combos al carrito y envía el pedido por WhatsApp.
+8. La comparación se realiza seleccionando «Comparar» en las fichas del catálogo.
+
+IMPORTANTE
+- El precio del combo no cambia los precios de los productos ni el costo privado de llegada.
+- El carrito NO descuenta inventario. Se descuenta solo cuando el administrador confirma una venta real.
+- El total enviado por WhatsApp es estimado: el vendedor confirma stock, compatibilidad, garantía, envío y pago.
+- Las garantías, métodos de pago y cobertura de envíos se muestran como información orientativa; completa tus políticas reales.
+- Las estadísticas de visitas existentes se mantienen. No se ha añadido un panel nuevo de clics o conversiones en esta entrega.
+- No incluye IA automática de WhatsApp ni pagos online.

@@ -7,7 +7,7 @@
   <title>JIMPORT | Tecnología y accesorios</title>
   <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="option4-cyan.css"><link rel="stylesheet" href="boceto-aprobado.css"><link rel="stylesheet" href="mobile-neon-2026.css"><link rel="stylesheet" href="mobile-compact-one-logo.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="jimport-mobile-reference.css"><link rel="stylesheet" href="jimport-manual-products.css"></head>
+<link rel="stylesheet" href="jimport-mobile-reference.css"><link rel="stylesheet" href="jimport-manual-products.css"><link rel="stylesheet" href="jimport-commerce.css"></head>
 <body>
 <a class="skip-link" href="#productos">Ir al catálogo</a>
 <header class="topbar">
@@ -65,6 +65,9 @@
     <div id="catalogTeasers" class="catalog-teasers" aria-label="Doce productos destacados de nuestro catálogo"></div>
     <div id="status" class="status">Cargando catálogo…</div><div id="productGrid" class="product-grid"></div>
   </section>
+  <section class="section jx-section" id="super-combos"><div class="section-heading"><div><p class="eyebrow">AHORRA COMPRANDO EN CONJUNTO</p><h2>🔥 Súper Combos</h2></div><p>Combina tus accesorios favoritos con precios especiales.</p></div><div id="jxCombos" class="jx-combos"><p>Consultando combos disponibles…</p></div></section>
+  <section class="section jx-section" id="jxBenefits"><div class="section-heading"><div><p class="eyebrow">COMPRA CON CONFIANZA</p><h2>Información para tu compra</h2></div></div><div class="jx-info-grid"><article><h3>🛡️ Garantías y cambios</h3><p>Consulta la garantía específica de cada producto y las condiciones de cambio antes de comprar. Nuestro equipo te orientará por WhatsApp.</p></article><article><h3>📦 Entrega y envíos</h3><p>Consulta disponibilidad, cobertura y costo del envío. También puedes solicitar información para retirar tu compra en el local.</p></article><article><h3>💳 Formas de pago</h3><p>Solicita los medios de pago vigentes y confirma el total con JIMPORT antes de transferir.</p></article></div></section>
+  <section class="section jx-section" id="jxCompareSection"><div class="section-heading"><div><p class="eyebrow">ELIGE CON SEGURIDAD</p><h2>Compara productos</h2></div><p>Selecciona hasta dos artículos desde el catálogo para comparar sus características.</p></div><div id="jxCompare" class="jx-compare"></div></section>
   <section class="brand-showcase" aria-label="Marcas disponibles"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"><span>Conectividad y carga</span></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="Anker"><span>Carga inteligente</span></a><a href="#productos" data-brand="DJI"><img src="assets/dji.svg" alt="DJI"><span>Tecnología creativa</span></a><a href="#productos" data-brand="Marvo"><img src="assets/marvo.svg" alt="Marvo"><span>Accesorios gaming</span></a></div></section>
   <section class="promotions-section" id="promociones" aria-label="Promociones JIMPORT">
     <div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Ofertas que no querrás perderte</h2><p>Revisa las promociones disponibles y consulta sus condiciones antes de comprar.</p></div>
@@ -91,5 +94,5 @@
 </main>
 <footer><a class="brand footer-brand" href="#"><img class="brand-logo footer-logo" src="assets/logo-jimport.png" alt="Logo JIMPORT"></a><span>© <span id="year"></span> JIMPORT. Todos los derechos reservados.</span><a href="#preguntas">Preguntas frecuentes</a></footer>
 <a class="whatsapp-float" id="floatWhatsapp" target="_blank" rel="noopener" aria-label="Escribir a JIMPORT por WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a12.7 12.7 0 0 0-10.9 19.2L3.5 29l7-1.8A12.8 12.8 0 1 0 16 3Zm0 23.2a10.4 10.4 0 0 1-5.3-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4A10.4 10.4 0 1 1 16 26.2Zm5.7-7.8c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.5 8.5 0 0 1-2.5-1.5 9.2 9.2 0 0 1-1.7-2.1c-.2-.3 0-.5.2-.7l.5-.6c.2-.2.2-.4.3-.6s0-.4 0-.6-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4 2.4 3.7 5.9 5.1c.8.3 1.4.5 1.9.6.8.3 1.5.2 2.1.1.7-.1 1.8-.7 2-1.4s.3-1.3.2-1.4-.3-.3-.6-.4Z"/></svg></a>
-<script src="mobile-premium.js"></script><script src="config.js"></script><script src="app.js"></script><script src="visits.js" defer></script>
+<div id="jxCartBar" class="jx-cart-bar" hidden></div><script src="mobile-premium.js"></script><script src="config.js"></script><script src="app.js"></script><script src="jimport-commerce.js" defer></script><script src="visits.js" defer></script>
 </body></html>
