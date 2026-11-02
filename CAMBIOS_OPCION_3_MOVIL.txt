@@ -1,0 +1,8 @@
+JIMPORT — Diseño Opción 3 para móvil
+
+Se agregó una portada futurista con azul neón, titular «Potencia, carga y conectividad sin límites», beneficios y botones de navegación.
+El diseño original para computadoras se conserva: los cambios de portada se activan únicamente en pantallas de hasta 760 px.
+Se conservan las funcionalidades, catálogo, administración y Supabase del ZIP recibido.
+La imagen de la portada utiliza el recurso existente assets/hero-azul-productos.webp, no se inventan productos ni especificaciones.
+
+Para publicar: sube el contenido de jimport-web-main a tu proyecto y despliega normalmente.
