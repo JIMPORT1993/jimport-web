@@ -111,7 +111,20 @@
         const inv=privateInventory[p.id];const row=document.createElement('div');row.className='duplicate-audit-item';
         const info=document.createElement('span');info.textContent=`${p.brand||'Sin marca'} · Modelo: ${p.model||'—'} · Estado: ${p.stock||'—'} · Unidades: ${inv?.quantity??'sin registro'} · ${p.active?'Visible':'Oculto'} · ID: ${p.id}`;
         const edit=document.createElement('button');edit.type='button';edit.className='button button-outline';edit.textContent='Revisar / editar';edit.addEventListener('click',()=>openForm(p));
-        row.append(info,edit);section.append(row);
+        const del=document.createElement('button');
+        del.type='button';del.className='button button-danger';del.textContent='Eliminar este registro';
+        del.addEventListener('click',async()=>{
+          if(!authorized||!client)return;
+          const sameGroup=duplicateGroups(rows).find(g=>g.some(x=>String(x.id)===String(p.id)));
+          if(!sameGroup||sameGroup.length<2){note('Este producto ya no pertenece a un grupo duplicado.');auditDuplicates();return;}
+          const ok=confirm(`¿Eliminar permanentemente este registro de Supabase?\\n\\n${p.name}\\nMarca: ${p.brand||'—'}\\nModelo: ${p.model||'—'}\\nUnidades: ${privateInventory[p.id]?.quantity??'sin registro'}\\nID: ${p.id}\\n\\nLos otros registros se conservarán. Esta acción no se puede deshacer.`);
+          if(!ok)return;
+          del.disabled=true;del.textContent='Eliminando…';
+          const {error}=await client.from('products').delete().eq('id',p.id);
+          if(error){note('No se pudo eliminar: '+error.message);del.disabled=false;del.textContent='Eliminar este registro';return;}
+          note('Registro eliminado correctamente.');await refresh();auditDuplicates();
+        });
+        row.append(info,edit,del);section.append(row);
       }output.append(section);
     }
   }
