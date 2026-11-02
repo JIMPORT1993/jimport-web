@@ -105,12 +105,13 @@
       const raw=String(p.stock||"").toLowerCase();
       const out=raw.includes("agot")||raw.includes("sin stock");
       const coming=raw.includes("lleg")||raw.includes("próxim")||raw.includes("proxim")||raw.includes("pedido");
-      const stockLabel=out?"Agotado":coming?"Próximamente":raw.includes("stock")||raw.includes("disponib")?"En stock":"Consultar disponibilidad";
-      const stockClass=out?"out":coming?"coming":"available";
+      const stockLabel=out?"AGOTADO":coming?"PRÓXIMAMENTE":raw.includes("stock")||raw.includes("disponib")?"EN STOCK":"CONSULTAR";
+      const stockClass=out?"out":coming?"coming":raw.includes("stock")||raw.includes("disponib")?"available":"unknown";
       return `<article class="catalog-teaser ${out?"is-out-of-stock":""}" aria-label="${esc(p.name)}">
-        <div class="catalog-teaser-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.style.display='none'">`:`<span class="placeholder-icon">✳</span>`}<em class="teaser-stock teaser-stock--${stockClass}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${stockLabel}</span></em></div>
-        <span>${esc(p.name)}</span><small>${esc(p.brand||"JIMPORT")}${p.model?" · "+esc(p.model):""}</small>
+        ${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.style.display='none'">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}
+        <span>${esc(p.name)}</span><small>${esc(p.brand||"JIMPORT")}</small>
         <strong class="teaser-price">${money(p.price)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}
+        <em class="teaser-stock teaser-stock--${stockClass}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${stockLabel}</span></em>
         <button type="button" class="teaser-info-button" data-product-info="${esc(p.id)}">Ver características ＋</button>
         <a class="teaser-whatsapp-button" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?` (modelo ${p.model})`:``}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener noreferrer">WhatsApp · Consultar ↗</a>
         <button type="button" class="teaser-brand-button" data-product-cart="${esc(p.id)}">＋ Añadir al pedido</button>
