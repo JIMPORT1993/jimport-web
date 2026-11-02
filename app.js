@@ -47,14 +47,29 @@
     return terms.every(term=>content.includes(term));
   }
   // Una ficha por modelo/SKU en la interfaz; los registros originales permanecen en Supabase.
+  // Evita fichas repetidas sin modificar registros de inventario en Supabase.
+  // Para el Nano Charger naranja, conserva la ficha que NO está marcada "En stock".
   function uniqueProducts(rows){
-    const seen=new Set();
-    return rows.filter(p=>{
-      const brand=norm(p.brand), sku=norm(p.sku||p.codigo||p.code), model=norm(p.model);
-      const name=norm(p.name).replace(/[^a-z0-9]+/g,' ').trim();
-      const key=brand+'|'+(sku?'sku:'+sku:model && model!=='ejemplo'?'model:'+model:'name:'+name);
-      if(seen.has(key))return false; seen.add(key);return true;
-    });
+    const normalizeName=v=>norm(v).replace(/[^a-z0-9]+/g," ").replace(/\\s+/g," ").trim();
+    const groups=new Map();
+    for(const p of rows){
+      const brand=normalizeName(p.brand);
+      const name=normalizeName(p.name);
+      const sku=normalizeName(p.sku||p.codigo||p.code);
+      const model=normalizeName(p.model);
+      const nanoOrange=/\\bnano\\b/.test(name+" "+model) && /\\bcharger\\b|\\bcargador\\b/.test(name+" "+model) && /\\bnaranja\\b|\\borange\\b/.test(name+" "+model+" "+normalizeName(p.description));
+      // El nombre exacto de producto prima sobre códigos diferentes en registros duplicados.
+      const key=nanoOrange?"nano-charger-naranja":brand+"|"+(name?"name:"+name:sku?"sku:"+sku:"model:"+model);
+      const existing=groups.get(key);
+      if(!existing){groups.set(key,p);continue;}
+      const isInStock=x=>/^(en stock|disponible)$/i.test(String(x.stock||"").trim());
+      const score=x=>(x.image_url?2:0)+(x.description?1:0)+(x.specifications?1:0);
+      if(nanoOrange){
+        if(isInStock(existing)&&!isInStock(p))groups.set(key,p);
+        else if(isInStock(existing)===isInStock(p)&&score(p)>score(existing))groups.set(key,p);
+      }else if(score(p)>score(existing))groups.set(key,p);
+    }
+    return [...groups.values()];
   }
   function productInfo(p){
     const parts=[p.description,p.specifications,p.features].filter(Boolean).map(v=>typeof v==='string'?v:JSON.stringify(v));
