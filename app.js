@@ -59,7 +59,6 @@
     const brand=brandFilter.value, category=categoryFilter?.value||"";
     const list=products.filter(p=>q ? matchesSearch(p,q) : ((!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
-    renderShowcaseProducts();
     if(!brand && !category && !q){
       grid.innerHTML='<div class="empty catalog-welcome"><strong>¿Qué estás buscando?</strong><p>Selecciona una marca o categoría para explorar nuestros productos.</p></div>';
       status.textContent=products.length?`${products.length} productos disponibles. Selecciona una marca o categoría.`:'Selecciona una marca o categoría para ver los productos.';
@@ -70,17 +69,6 @@
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
     status.textContent=q?`Resultados de búsqueda: ${list.length} producto(s) encontrado(s)`:`Mostrando ${list.length} de ${products.length} productos disponibles`;
     renderHero();
-  }
-  // La portada usa exclusivamente las fotografías registradas en Supabase.
-  function renderShowcaseProducts(){
-    const target=document.getElementById('showcaseProducts'); if(!target)return;
-    const real=products.filter(p=>p.active!==false && p.image_url && /^https?:\/\//i.test(p.image_url));
-    if(!real.length){target.innerHTML='<p class="showcase-loading">Explora nuestros productos en el catálogo</p>';return;}
-    const chosen=[];
-    for(const brand of knownBrands){const found=real.find(p=>norm(p.brand)===norm(brand));if(found && !chosen.includes(found))chosen.push(found);}
-    for(const item of real){if(chosen.length>=4)break;if(!chosen.includes(item))chosen.push(item);}
-    target.innerHTML=chosen.map(p=>`<a class="showcase-product" href="#productos" data-showcase-brand="${esc(p.brand||'')}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="eager" referrerpolicy="no-referrer"><span>${esc(p.name)}</span></a>`).join('');
-    target.querySelectorAll('[data-showcase-brand]').forEach(link=>link.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(link.dataset.showcaseBrand))?.value||'';if(categoryFilter)categoryFilter.value='';search.value='';render();}));
   }
   let teaserTimer=null, teaserPosition=0;
   function renderCatalogTeasers(){
@@ -93,8 +81,7 @@
     teaserPosition=0;
     el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>';
     const row=el.querySelector('.catalog-teaser-row');
-    function teaserStatus(p){const raw=String(p.stock||'').toLowerCase().trim();if(raw.includes('agot')||raw.includes('sin stock'))return ['Agotado','out'];if(raw.includes('lleg')||raw.includes('próxim')||raw.includes('proxim')||raw.includes('pedido'))return ['Llegando','coming'];if(raw.includes('stock')||raw.includes('disponib'))return ['En stock','available'];return ['Consultar','unknown'];}
-    function paint(){const count=Math.min(12,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small><em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
+    function paint(){const count=Math.min(12,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
     let turning=false;
     const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
     function step(dir){
@@ -150,15 +137,15 @@
       dots.innerHTML=""; return;
     }
     promoIndex=((promoIndex%promotions.length)+promotions.length)%promotions.length;
-    const p=promotions[promoIndex];
+    const p=promotions[promoIndex], href=p.link_url||"#productos";
     const whatsappHref=wa(`Hola JIMPORT, vi la promoción "${p.title}" en su página web. ¿Podrían darme más información y confirmar disponibilidad?`);
-    slide.innerHTML=`<div class="promo-art"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'"><div class="promo-orbit"></div></div><div class="promo-copy"><span class="promo-kicker">JIMPORT · OFERTA ESPECIAL</span><h3>${esc(p.title)}</h3><details class="promo-details"><summary>Ver descripción y características <span aria-hidden="true">＋</span></summary><p>${esc(p.description||"Consulta los detalles de esta oferta con nuestro equipo.")}</p></details>${p.sale_price!=null?`<p class="promo-price"><del>${p.regular_price!=null?esc(moneyPromo(p.regular_price)):""}</del> <strong>${esc(moneyPromo(p.sale_price))}</strong></p>`:""}<div class="promo-actions"><a class="button promo-whatsapp" href="${whatsappHref}" target="_blank" rel="noopener noreferrer" aria-label="Consultar la promoción ${esc(p.title)} por WhatsApp"><span aria-hidden="true">◉</span> Consultar por WhatsApp</a></div></div>`;
+    const offerHref=/^(https?:\/\/|\/|#|index\.html(?:[?#]|$))/i.test(href)?href:"#productos";
+    slide.innerHTML=`<div class="promo-art"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'"><div class="promo-orbit"></div></div><div class="promo-copy"><span class="promo-kicker">JIMPORT · OFERTA ESPECIAL</span><h3>${esc(p.title)}</h3><details class="promo-details"><summary>Ver descripción y características <span aria-hidden="true">＋</span></summary><p>${esc(p.description||"Consulta los detalles de esta oferta con nuestro equipo.")}</p></details>${p.sale_price!=null?`<p class="promo-price"><del>${p.regular_price!=null?esc(moneyPromo(p.regular_price)):""}</del> <strong>${esc(moneyPromo(p.sale_price))}</strong></p>`:""}<div class="promo-actions"><a class="button" href="${esc(offerHref)}" ${offerHref.startsWith("http")?'target="_blank" rel="noopener noreferrer"':''}>${esc(p.button_text||"Ver oferta")} ↗</a><a class="button promo-whatsapp" href="${whatsappHref}" target="_blank" rel="noopener noreferrer" aria-label="Consultar la promoción ${esc(p.title)} por WhatsApp"><span aria-hidden="true">◉</span> Consultar por WhatsApp</a></div></div>`;
     dots.innerHTML=promotions.map((_,i)=>`<button type="button" class="promo-dot ${i===promoIndex?"active":""}" data-index="${i}" aria-label="Ver promoción ${i+1}"></button>`).join("");
-    slide.querySelector('.promo-details')?.addEventListener('toggle',e=>{if(e.target.open && promoTimer){clearInterval(promoTimer);promoTimer=null;}else if(!e.target.open)restartPromo();});
     dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{promoIndex=Number(b.dataset.index);renderPromotion();restartPromo();}));
   }
   function stepPromo(dir){if(!promotions.length)return;promoIndex=(promoIndex+dir+promotions.length)%promotions.length;renderPromotion();restartPromo();}
-  function restartPromo(){if(promoTimer)clearInterval(promoTimer);if(promotions.length>1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches)promoTimer=setInterval(()=>{if(!document.querySelector("#promoSlide .promo-details[open]"))stepPromo(1);},5500);}
+  function restartPromo(){if(promoTimer)clearInterval(promoTimer);if(promotions.length>1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches)promoTimer=setInterval(()=>stepPromo(1),5500);}
   function initPromoControls(){
     document.getElementById("promoPrev")?.addEventListener("click",()=>stepPromo(-1));
     document.getElementById("promoNext")?.addEventListener("click",()=>stepPromo(1));
