@@ -92,7 +92,7 @@
       categoryFilter.value=categories.find(c=>norm(c)===norm(currentCategory))||"";
     }
     const brand=brandFilter.value, category=categoryFilter?.value||"";
-    const list=products.filter(p=>q ? matchesSearch(p,q) : ((!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
+    const list=uniqueProducts(products.filter(p=>(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
     renderShowcaseProducts();
     if(!brand && !category && !q){
@@ -101,22 +101,8 @@
       renderHero();return;
     }
     grid.classList.add("catalog-same-design");
-    grid.innerHTML=uniqueProducts(list).map(p=>{
-      const raw=String(p.stock||"").toLowerCase();
-      const out=raw.includes("agot")||raw.includes("sin stock");
-      const coming=raw.includes("lleg")||raw.includes("próxim")||raw.includes("proxim")||raw.includes("pedido");
-      const stockLabel=out?"AGOTADO":coming?"PRÓXIMAMENTE":raw.includes("stock")||raw.includes("disponib")?"EN STOCK":"CONSULTAR";
-      const stockClass=out?"out":coming?"coming":raw.includes("stock")||raw.includes("disponib")?"available":"unknown";
-      return `<article class="catalog-teaser ${out?"is-out-of-stock":""}" aria-label="${esc(p.name)}">
-        ${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.style.display='none'">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}
-        <span>${esc(p.name)}</span><small>${esc(p.brand||"JIMPORT")}</small>
-        <strong class="teaser-price">${money(p.price)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}
-        <em class="teaser-stock teaser-stock--${stockClass}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${stockLabel}</span></em>
-        <button type="button" class="teaser-info-button" data-product-info="${esc(p.id)}">Ver características ＋</button>
-        <a class="teaser-whatsapp-button" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?` (modelo ${p.model})`:``}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener noreferrer">WhatsApp · Consultar ↗</a>
-        <button type="button" class="teaser-brand-button" data-product-cart="${esc(p.id)}">＋ Añadir al pedido</button>
-      </article>`;
-    }).join("");
+    function filteredStatus(p){const raw=String(p.stock||"").toLowerCase().trim();if(raw.includes("agot")||raw.includes("sin stock"))return ["Agotado","out"];if(raw.includes("lleg")||raw.includes("próxim")||raw.includes("proxim")||raw.includes("pedido"))return ["Llegando","coming"];if(raw.includes("stock")||raw.includes("disponib"))return ["En stock","available"];return ["Consultar","unknown"];}
+    grid.innerHTML=list.map(p=>`<article class="catalog-teaser" aria-label="${esc(p.name)}">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}<span>${esc(p.name)}</span><small>${esc(p.brand)}</small><strong class="teaser-price">${money(p.price)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}<em class="teaser-stock teaser-stock--${filteredStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${filteredStatus(p)[0]}</span></em><button type="button" class="teaser-info-button" data-product-info="${esc(p.id)}">Ver características ＋</button><a class="teaser-whatsapp-button" href="${wa(`Hola JIMPORT, quiero consultar por ${p.name}${p.model?` (modelo ${p.model})`:``}. ¿Está disponible?`)}" target="_blank" rel="noopener noreferrer">WhatsApp · Consultar ↗</a><button type="button" class="teaser-brand-button" data-product-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join("");
     grid.querySelectorAll("[data-product-info]").forEach(b=>b.addEventListener("click",()=>{const p=list.find(x=>String(x.id)===b.dataset.productInfo);if(p)openProductInfo(p);}));
     grid.querySelectorAll("[data-product-cart]").forEach(b=>b.addEventListener("click",()=>{if(window.JIMPORT_CART_ADD){window.JIMPORT_CART_ADD(b.dataset.productCart);b.textContent="✓ Añadido al pedido";setTimeout(()=>b.textContent="＋ Añadir al pedido",1600);}else alert("El pedido todavía está cargando. Inténtalo nuevamente.");}));
     if(!list.length)grid.innerHTML='<div class="empty">No hay productos para esta selección. <button type="button" id="emptyReset" class="clear-filters">Elegir otra marca o categoría</button></div>';
