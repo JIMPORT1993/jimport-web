@@ -1,0 +1,30 @@
+/* Catálogo: misma cuadrícula visual que los 12 productos destacados.
+   Escritorio: 4 columnas; móvil: 2 columnas. */
+.catalog-teaser-row{
+ display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:16px!important;
+}
+.catalog-teaser{
+ min-width:0!important;
+ align-items:stretch!important;
+ text-align:left!important;
+ padding:14px!important;
+}
+.catalog-teaser img{height:155px!important;width:100%!important;object-fit:contain!important}
+.catalog-teaser span{font-size:14px!important;min-height:38px}
+.catalog-teaser small{font-size:11px!important}
+.catalog-teaser .teaser-price{display:block!important;color:#14253b!important;font-size:19px!important;font-weight:850!important;margin-top:5px}
+.catalog-teaser .teaser-old-price{color:#7c8796!important;font-size:12px!important}
+.catalog-teaser .teaser-stock{align-self:flex-start!important}
+.catalog-teaser .teaser-info-button,.catalog-teaser .teaser-whatsapp-button,.catalog-teaser .teaser-brand-button{width:100%!important;box-sizing:border-box!important;text-align:center!important;justify-content:center!important}
+@media(max-width:800px){
+ .catalog-teaser-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .catalog-teaser{padding:10px!important}
+ .catalog-teaser img{height:125px!important}
+ .catalog-teaser span{font-size:12px!important}
+ .catalog-teaser .teaser-price{font-size:17px!important}
+}
+@media(min-width:801px){
+ #productGrid.product-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important}
+}
