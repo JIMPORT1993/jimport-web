@@ -113,7 +113,7 @@
   // La portada usa exclusivamente las fotografías registradas en Supabase.
   function renderShowcaseProducts(){
     const target=document.getElementById('showcaseProducts'); if(!target)return;
-    const real=products.filter(p=>p.active!==false && p.image_url && /^https?:\/\//i.test(p.image_url));
+    const real=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)) && p.image_url && /^https?:\/\//i.test(p.image_url));
     if(!real.length){target.innerHTML='<p class="showcase-loading">Explora nuestros productos en el catálogo</p>';return;}
     const chosen=[];
     for(const brand of knownBrands){const found=real.find(p=>norm(p.brand)===norm(brand));if(found && !chosen.includes(found))chosen.push(found);}
@@ -124,7 +124,7 @@
   let teaserTimer=null, teaserPosition=0;
   function renderCatalogTeasers(){
     const el=document.getElementById("catalogTeasers"); if(!el)return;
-    const withImages=products.filter(p=>p.active!==false && p.image_url && /^https?:\/\//i.test(p.image_url));
+    const withImages=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)) && p.image_url && /^https?:\/\//i.test(p.image_url));
     el.hidden=Boolean(brandFilter.value || categoryFilter?.value || search.value.trim());
     if(teaserTimer){clearInterval(teaserTimer);teaserTimer=null;}
     if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
@@ -157,7 +157,7 @@
     paint();autoplay();
   }
   function renderHero(){
-    const featured=products.filter(p=>p.active!==false);
+    const featured=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)));
     const visual=document.getElementById("heroProductVisual"), name=document.getElementById("heroProductName"), brand=document.getElementById("heroProductBrand"), dots=document.getElementById("heroDots");
     if(!visual||!name||!brand||!dots)return;
     if(!featured.length){visual.innerHTML='<div class="device">✦</div>';name.textContent="Tecnología para tu día a día";brand.textContent="UGREEN · Anker";dots.innerHTML="";return;}
@@ -168,7 +168,7 @@
     dots.innerHTML=featured.map((_,i)=>`<button type="button" class="hero-dot ${i===heroIndex?"active":""}" data-index="${i}" aria-label="Ver producto ${i+1}"></button>`).join("");
     dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{heroIndex=Number(b.dataset.index);renderHero();restartHero();}));
   }
-  function stepHero(dir){const featured=products.filter(p=>p.active!==false);if(!featured.length)return;heroIndex=(heroIndex+dir+featured.length)%featured.length;renderHero();restartHero();}
+  function stepHero(dir){const featured=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)));if(!featured.length)return;heroIndex=(heroIndex+dir+featured.length)%featured.length;renderHero();restartHero();}
   function restartHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=null;}
   document.getElementById("heroPrev")?.addEventListener("click",()=>stepHero(-1));document.getElementById("heroNext")?.addEventListener("click",()=>stepHero(1));
 
