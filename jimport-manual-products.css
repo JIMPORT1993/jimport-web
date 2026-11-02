@@ -1,0 +1,15 @@
+
+/* Navegación manual y características, para escritorio y móvil */
+.catalog-teaser{cursor:default!important}
+.catalog-teaser .teaser-info-button,.teaser-brand-button,#heroInfoButton{display:block;width:100%;border:1px solid #b4dccc;border-radius:10px;padding:9px 7px;background:#effaf5;color:#076849;font:700 12px inherit;cursor:pointer;min-height:38px}
+.catalog-teaser .teaser-info-button{background:#067f55;color:#fff;border-color:#067f55;margin-top:auto}
+.catalog-teaser .teaser-brand-button{background:white;color:#17614b;margin-top:5px}
+#heroInfoButton{width:auto;margin:12px auto}
+.jimport-product-dialog{border:0;border-radius:20px;padding:20px;width:min(92vw,480px);max-height:86vh;overflow:auto;box-shadow:0 20px 80px #0006;color:#18352d;background:#fff}
+.jimport-product-dialog::backdrop{background:#071a1dbb}
+.jimport-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.jimport-dialog-close{border:0;background:#edf4f1;border-radius:50%;width:36px;height:36px;cursor:pointer}
+.jimport-product-dialog>img{display:block;max-width:100%;height:180px;object-fit:contain;margin:auto}
+.jimport-product-dialog h3{margin:12px 0 5px;font-size:21px}
+.jimport-dialog-model{color:#64766e}.jimport-dialog-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.jimport-dialog-price{display:block;font-size:20px;margin:12px 0}
+@media(max-width:600px){.catalog-teaser .teaser-info-button,.teaser-brand-button{font-size:11px;padding:8px 4px}.jimport-product-dialog{padding:16px}}

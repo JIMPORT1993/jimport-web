@@ -1,0 +1,1 @@
+Cambios: productos duplicados ocultos por SKU/modelo/nombre en la interfaz; no se elimina nada de Supabase. Carrusel de catálogo y promociones y portada: cambio manual. Botón de características en tarjetas del carrusel y portada; catálogo mantiene sus detalles. Aplicable a PC y móvil.\n

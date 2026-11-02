@@ -28,7 +28,7 @@
         if(!data || data.length<batchSize) break;
       }
       // Los productos antiguos sin columna active se consideran visibles.
-      products=all.filter(p=>p.active!==false);
+      products=uniqueProducts(all.filter(p=>p.active!==false));
       render();
     } catch(error){
       console.error("JIMPORT: error al cargar productos",error);
@@ -45,6 +45,26 @@
     const content=searchable([p.name,p.brand,p.model,p.description,p.category,p.sku,p.specifications,p.features].filter(v=>typeof v==="string"||typeof v==="number").join(" "));
     const terms=searchable(query).split(/\s+/).filter(Boolean);
     return terms.every(term=>content.includes(term));
+  }
+  // Una ficha por modelo/SKU en la interfaz; los registros originales permanecen en Supabase.
+  function uniqueProducts(rows){
+    const seen=new Set();
+    return rows.filter(p=>{
+      const brand=norm(p.brand), sku=norm(p.sku||p.codigo||p.code), model=norm(p.model);
+      const name=norm(p.name).replace(/[^a-z0-9]+/g,' ').trim();
+      const key=brand+'|'+(sku?'sku:'+sku:model && model!=='ejemplo'?'model:'+model:'name:'+name);
+      if(seen.has(key))return false; seen.add(key);return true;
+    });
+  }
+  function productInfo(p){
+    const parts=[p.description,p.specifications,p.features].filter(Boolean).map(v=>typeof v==='string'?v:JSON.stringify(v));
+    return parts.length?parts.join('\n\n'):'Consulta las características con nuestro equipo de JIMPORT.';
+  }
+  function openProductInfo(p){
+    let dlg=document.getElementById('jimportProductInfoDialog');
+    if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
+    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Características del producto</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:''}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''}</p><p class="jimport-dialog-text">${esc(productInfo(p))}</p><strong class="jimport-dialog-price">${money(p.price)}</strong><a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name)}">Consultar por WhatsApp ↗</a>`;
+    dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();dlg.showModal();
   }
   function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
@@ -89,34 +109,32 @@
     el.hidden=Boolean(brandFilter.value || categoryFilter?.value || search.value.trim());
     if(teaserTimer){clearInterval(teaserTimer);teaserTimer=null;}
     if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
-    const ordered=[...withImages].sort((a,b)=>knownBrands.indexOf(a.brand)-knownBrands.indexOf(b.brand));
+    const ordered=uniqueProducts(withImages).sort((a,b)=>knownBrands.indexOf(a.brand)-knownBrands.indexOf(b.brand));
     teaserPosition=0;
     el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>';
     const row=el.querySelector('.catalog-teaser-row');
     function teaserStatus(p){const raw=String(p.stock||'').toLowerCase().trim();if(raw.includes('agot')||raw.includes('sin stock'))return ['Agotado','out'];if(raw.includes('lleg')||raw.includes('próxim')||raw.includes('proxim')||raw.includes('pedido'))return ['Llegando','coming'];if(raw.includes('stock')||raw.includes('disponib'))return ['En stock','available'];return ['Consultar','unknown'];}
-    function paint(){const count=Math.min(12,ordered.length);row.innerHTML=Array.from({length:count},(_,i)=>ordered[(teaserPosition+i)%ordered.length]).map(p=>`<button type="button" class="catalog-teaser" data-teaser-brand="${esc(p.brand)}" aria-label="Explorar productos ${esc(p.brand)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small><em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em></button>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
+    function paint(){const count=Math.min(12,Math.max(0,ordered.length-teaserPosition));row.innerHTML=ordered.slice(teaserPosition,teaserPosition+count).map(p=>`<article class="catalog-teaser" aria-label="${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small><em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em><button type="button" class="teaser-info-button" data-teaser-info="${esc(p.id)}">Ver características ＋</button><button type="button" class="teaser-brand-button" data-teaser-brand="${esc(p.brand)}">Ver catálogo →</button></article>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-info]').forEach(b=>b.addEventListener('click',()=>{const p=ordered.find(x=>String(x.id)===b.dataset.teaserInfo);if(p)openProductInfo(p);}));row.querySelectorAll('[data-teaser-brand]').forEach(b=>b.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(b.dataset.teaserBrand))?.value||"";categoryFilter.value="";search.value="";render();}));}
     let turning=false;
     const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
     function step(dir){
       if(turning)return;
       turning=true;
       if(reduceMotion.matches){
-        teaserPosition=(teaserPosition+dir*12+ordered.length*12)%ordered.length;
+        teaserPosition=dir>0?(teaserPosition+12>=ordered.length?0:teaserPosition+12):(teaserPosition===0?Math.floor((ordered.length-1)/12)*12:Math.max(0,teaserPosition-12));
         paint();turning=false;return;
       }
       row.classList.remove('wave-out','wave-in');
       row.style.setProperty('--wave-direction',dir>0?'1':'-1');
       row.classList.add('wave-out');
       setTimeout(()=>{
-        teaserPosition=(teaserPosition+dir*12+ordered.length*12)%ordered.length;
+        teaserPosition=dir>0?(teaserPosition+12>=ordered.length?0:teaserPosition+12):(teaserPosition===0?Math.floor((ordered.length-1)/12)*12:Math.max(0,teaserPosition-12));
         paint();row.classList.remove('wave-out');row.classList.add('wave-in');
         setTimeout(()=>{row.classList.remove('wave-in');turning=false;},760);
       },760);
     }
-    function autoplay(){if(teaserTimer)clearInterval(teaserTimer);if(ordered.length>12)teaserTimer=setInterval(()=>{if(!document.hidden&&!el.hidden)step(1);},4000);}
+    function autoplay(){} // Navegación exclusivamente manual.
     el.querySelectorAll('[data-teaser-dir]').forEach(b=>b.addEventListener('click',()=>{step(Number(b.dataset.teaserDir));autoplay();}));
-    el.addEventListener('mouseenter',()=>{if(teaserTimer)clearInterval(teaserTimer);});
-    el.addEventListener('mouseleave',()=>autoplay());
     paint();autoplay();
   }
   function renderHero(){
@@ -127,11 +145,12 @@
     heroIndex=((heroIndex%featured.length)+featured.length)%featured.length;const p=featured[heroIndex];
     visual.innerHTML=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=&quot;device&quot;>✦</div>'">`:'<div class="device">✦</div>';
     name.textContent=p.name+(p.stock==="Agotado"?" · Agotado":"");brand.textContent=`${p.brand||"JIMPORT"} · ${money(p.price)}`;
+    let infoBtn=document.getElementById('heroInfoButton');if(!infoBtn){infoBtn=document.createElement('button');infoBtn.type='button';infoBtn.id='heroInfoButton';infoBtn.className='teaser-info-button';infoBtn.textContent='Ver características ＋';dots.parentElement.insertBefore(infoBtn,dots);}infoBtn.onclick=()=>openProductInfo(p);
     dots.innerHTML=featured.map((_,i)=>`<button type="button" class="hero-dot ${i===heroIndex?"active":""}" data-index="${i}" aria-label="Ver producto ${i+1}"></button>`).join("");
     dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{heroIndex=Number(b.dataset.index);renderHero();restartHero();}));
   }
   function stepHero(dir){const featured=products.filter(p=>p.active!==false);if(!featured.length)return;heroIndex=(heroIndex+dir+featured.length)%featured.length;renderHero();restartHero();}
-  function restartHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=setInterval(()=>stepHero(1),4500);}
+  function restartHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=null;}
   document.getElementById("heroPrev")?.addEventListener("click",()=>stepHero(-1));document.getElementById("heroNext")?.addEventListener("click",()=>stepHero(1));
 
   let promotions = [], promoIndex = 0, promoTimer = null;
@@ -158,7 +177,7 @@
     dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{promoIndex=Number(b.dataset.index);renderPromotion();restartPromo();}));
   }
   function stepPromo(dir){if(!promotions.length)return;promoIndex=(promoIndex+dir+promotions.length)%promotions.length;renderPromotion();restartPromo();}
-  function restartPromo(){if(promoTimer)clearInterval(promoTimer);if(promotions.length>1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches)promoTimer=setInterval(()=>{if(!document.querySelector("#promoSlide .promo-details[open]"))stepPromo(1);},5500);}
+  function restartPromo(){if(promoTimer)clearInterval(promoTimer);promoTimer=null;}
   function initPromoControls(){
     document.getElementById("promoPrev")?.addEventListener("click",()=>stepPromo(-1));
     document.getElementById("promoNext")?.addEventListener("click",()=>stepPromo(1));
