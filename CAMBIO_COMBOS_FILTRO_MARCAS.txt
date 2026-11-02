@@ -1,0 +1,5 @@
+SÚPER COMBOS — FILTRO POR MARCAS
+En Administrador > Súper Combos se agregó el selector Filtrar productos por marca.
+Permite elegir ANKER, UGREEN, DJI, MARVO u otras marcas presentes en los productos de Supabase.
+La selección de productos se conserva al cambiar de marca, permitiendo crear combos mixtos.
+No se requiere ejecutar SQL adicional.
