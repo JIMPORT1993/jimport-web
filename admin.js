@@ -414,7 +414,7 @@
   function openPromotion(p=null){
     populatePromoProducts();$("promoProduct").value="";showSelectedPromoProduct();
     $("promotionFormTitle").textContent=p?"Editar promoción":"Nueva promoción";
-    $("promotionId").value=p?.id||"";$("promoTitle").value=p?.title||"";$("promoDescription").value=p?.description||"";
+    $("promotionId").value=p?.id||"";$("promoProduct").value=p?.product_id||"";showSelectedPromoProduct();$("promoTitle").value=p?.title||"";$("promoDescription").value=p?.description||"";
     $("promoImage").value=p?.image_url||"";$("promoLink").value=p?.link_url||"";$("promoButton").value=p?.button_text||"Ver oferta";
     $("promoRegularPrice").value=p?.regular_price??"";$("promoSalePrice").value=p?.sale_price??"";
     $("promoActive").checked=p?.active!==false;promoForm.hidden=false;promoForm.scrollIntoView({behavior:"smooth",block:"start"});
@@ -427,7 +427,7 @@
     if(!image){note("Añade una imagen al producto o pega una URL de imagen para esta promoción.");return;}
     const regular=$("promoRegularPrice").value, sale=$("promoSalePrice").value;
     if(sale!=="" && regular!=="" && Number(sale)>=Number(regular)){note("El precio promocional debe ser menor que el precio normal.");return;}
-    const item={regular_price:regular===""?null:Number(regular),sale_price:sale===""?null:Number(sale),title:$("promoTitle").value.trim(),description:$("promoDescription").value.trim()||null,image_url:image,link_url:$("promoLink").value.trim()||(product?`index.html?buscar=${encodeURIComponent(product.model||product.name)}#productos`:null),button_text:$("promoButton").value.trim()||"Ver oferta",active:$("promoActive").checked};
+    const item={product_id:product?String(product.id):null,regular_price:regular===""?null:Number(regular),sale_price:sale===""?null:Number(sale),title:$("promoTitle").value.trim(),description:$("promoDescription").value.trim()||null,image_url:image,link_url:$("promoLink").value.trim()||(product?`index.html?buscar=${encodeURIComponent(product.model||product.name)}#productos`:null),button_text:$("promoButton").value.trim()||"Ver oferta",active:$("promoActive").checked};
     const result=id?await client.from("promotions").update(item).eq("id",id):await client.from("promotions").insert(item);
     if(result.error){note("No se pudo guardar la promoción: "+(result.error.message||"Error desconocido")+". Comprueba la tabla y los permisos en Supabase.");console.error(result.error);return;}
     promoForm.hidden=true;note("Promoción guardada correctamente.");await refreshPromotions();

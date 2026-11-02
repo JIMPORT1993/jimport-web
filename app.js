@@ -8,7 +8,7 @@
   const wa = (msg="Hola JIMPORT, quisiera información sobre sus productos.") => `https://wa.me/${(cfg.WHATSAPP_NUMBER||"").replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`;
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
-  let products = [], heroIndex = 0, heroTimer = null;
+  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set();
   const knownBrands=[]; // Las marcas se obtienen de los productos reales, no de una lista fija.
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
@@ -92,7 +92,7 @@
       categoryFilter.value=categories.find(c=>norm(c)===norm(currentCategory))||"";
     }
     const brand=brandFilter.value, category=categoryFilter?.value||"";
-    const list=uniqueProducts(products.filter(p=>(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
+    const list=uniqueProducts(products.filter(p=>!promotedProductIds.has(String(p.id))&&(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
     renderShowcaseProducts();
     if(!brand && !category && !q){
@@ -177,7 +177,7 @@
     if(!client){ initPromoControls(); return; }
     const {data,error}=await client.from("promotions").select("*").eq("active",true).order("created_at",{ascending:false});
     if(error){ console.warn("Promociones: ejecuta el bloque actualizado de schema.sql en Supabase.",error); initPromoControls(); return; }
-    promotions=data||[]; renderPromotion(); initPromoControls();
+    promotions=data||[]; promotedProductIds=new Set(promotions.filter(p=>p.product_id).map(p=>String(p.product_id))); renderPromotion(); initPromoControls(); render();
   }
   const moneyPromo=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:"USD"}).format(Number(n));
   function renderPromotion(){
