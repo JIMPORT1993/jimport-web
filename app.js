@@ -71,7 +71,7 @@
     const brands=[...new Set([...knownBrands,...products.map(p=>String(p.brand||"").trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"es"));
     brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("");
     brandFilter.value=brands.find(b=>norm(b)===norm(currentBrand))||"";
-    const categories=[...new Set(products.map(p=>String(p.category||"VARIOS").trim()||"VARIOS"))].sort((a,b)=>a.localeCompare(b,"es"));
+    const categories=[...new Set([...products.map(p=>String(p.category||"VARIOS").trim()||"VARIOS"),...(window.JIMPORT_EXTRA_CATEGORIES||[])])].sort((a,b)=>a.localeCompare(b,"es"));
     if(categoryFilter){
       categoryFilter.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
       categoryFilter.value=categories.find(c=>norm(c)===norm(currentCategory))||"";

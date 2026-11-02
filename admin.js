@@ -4,6 +4,49 @@
   const client=configured && window.supabase?.createClient ? window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
   const $=id=>document.getElementById(id), loginPanel=$("loginPanel"), dashboard=$("dashboard"), form=$("productForm"), message=$("adminMessage");
   let rows=[]; let privateInventory={}; let authorized=false; let onlyLowStock=false; let adminPage=1;
+  const baseCategories=[...document.querySelectorAll('#pCategory option')].map(o=>o.value);
+  let customCategories=[];
+  const categoryStoreKey='jimport_custom_categories_v1';
+  function getCustomCategories(){
+    try{return JSON.parse(localStorage.getItem(categoryStoreKey)||'[]').filter(x=>typeof x==='string');}catch{return [];}
+  }
+  function updateCategoryChoices(){
+    const select=$('pCategory'); if(!select)return;
+    const previous=select.value;
+    const values=[...new Set([...baseCategories,...customCategories,...rows.map(p=>String(p.category||'').trim()).filter(Boolean)])];
+    select.replaceChildren(...values.map(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o;}));
+    if(values.includes(previous))select.value=previous;
+    const grid=document.querySelector('.category-admin-grid');
+    if(grid){
+      const original=grid.querySelectorAll('[data-added-category]');original.forEach(n=>n.remove());
+      values.filter(v=>!baseCategories.includes(v)).forEach(v=>{
+        const el=document.createElement('div');el.dataset.addedCategory='true';const b=document.createElement('b');b.textContent=v;el.append('📦 ',b);grid.append(el);
+      });
+    }
+  }
+  async function loadCustomCategories(){
+    customCategories=getCustomCategories();
+    if(client){
+      const {data,error}=await client.from('jimport_categories').select('name').order('name');
+      if(!error && Array.isArray(data))customCategories=[...new Set([...customCategories,...data.map(x=>x.name)])];
+    }
+    updateCategoryChoices();
+  }
+  $('newCategoryForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const status=$('categoryCreateStatus');
+    if(!authorized){status.textContent='Debes iniciar sesión como administrador.';return;}
+    const name=$('newCategoryName').value.trim().replace(/\\s+/g,' ').toLocaleUpperCase('es');
+    if(name.length<2){status.textContent='Escribe un nombre de al menos 2 caracteres.';return;}
+    if([...baseCategories,...customCategories].some(v=>v.toLocaleUpperCase('es')===name)){status.textContent='Esa categoría ya existe.';return;}
+    if(!client){status.textContent='No se ha configurado Supabase. No se guardó la categoría.';return;}
+    const {error}=await client.from('jimport_categories').insert({name});
+    if(error){status.textContent='No se pudo guardar en Supabase: '+error.message+'. Ejecuta JIMPORT_CATEGORIAS_ADMIN.sql si falta la tabla.';return;}
+    customCategories.push(name);localStorage.setItem(categoryStoreKey,JSON.stringify(customCategories));
+    updateCategoryChoices();$('pCategory').value=name;$('newCategoryName').value='';
+    status.textContent='Categoría «'+name+'» creada. Ya puedes seleccionarla al editar o añadir productos.';
+  });
+  loadCustomCategories();
   const money=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:cfg.CURRENCY||"USD"}).format(Number(n||0));
   function note(t){message.textContent=t;message.hidden=false;}
   function setLoggedIn(ok){loginPanel.hidden=ok;dashboard.hidden=!ok; if(ok){refresh();refreshPromotions();refreshReviews();window.dispatchEvent(new Event("jimport-admin-ready"));}}
@@ -67,7 +110,7 @@
     finally{button.disabled=false;}
   });
   $('filterLowStock').addEventListener('click',()=>{onlyLowStock=!onlyLowStock;$('filterLowStock').textContent=onlyLowStock?'Mostrar todos los productos':'🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed',String(onlyLowStock));draw();});
-  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";updateCategoryChoices();form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   form.addEventListener("submit",async e=>{
     e.preventDefault();
     if(!client){note("Supabase no está configurado. Revisa config.js.");return;}
