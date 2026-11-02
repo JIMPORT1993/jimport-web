@@ -1,91 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Descubre accesorios y tecnología UGREEN, Anker y más en JIMPORT. Compara productos, consulta disponibilidad y recibe asesoría por WhatsApp.">
-  <meta name="theme-color" content="#031b3b"><meta property="og:type" content="website"><meta property="og:title" content="JIMPORT | Tecnología que conecta"><meta property="og:description" content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp.">
-  <title>JIMPORT | Tecnología y accesorios</title>
-  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="option4-cyan.css"><link rel="stylesheet" href="boceto-aprobado.css"><link rel="stylesheet" href="mobile-neon-2026.css"><link rel="stylesheet" href="mobile-compact-one-logo.css"><link rel="stylesheet" href="mobile-jimport-2026.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Descubre accesorios y tecnología UGREEN, Anker y más en JIMPORT. Compara productos, consulta disponibilidad y recibe asesoría por WhatsApp." name="description"/>
+<meta content="#031b3b" name="theme-color"/><meta content="website" property="og:type"/><meta content="JIMPORT | Tecnología que conecta" property="og:title"/><meta content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp." property="og:description"/>
+<title>JIMPORT | Tecnología y accesorios</title>
+<link href="styles.css" rel="stylesheet"/><link href="option4-cyan.css" rel="stylesheet"/><link href="boceto-aprobado.css" rel="stylesheet"/><link href="mobile-neon-2026.css" rel="stylesheet"/><link href="mobile-compact-one-logo.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="jimport-redesign-2026.css" rel="stylesheet"/></head>
 <body>
 <a class="skip-link" href="#productos">Ir al catálogo</a>
 <header class="topbar">
-  <a class="brand brand-wordmark" href="#" aria-label="JIMPORT inicio"><img src="assets/logo-jimport.png" alt="JIMPORT" class="new-header-logo"><span> · TECNOLOGÍA</span></a>
-  <div class="header-brand-carousel" aria-label="Marcas destacadas">
-    <div class="header-brand-track">
-      <a class="header-brand-item" href="#productos" data-brand="UGREEN" aria-label="Ver productos UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"></a>
-      <a class="header-brand-item" href="#productos" data-brand="Anker" aria-label="Ver productos Anker"><img src="assets/anker.svg" alt="Anker"></a>
-      <a class="header-brand-item" href="#productos" data-brand="DJI" aria-label="Ver productos DJI"><img src="assets/dji.svg" alt="DJI"></a>
-      <a class="header-brand-item" href="#productos" data-brand="Marvo" aria-label="Ver productos Marvo"><img src="assets/marvo.svg" alt="Marvo"></a>
-      <a class="header-brand-item" href="#productos" data-brand="UGREEN" aria-label="Ver productos UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"></a>
-      <a class="header-brand-item" href="#productos" data-brand="Anker" aria-label="Ver productos Anker"><img src="assets/anker.svg" alt="Anker"></a>
-      <a class="header-brand-item" href="#productos" data-brand="DJI" aria-label="Ver productos DJI"><img src="assets/dji.svg" alt="DJI"></a>
-      <a class="header-brand-item" href="#productos" data-brand="Marvo" aria-label="Ver productos Marvo"><img src="assets/marvo.svg" alt="Marvo"></a>
-    </div>
-  </div>
-  <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">☰ <span>Menú</span></button>
-  <nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#opiniones">Opiniones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
-  <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+<a aria-label="JIMPORT inicio" class="brand brand-wordmark" href="#"><img alt="JIMPORT" class="new-header-logo" src="assets/logo-jimport.png"/><span> · TECNOLOGÍA</span></a>
+<div aria-label="Marcas destacadas" class="header-brand-carousel">
+<div class="header-brand-track">
+<a aria-label="Ver productos UGREEN" class="header-brand-item" data-brand="UGREEN" href="#productos"><img alt="UGREEN" src="assets/ugreen.svg"/></a>
+<a aria-label="Ver productos Anker" class="header-brand-item" data-brand="Anker" href="#productos"><img alt="Anker" src="assets/anker.svg"/></a>
+<a aria-label="Ver productos DJI" class="header-brand-item" data-brand="DJI" href="#productos"><img alt="DJI" src="assets/dji.svg"/></a>
+<a aria-label="Ver productos Marvo" class="header-brand-item" data-brand="Marvo" href="#productos"><img alt="Marvo" src="assets/marvo.svg"/></a>
+<a aria-label="Ver productos UGREEN" class="header-brand-item" data-brand="UGREEN" href="#productos"><img alt="UGREEN" src="assets/ugreen.svg"/></a>
+<a aria-label="Ver productos Anker" class="header-brand-item" data-brand="Anker" href="#productos"><img alt="Anker" src="assets/anker.svg"/></a>
+<a aria-label="Ver productos DJI" class="header-brand-item" data-brand="DJI" href="#productos"><img alt="DJI" src="assets/dji.svg"/></a>
+<a aria-label="Ver productos Marvo" class="header-brand-item" data-brand="Marvo" href="#productos"><img alt="Marvo" src="assets/marvo.svg"/></a>
+</div>
+</div>
+<button aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú" class="mobile-menu-toggle" id="mobileMenuToggle" type="button">☰ <span>Menú</span></button>
+<nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#opiniones">Opiniones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
+<a class="button button-small" id="headerWhatsapp" rel="noopener" target="_blank">Consultar por WhatsApp</a>
 </header>
-<section class="jm-mobile-home" aria-label="Portada móvil JIMPORT">
- <div class="jm-mobile-banner"><div class="jm-mobile-banner-title"><img src="assets/ugreen.svg" alt="UGREEN"><span>TECNOLOGÍA QUE TE ACOMPAÑA</span></div><img class="jm-mobile-products" src="assets/ugreen-mobile-hero.png" alt="Accesorios tecnológicos UGREEN" loading="eager"><div class="jm-mobile-glow"></div><div class="jm-mobile-dots" aria-hidden="true"><i></i><i></i><i></i></div></div>
- <div class="jm-mobile-brands" aria-label="Selecciona una marca"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="ANKER"></a><a href="#productos" data-brand="DJI"><img src="assets/dji.svg" alt="DJI"></a><a href="#productos" data-brand="Marvo"><img src="assets/marvo.svg" alt="MARVO"></a></div>
- <div class="jm-mobile-benefits"><div><span>🚚</span>Envíos a<br>todo el país</div><div><span>♢</span>Compra<br>segura</div><div><span>✦</span>Marcas<br>reconocidas</div><div><span>♧</span>Atención<br>personalizada</div></div>
- <div class="jm-mobile-heading"><strong>✦ Productos destacados</strong><a href="#productos">Ver más →</a></div>
+<section aria-label="JIMPORT ofertas y promociones" class="hero hero-centered sale-hero option4-hero">
+<div class="sale-hero-content">
+<span class="sale-pill">⚡ JIMPORT · OFERTAS Y NOVEDADES</span>
+<p class="sale-overline">ACCESORIOS TECNOLÓGICOS PARA TU DÍA A DÍA</p>
+<h1>OFERTAS <em>ESPECIALES</em><span> EN TECNOLOGÍA</span></h1>
+<p class="sale-description">Descubre accesorios UGREEN, ANKER, DJI y MARVO. Explora promociones vigentes, novedades y productos seleccionados.</p>
+<div class="sale-hero-actions"><a class="sale-primary" href="#promociones">Ver promociones ↗</a><a class="sale-outline" href="#productos">Explorar catálogo →</a></div>
+<div class="sale-assurance"><span>✓ Atención personalizada</span><span>✓ Consulta por WhatsApp</span><span>✓ Disponibilidad actualizada</span></div>
+</div>
+<div aria-label="JIMPORT y línea de accesorios UGREEN" class="sale-hero-art sale-blue-art new-showcase option4-showcase">
+<div aria-hidden="true" class="neon-orbit"></div><div aria-hidden="true" class="option4-wave wave-a"></div><div aria-hidden="true" class="option4-wave wave-b"></div><div aria-hidden="true" class="neon-lightning neon-lightning-one"></div><div aria-hidden="true" class="neon-lightning neon-lightning-two"></div>
+<img alt="Logo original JIMPORT" class="showcase-brand" src="assets/logo-jimport.png"/>
+<div class="showcase-feature-product"><img alt="Accesorios UGREEN de la imagen proporcionada" decoding="async" loading="eager" src="assets/ugreen-portada-original.png"/></div>
+<div aria-hidden="true" class="showcase-stage"></div>
+<div class="showcase-brands"><span>UGREEN</span><span>ANKER</span><span>DJI</span><span>MARVO</span></div>
+</div>
 </section>
-<section class="hero hero-centered sale-hero option4-hero" aria-label="JIMPORT ofertas y promociones">
-  <div class="sale-hero-content">
-    <span class="sale-pill">⚡ JIMPORT · OFERTAS Y NOVEDADES</span>
-    <p class="sale-overline">ACCESORIOS TECNOLÓGICOS PARA TU DÍA A DÍA</p>
-    <h1>OFERTAS <em>ESPECIALES</em><span> EN TECNOLOGÍA</span></h1>
-    <p class="sale-description">Descubre accesorios UGREEN, ANKER, DJI y MARVO. Explora promociones vigentes, novedades y productos seleccionados.</p>
-    <div class="sale-hero-actions"><a class="sale-primary" href="#promociones">Ver promociones ↗</a><a class="sale-outline" href="#productos">Explorar catálogo →</a></div>
-    <div class="sale-assurance"><span>✓ Atención personalizada</span><span>✓ Consulta por WhatsApp</span><span>✓ Disponibilidad actualizada</span></div>
-  </div>
-  <div class="sale-hero-art sale-blue-art new-showcase option4-showcase" aria-label="JIMPORT y línea de accesorios UGREEN">
-    <div class="neon-orbit" aria-hidden="true"></div><div class="option4-wave wave-a" aria-hidden="true"></div><div class="option4-wave wave-b" aria-hidden="true"></div><div class="neon-lightning neon-lightning-one" aria-hidden="true"></div><div class="neon-lightning neon-lightning-two" aria-hidden="true"></div>
-    <img class="showcase-brand" src="assets/logo-jimport.png" alt="Logo original JIMPORT">
-    <div class="showcase-feature-product"><img src="assets/ugreen-portada-original.png" alt="Accesorios UGREEN de la imagen proporcionada" loading="eager" decoding="async"></div>
-    <div class="showcase-stage" aria-hidden="true"></div>
-    <div class="showcase-brands"><span>UGREEN</span><span>ANKER</span><span>DJI</span><span>MARVO</span></div>
-  </div>
-</section>
-<div class="hero-trust-strip" aria-label="Ventajas de comprar en JIMPORT"><span>🚚 <b>Envíos a todo<br>el Ecuador</b></span><span>🛡️ <b>Compra con<br>atención segura</b></span><span>✦ <b>Productos<br>seleccionados</b></span><span>🎧 <b>Atención<br>personalizada</b></span><span>◉ <b>Asesoría por<br>WhatsApp</b></span></div>
+<div aria-label="Ventajas de comprar en JIMPORT" class="hero-trust-strip"><span>🚚 <b>Envíos a todo<br/>el Ecuador</b></span><span>🛡️ <b>Compra con<br/>atención segura</b></span><span>✦ <b>Productos<br/>seleccionados</b></span><span>🎧 <b>Atención<br/>personalizada</b></span><span>◉ <b>Asesoría por<br/>WhatsApp</b></span></div>
 <main>
-<div class="sale-ticker" aria-label="Descubre las promociones de JIMPORT"><div>✦ OFERTAS ESPECIALES &nbsp; ✦ NOVEDADES TECNOLÓGICAS &nbsp; ✦ ACCESORIOS UGREEN Y ANKER &nbsp; ✦ COMPRA POR WHATSAPP &nbsp; ✦ OFERTAS ESPECIALES &nbsp; ✦ NOVEDADES TECNOLÓGICAS</div></div>
-  <div class="premium-benefits" aria-label="Ventajas de JIMPORT"><span>✦ Tecnología seleccionada</span><span>◈ Asesoría personalizada</span><span>✓ Compra con atención directa</span></div>
-  <section class="section" id="productos">
-    <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Descubre tus próximos favoritos</h2></div><p>Selecciona una categoría para que veas nuestros productos.</p></div>
-    <div class="filters"><label class="sr-only" for="search">Buscar productos</label><input id="search" type="search" placeholder="Buscar por nombre, modelo o característica (ej. 100W)…" aria-label="Buscar productos"><select id="brandFilter" aria-label="Filtrar por marca"><option value="">Todas las marcas</option><option value="UGREEN">UGREEN</option><option value="Anker">Anker</option><option value="DJI">DJI</option><option value="Marvo">Marvo</option></select><select id="categoryFilter" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select><button type="button" class="clear-filters" id="clearFilters">Cambiar selección</button></div>
-    <div id="catalogTeasers" class="catalog-teasers" aria-label="Doce productos destacados de nuestro catálogo"></div>
-    <div id="status" class="status">Cargando catálogo…</div><div id="productGrid" class="product-grid"></div>
-  </section>
-  <section class="brand-showcase" aria-label="Marcas disponibles"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"><span>Conectividad y carga</span></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="Anker"><span>Carga inteligente</span></a><a href="#productos" data-brand="DJI"><img src="assets/dji.svg" alt="DJI"><span>Tecnología creativa</span></a><a href="#productos" data-brand="Marvo"><img src="assets/marvo.svg" alt="Marvo"><span>Accesorios gaming</span></a></div></section>
-  <section class="promotions-section" id="promociones" aria-label="Promociones JIMPORT">
-    <div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Ofertas que no querrás perderte</h2><p>Revisa las promociones disponibles y consulta sus condiciones antes de comprar.</p></div>
-    <div class="promo-carousel" id="promoCarousel" aria-live="polite">
-      <div class="promo-slide" id="promoSlide">
-        <div class="promo-art"><div class="promo-orbit"></div><span class="promo-spark">✦</span></div>
-        <div class="promo-copy"><span class="promo-kicker">JIMPORT · PROMOCIONES</span><h3>Ofertas especiales te esperan</h3><details class="promo-details"><summary>Ver descripción y características <span aria-hidden="true">＋</span></summary><p>Vuelve pronto para descubrir nuestras promociones.</p></details></div>
-      </div>
-      <div class="promo-controls"><button type="button" id="promoPrev" aria-label="Promoción anterior">‹</button><div id="promoDots" class="promo-dots"></div><button type="button" id="promoNext" aria-label="Siguiente promoción">›</button></div>
-    </div>
-  </section>
-  <section class="trust-row"><div><b>Marcas seleccionadas</b><span>UGREEN · Anker · DJI · Marvo</span></div><div><b>Atención directa</b><span>Resuelve tus dudas por WhatsApp</span></div><div><b>Catálogo actualizado</b><span>Consulta disponibilidad y precios</span></div></section>
-
-  <section class="reviews-section section" id="opiniones"><div class="section-heading"><div><p class="eyebrow">TU EXPERIENCIA IMPORTA</p><h2>Opiniones y calificaciones</h2></div><p>Cuéntanos cómo fue tu experiencia con JIMPORT.</p></div><div class="reviews-layout"><form id="reviewForm" class="review-form"><h3>Déjanos tu opinión</h3><div class="review-name-grid"><div><label for="reviewName">Nombre</label><input id="reviewName" maxlength="35" autocomplete="given-name" required placeholder="Tu nombre"></div><div><label for="reviewLastName">Apellido</label><input id="reviewLastName" maxlength="35" autocomplete="family-name" required placeholder="Tu apellido"></div></div><label for="reviewCode">Código de compra verificada *</label><input id="reviewCode" required maxlength="80" placeholder="Código recibido por WhatsApp"><label for="reviewRating">Tu calificación</label><div class="rating-picker" id="ratingPicker" role="group" aria-label="Seleccionar estrellas"><button type="button" data-rating="1" aria-label="1 estrella">★</button><button type="button" data-rating="2" aria-label="2 estrellas">★</button><button type="button" data-rating="3" aria-label="3 estrellas">★</button><button type="button" data-rating="4" aria-label="4 estrellas">★</button><button type="button" data-rating="5" aria-label="5 estrellas">★</button></div><select id="reviewRating" required><option value="">Selecciona una calificación</option><option value="5">★★★★★ · Excelente</option><option value="4">★★★★☆ · Muy buena</option><option value="3">★★★☆☆ · Buena</option><option value="2">★★☆☆☆ · Regular</option><option value="1">★☆☆☆☆ · Mala</option></select><label for="reviewComment">Tu comentario</label><textarea id="reviewComment" rows="4" maxlength="1000" minlength="10" required placeholder="Comparte tu experiencia (mínimo 10 caracteres)"></textarea><button class="button" type="submit" id="reviewSubmit">Enviar opinión</button><p id="reviewMessage" role="status" aria-live="polite"></p><small></small></form><div class="reviews-results"><h3>Lo que opinan nuestros clientes</h3><div class="google-reviews-card"><h4>Reseñas públicas en Google</h4><p>Consulta las experiencias compartidas en el perfil público de JIMPORT.</p><a class="button button-outline" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer">Ver JIMPORT en Google Maps ↗</a><small>Las reseñas se consultan directamente en Google. Comprueba que el enlace corresponde a tu ficha de empresa.</small></div><div id="reviewSummary" class="review-summary" aria-live="polite"></div><div id="reviewsList" aria-live="polite">Cargando opiniones…</div></div></div></section>
-  <section class="faq-section" id="preguntas"><p class="eyebrow">RESOLVEMOS TUS DUDAS</p><h2>Preguntas frecuentes</h2><div class="faq-grid"><details><summary>¿Cómo puedo comprar?</summary><p>Selecciona el producto y presiona «Consultar por WhatsApp». Te ayudaremos a confirmar disponibilidad y completar tu compra.</p></details><details><summary>¿Los productos están disponibles?</summary><p>La disponibilidad se indica en cada producto y puede cambiar. Confírmala por WhatsApp antes de realizar el pago.</p></details><details><summary>¿Cómo sé si un accesorio es compatible?</summary><p>Escríbenos el modelo de tu dispositivo y el producto que te interesa para ayudarte a revisar su compatibilidad.</p></details><details><summary>¿Puedo dejar una calificación?</summary><p>Sí. En la sección de opiniones puedes valorar tu experiencia de 1 a 5 estrellas. Los comentarios se publican tras su revisión.</p></details></div></section>
-  <section class="about" id="nosotros"><div><p class="eyebrow">SOMOS JIMPORT</p><h2>Soluciones prácticas para tu tecnología.</h2></div><p>Te ayudamos a encontrar accesorios, conectividad y productos tecnológicos de marcas reconocidas. Escríbenos para confirmar stock, compatibilidad y formas de entrega.</p></section>
-  <section class="location-section section" id="ubicacion" aria-labelledby="locationTitle">
-    <div class="location-panel">
-      <div class="location-copy"><p class="eyebrow">VISÍTANOS EN PERSONA</p><h2 id="locationTitle">¿Cómo llegar a nuestro local?</h2><p>¡Te esperamos en JIMPORT! Encuentra nuestra ubicación exacta y llega fácilmente desde tu celular con Google Maps.</p><a class="button location-button" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer" aria-label="Abrir ubicación de JIMPORT en Google Maps">📍 Cómo llegar con Google Maps ↗</a><small>El enlace abre Google Maps para consultar la ubicación y obtener indicaciones.</small></div>
-      <a class="location-visual" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer" aria-label="Ver ubicación de JIMPORT en Google Maps"><span class="location-pin" aria-hidden="true">📍</span><strong>JIMPORT</strong><span>Encuéntranos en Google Maps</span><span class="location-map-cta">Ver ubicación ↗</span></a>
-    </div>
-  </section>
-  <section class="contact" id="contacto"><div><p class="eyebrow">¿NECESITAS AYUDA?</p><h2>Hablemos por WhatsApp.</h2><p>Consulta precios, disponibilidad o solicita una recomendación.</p></div><a class="button button-light" id="contactWhatsapp" target="_blank" rel="noopener">Escribir a JIMPORT ↗</a></section>
+<div aria-label="Descubre las promociones de JIMPORT" class="sale-ticker"><div>✦ OFERTAS ESPECIALES   ✦ NOVEDADES TECNOLÓGICAS   ✦ ACCESORIOS UGREEN Y ANKER   ✦ COMPRA POR WHATSAPP   ✦ OFERTAS ESPECIALES   ✦ NOVEDADES TECNOLÓGICAS</div></div>
+<div aria-label="Ventajas de JIMPORT" class="premium-benefits"><span>✦ Tecnología seleccionada</span><span>◈ Asesoría personalizada</span><span>✓ Compra con atención directa</span></div>
+<section class="section" id="productos">
+<div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Descubre tus próximos favoritos</h2></div><p>Selecciona una categoría para que veas nuestros productos.</p></div>
+<div class="filters"><label class="sr-only" for="search">Buscar productos</label><input aria-label="Buscar productos" id="search" placeholder="Buscar por nombre, modelo o característica (ej. 100W)…" type="search"/><select aria-label="Filtrar por marca" id="brandFilter"><option value="">Todas las marcas</option><option value="UGREEN">UGREEN</option><option value="Anker">Anker</option><option value="DJI">DJI</option><option value="Marvo">Marvo</option></select><select aria-label="Filtrar por categoría" id="categoryFilter"><option value="">Todas las categorías</option></select><button class="clear-filters" id="clearFilters" type="button">Cambiar selección</button></div>
+<div aria-label="Doce productos destacados de nuestro catálogo" class="catalog-teasers" id="catalogTeasers"></div>
+<div class="status" id="status">Cargando catálogo…</div><div class="product-grid" id="productGrid"></div>
+</section>
+<section aria-label="Marcas disponibles" class="brand-showcase"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><a data-brand="UGREEN" href="#productos"><img alt="UGREEN" src="assets/ugreen.svg"/><span>Conectividad y carga</span></a><a data-brand="Anker" href="#productos"><img alt="Anker" src="assets/anker.svg"/><span>Carga inteligente</span></a><a data-brand="DJI" href="#productos"><img alt="DJI" src="assets/dji.svg"/><span>Tecnología creativa</span></a><a data-brand="Marvo" href="#productos"><img alt="Marvo" src="assets/marvo.svg"/><span>Accesorios gaming</span></a></div></section>
+<section aria-label="Promociones JIMPORT" class="promotions-section" id="promociones">
+<div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Ofertas que no querrás perderte</h2><p>Revisa las promociones disponibles y consulta sus condiciones antes de comprar.</p></div>
+<div aria-live="polite" class="promo-carousel" id="promoCarousel">
+<div class="promo-slide" id="promoSlide">
+<div class="promo-art"><div class="promo-orbit"></div><span class="promo-spark">✦</span></div>
+<div class="promo-copy"><span class="promo-kicker">JIMPORT · PROMOCIONES</span><h3>Ofertas especiales te esperan</h3><details class="promo-details"><summary>Ver descripción y características <span aria-hidden="true">＋</span></summary><p>Vuelve pronto para descubrir nuestras promociones.</p></details></div>
+</div>
+<div class="promo-controls"><button aria-label="Promoción anterior" id="promoPrev" type="button">‹</button><div class="promo-dots" id="promoDots"></div><button aria-label="Siguiente promoción" id="promoNext" type="button">›</button></div>
+</div>
+</section>
+<section class="trust-row"><div><b>Marcas seleccionadas</b><span>UGREEN · Anker · DJI · Marvo</span></div><div><b>Atención directa</b><span>Resuelve tus dudas por WhatsApp</span></div><div><b>Catálogo actualizado</b><span>Consulta disponibilidad y precios</span></div></section>
+<section class="reviews-section section" id="opiniones"><div class="section-heading"><div><p class="eyebrow">TU EXPERIENCIA IMPORTA</p><h2>Opiniones y calificaciones</h2></div><p>Cuéntanos cómo fue tu experiencia con JIMPORT.</p></div><div class="reviews-layout"><form class="review-form" id="reviewForm"><h3>Déjanos tu opinión</h3><div class="review-name-grid"><div><label for="reviewName">Nombre</label><input autocomplete="given-name" id="reviewName" maxlength="35" placeholder="Tu nombre" required=""/></div><div><label for="reviewLastName">Apellido</label><input autocomplete="family-name" id="reviewLastName" maxlength="35" placeholder="Tu apellido" required=""/></div></div><label for="reviewCode">Código de compra verificada *</label><input id="reviewCode" maxlength="80" placeholder="Código recibido por WhatsApp" required=""/><label for="reviewRating">Tu calificación</label><div aria-label="Seleccionar estrellas" class="rating-picker" id="ratingPicker" role="group"><button aria-label="1 estrella" data-rating="1" type="button">★</button><button aria-label="2 estrellas" data-rating="2" type="button">★</button><button aria-label="3 estrellas" data-rating="3" type="button">★</button><button aria-label="4 estrellas" data-rating="4" type="button">★</button><button aria-label="5 estrellas" data-rating="5" type="button">★</button></div><select id="reviewRating" required=""><option value="">Selecciona una calificación</option><option value="5">★★★★★ · Excelente</option><option value="4">★★★★☆ · Muy buena</option><option value="3">★★★☆☆ · Buena</option><option value="2">★★☆☆☆ · Regular</option><option value="1">★☆☆☆☆ · Mala</option></select><label for="reviewComment">Tu comentario</label><textarea id="reviewComment" maxlength="1000" minlength="10" placeholder="Comparte tu experiencia (mínimo 10 caracteres)" required="" rows="4"></textarea><button class="button" id="reviewSubmit" type="submit">Enviar opinión</button><p aria-live="polite" id="reviewMessage" role="status"></p><small></small></form><div class="reviews-results"><h3>Lo que opinan nuestros clientes</h3><div class="google-reviews-card"><h4>Reseñas públicas en Google</h4><p>Consulta las experiencias compartidas en el perfil público de JIMPORT.</p><a class="button button-outline" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" rel="noopener noreferrer" target="_blank">Ver JIMPORT en Google Maps ↗</a><small>Las reseñas se consultan directamente en Google. Comprueba que el enlace corresponde a tu ficha de empresa.</small></div><div aria-live="polite" class="review-summary" id="reviewSummary"></div><div aria-live="polite" id="reviewsList">Cargando opiniones…</div></div></div></section>
+<section class="faq-section" id="preguntas"><p class="eyebrow">RESOLVEMOS TUS DUDAS</p><h2>Preguntas frecuentes</h2><div class="faq-grid"><details><summary>¿Cómo puedo comprar?</summary><p>Selecciona el producto y presiona «Consultar por WhatsApp». Te ayudaremos a confirmar disponibilidad y completar tu compra.</p></details><details><summary>¿Los productos están disponibles?</summary><p>La disponibilidad se indica en cada producto y puede cambiar. Confírmala por WhatsApp antes de realizar el pago.</p></details><details><summary>¿Cómo sé si un accesorio es compatible?</summary><p>Escríbenos el modelo de tu dispositivo y el producto que te interesa para ayudarte a revisar su compatibilidad.</p></details><details><summary>¿Puedo dejar una calificación?</summary><p>Sí. En la sección de opiniones puedes valorar tu experiencia de 1 a 5 estrellas. Los comentarios se publican tras su revisión.</p></details></div></section>
+<section class="about" id="nosotros"><div><p class="eyebrow">SOMOS JIMPORT</p><h2>Soluciones prácticas para tu tecnología.</h2></div><p>Te ayudamos a encontrar accesorios, conectividad y productos tecnológicos de marcas reconocidas. Escríbenos para confirmar stock, compatibilidad y formas de entrega.</p></section>
+<section aria-labelledby="locationTitle" class="location-section section" id="ubicacion">
+<div class="location-panel">
+<div class="location-copy"><p class="eyebrow">VISÍTANOS EN PERSONA</p><h2 id="locationTitle">¿Cómo llegar a nuestro local?</h2><p>¡Te esperamos en JIMPORT! Encuentra nuestra ubicación exacta y llega fácilmente desde tu celular con Google Maps.</p><a aria-label="Abrir ubicación de JIMPORT en Google Maps" class="button location-button" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" rel="noopener noreferrer" target="_blank">📍 Cómo llegar con Google Maps ↗</a><small>El enlace abre Google Maps para consultar la ubicación y obtener indicaciones.</small></div>
+<a aria-label="Ver ubicación de JIMPORT en Google Maps" class="location-visual" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" rel="noopener noreferrer" target="_blank"><span aria-hidden="true" class="location-pin">📍</span><strong>JIMPORT</strong><span>Encuéntranos en Google Maps</span><span class="location-map-cta">Ver ubicación ↗</span></a>
+</div>
+</section>
+<section class="contact" id="contacto"><div><p class="eyebrow">¿NECESITAS AYUDA?</p><h2>Hablemos por WhatsApp.</h2><p>Consulta precios, disponibilidad o solicita una recomendación.</p></div><a class="button button-light" id="contactWhatsapp" rel="noopener" target="_blank">Escribir a JIMPORT ↗</a></section>
 </main>
-<footer><a class="brand footer-brand" href="#"><img class="brand-logo footer-logo" src="assets/logo-jimport.png" alt="Logo JIMPORT"></a><span>© <span id="year"></span> JIMPORT. Todos los derechos reservados.</span><a href="#preguntas">Preguntas frecuentes</a></footer>
-<a class="whatsapp-float" id="floatWhatsapp" target="_blank" rel="noopener" aria-label="Escribir a JIMPORT por WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a12.7 12.7 0 0 0-10.9 19.2L3.5 29l7-1.8A12.8 12.8 0 1 0 16 3Zm0 23.2a10.4 10.4 0 0 1-5.3-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4A10.4 10.4 0 1 1 16 26.2Zm5.7-7.8c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.5 8.5 0 0 1-2.5-1.5 9.2 9.2 0 0 1-1.7-2.1c-.2-.3 0-.5.2-.7l.5-.6c.2-.2.2-.4.3-.6s0-.4 0-.6-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4 2.4 3.7 5.9 5.1c.8.3 1.4.5 1.9.6.8.3 1.5.2 2.1.1.7-.1 1.8-.7 2-1.4s.3-1.3.2-1.4-.3-.3-.6-.4Z"/></svg></a>
-<nav class="jm-bottom-nav" aria-label="Navegación móvil"><a href="#" class="jm-active"><span>⌂</span>Inicio</a><a href="#productos"><span>▦</span>Categorías</a><a href="#promociones"><span>◇</span>Ofertas</a><a id="jmMobileWhatsapp" href="#contacto"><span>◉</span>WhatsApp</a><a href="#ubicacion"><span>⌖</span>Cómo llegar</a></nav><script src="mobile-jimport-2026.js"></script><script src="mobile-premium.js"></script><script src="config.js"></script><script src="app.js"></script><script src="visits.js" defer></script>
-</body></html>
+<footer><a class="brand footer-brand" href="#"><img alt="Logo JIMPORT" class="brand-logo footer-logo" src="assets/logo-jimport.png"/></a><span>© <span id="year"></span> JIMPORT. Todos los derechos reservados.</span><a href="#preguntas">Preguntas frecuentes</a></footer>
+<a aria-label="Escribir a JIMPORT por WhatsApp" class="whatsapp-float" id="floatWhatsapp" rel="noopener" target="_blank"><svg aria-hidden="true" viewbox="0 0 32 32"><path d="M16 3a12.7 12.7 0 0 0-10.9 19.2L3.5 29l7-1.8A12.8 12.8 0 1 0 16 3Zm0 23.2a10.4 10.4 0 0 1-5.3-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4A10.4 10.4 0 1 1 16 26.2Zm5.7-7.8c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.5 8.5 0 0 1-2.5-1.5 9.2 9.2 0 0 1-1.7-2.1c-.2-.3 0-.5.2-.7l.5-.6c.2-.2.2-.4.3-.6s0-.4 0-.6-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4 2.4 3.7 5.9 5.1c.8.3 1.4.5 1.9.6.8.3 1.5.2 2.1.1.7-.1 1.8-.7 2-1.4s.3-1.3.2-1.4-.3-.3-.6-.4Z"></path></svg></a>
+<script src="mobile-premium.js"></script><script src="config.js"></script><script src="app.js"></script><script defer="" src="visits.js"></script>
+<div aria-label="Navegación rápida móvil" class="jm-mobile-nav"><a href="#"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3 10 9-7 9 7"></path><path d="M5 9v12h14V9"></path></svg>Inicio</a><a href="#productos"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="7" rx="1" width="7" x="3" y="3"></rect><rect height="7" rx="1" width="7" x="14" y="3"></rect><rect height="7" rx="1" width="7" x="3" y="14"></rect><rect height="7" rx="1" width="7" x="14" y="14"></rect></svg>Catálogo</a><a href="#promociones"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12 12 20 3 11V4h7z"></path><circle cx="7.5" cy="8" r="1"></circle></svg>Ofertas</a><a href="#contacto"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5Z"></path><path d="M9 9c1 3 3 5 6 6"></path></svg>WhatsApp</a><a href="#ubicacion"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>Ubicación</a></div></body></html>
