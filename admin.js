@@ -98,6 +98,16 @@
     const groups=new Map();items.forEach((p,i)=>{const root=find(i);const g=groups.get(root)||[];g.push(p);groups.set(root,g);});
     return [...groups.values()].filter(g=>g.length>1).sort((a,b)=>b.length-a.length);
   }
+  async function toggleCatalogVisibility(p, button){
+    if(!authorized||!client)return;
+    const next=p.active===false;
+    button.disabled=true;button.textContent='Guardando…';
+    const {data,error}=await client.from('products').update({active:next}).eq('id',p.id).select('id,active').single();
+    if(error){note('No se pudo cambiar la visibilidad: '+error.message);button.disabled=false;button.textContent='Reintentar';return;}
+    p.active=data.active;
+    note((next?'Producto visible':'Producto oculto')+' en el catálogo: '+p.name);
+    draw();auditDuplicates();
+  }
   function auditDuplicates(){
     const output=$('duplicateReport');if(!output)return;
     if(!authorized){output.textContent='Debes iniciar sesión como administrador.';return;}
@@ -124,7 +134,10 @@
           if(error){note('No se pudo eliminar: '+error.message);del.disabled=false;del.textContent='Eliminar este registro';return;}
           note('Registro eliminado correctamente.');await refresh();auditDuplicates();
         });
-        row.append(info,edit,del);section.append(row);
+        const visibility=document.createElement('button');visibility.type='button';
+        visibility.className='button button-outline';visibility.textContent=p.active===false?'Mostrar en catálogo':'Ocultar del catálogo';
+        visibility.addEventListener('click',()=>toggleCatalogVisibility(p,visibility));
+        row.append(info,edit,visibility,del);section.append(row);
       }output.append(section);
     }
   }
@@ -154,8 +167,9 @@
       const inv=privateInventory[p.id], qty=inv?.quantity, minimum=inv?.min_quantity;
       const low=inv && qty<=minimum, empty=inv && qty===0;
       const tag=!inv?'Inventario sin registrar':empty?'AGOTADO · 0 unidades':low?'⚠ STOCK BAJO · '+qty+' unidades':'✓ '+qty+' unidades';
-      return `<article class="admin-row ${low?'admin-low-stock':''} ${empty?'admin-no-stock':''}"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:'✳'}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||'Sin modelo')} · Categoría: ${safe(p.category||'VARIOS')}</span><strong>${money(p.price)} · Costo: ${money(inv?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(inv?.landed_cost||0))} · Mínimo: ${minimum??'—'} ${p.active?'':'· Oculto'}</strong><span class="admin-quantity-tag ${low?'critical':''}">${tag}</span></div><span class="admin-stock">${safe(p.stock||'')}</span><button class="button button-outline edit" data-id="${safe(p.id)}">Editar</button><button class="button button-danger delete" data-id="${safe(p.id)}">Eliminar</button></article>`;
+      return `<article class="admin-row ${low?'admin-low-stock':''} ${empty?'admin-no-stock':''}"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:'✳'}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||'Sin modelo')} · Categoría: ${safe(p.category||'VARIOS')}</span><strong>${money(p.price)} · Costo: ${money(inv?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(inv?.landed_cost||0))} · Mínimo: ${minimum??'—'} ${p.active?'':'· Oculto'}</strong><span class="admin-quantity-tag ${low?'critical':''}">${tag}</span></div><span class="admin-stock">${safe(p.stock||'')}</span><button class="button button-outline visibility" data-id="${safe(p.id)}">${p.active===false?"Mostrar en catálogo":"Ocultar del catálogo"}</button><button class="button button-outline edit" data-id="${safe(p.id)}">Editar</button><button class="button button-danger delete" data-id="${safe(p.id)}">Eliminar</button></article>`;
     }).join('');showInventory();
+    el.querySelectorAll('.visibility').forEach(b=>b.onclick=()=>{const p=rows.find(p=>String(p.id)===b.dataset.id);if(p)toggleCatalogVisibility(p,b);});
     el.querySelectorAll('.edit').forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));
     el.querySelectorAll('.delete').forEach(b=>b.onclick=()=>remove(b.dataset.id));
   }
@@ -199,7 +213,7 @@
     const id=$("productId").value;
     if(autosaving){pendingAutosave=true;return;}
     autosaving=true;autoStatus.textContent='Guardando cambios en Supabase…';
-    const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:true};
+    const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:id?(rows.find(p=>String(p.id)===String(id))?.active!==false):true};
     if(!id)item.old_price=null;
     const save=payload=>id?client.from("products").update(payload).eq("id",id):client.from("products").insert(payload).select("id").single();
     try {

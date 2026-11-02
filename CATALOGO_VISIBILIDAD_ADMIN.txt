@@ -1,0 +1,1 @@
+Administrador > Revisar duplicados: Ocultar del catálogo retira la ficha pública sin eliminar inventario. Mostrar en catálogo la restaura. También disponible en la lista general. Los cambios se guardan inmediatamente en Supabase.
