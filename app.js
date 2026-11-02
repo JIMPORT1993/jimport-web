@@ -100,7 +100,24 @@
       status.textContent=products.length?`${products.length} productos disponibles. Selecciona una marca o categoría.`:'Selecciona una marca o categoría para ver los productos.';
       renderHero();return;
     }
-    grid.innerHTML=list.map(p=>{const out=p.stock==="Agotado";const coming=p.stock==="Producto llegando";return `<article class="product-card ${out?"is-out-of-stock":""}"><div class="product-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;placeholder-icon&quot;>✳</span>'">`:`<span class="placeholder-icon">✳</span>`}<span class="stock ${out?"out":["Bajo pedido","Producto llegando"].includes(p.stock)?"order":""}">${out?"Producto no disponible":esc(p.stock||"Consultar")}</span>${out?'<span class="unavailable-overlay">AGOTADO</span>':""}${coming?'<span class="coming-soon-badge">✨ PRÓXIMAMENTE</span>':""}</div><div class="product-info"><span class="product-brand">${esc(p.brand||"JIMPORT")}</span><span class="product-category">${esc(p.category||"VARIOS")}</span><h3>${esc(p.name)}</h3><p class="product-model">${esc(p.model||"")}</p><details class="product-details"><summary>Ver descripción y características</summary><p class="product-description">${esc(p.description||"Consulta detalles por WhatsApp.")}</p>${p.specifications?`<p class="product-description">${esc(typeof p.specifications==="string"?p.specifications:JSON.stringify(p.specifications))}</p>`:""}</details><div class="price-line"><strong>${money(p.price)}</strong>${p.old_price?`<del>${money(p.old_price)}</del>`:""}</div><a class="button product-cta ${out?"button-unavailable":""}" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?" ("+p.model+")":""}. ${out?"¿Cuándo estará disponible nuevamente?":coming?"Vi que llegará próximamente. ¿Me avisan cuando esté disponible?":"¿Está disponible?"}`)}" target="_blank" rel="noopener">${out?"Consultar reposición ↗":coming?"Avisarme cuando llegue ↗":"Consultar por WhatsApp ↗"}</a></div></article>`}).join("");
+    grid.classList.add("catalog-same-design");
+    grid.innerHTML=uniqueProducts(list).map(p=>{
+      const raw=String(p.stock||"").toLowerCase();
+      const out=raw.includes("agot")||raw.includes("sin stock");
+      const coming=raw.includes("lleg")||raw.includes("próxim")||raw.includes("proxim")||raw.includes("pedido");
+      const stockLabel=out?"Agotado":coming?"Próximamente":raw.includes("stock")||raw.includes("disponib")?"En stock":"Consultar disponibilidad";
+      const stockClass=out?"out":coming?"coming":"available";
+      return `<article class="catalog-teaser ${out?"is-out-of-stock":""}" aria-label="${esc(p.name)}">
+        <div class="catalog-teaser-image">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.style.display='none'">`:`<span class="placeholder-icon">✳</span>`}<em class="teaser-stock teaser-stock--${stockClass}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${stockLabel}</span></em></div>
+        <span>${esc(p.name)}</span><small>${esc(p.brand||"JIMPORT")}${p.model?" · "+esc(p.model):""}</small>
+        <strong class="teaser-price">${money(p.price)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}
+        <button type="button" class="teaser-info-button" data-product-info="${esc(p.id)}">Ver características ＋</button>
+        <a class="teaser-whatsapp-button" href="${wa(`Hola JIMPORT, me interesa: ${p.name}${p.model?` (modelo ${p.model})`:``}. ${out?"¿Cuándo estará disponible nuevamente?":"¿Está disponible?"}`)}" target="_blank" rel="noopener noreferrer">WhatsApp · Consultar ↗</a>
+        <button type="button" class="teaser-brand-button" data-product-cart="${esc(p.id)}">＋ Añadir al pedido</button>
+      </article>`;
+    }).join("");
+    grid.querySelectorAll("[data-product-info]").forEach(b=>b.addEventListener("click",()=>{const p=list.find(x=>String(x.id)===b.dataset.productInfo);if(p)openProductInfo(p);}));
+    grid.querySelectorAll("[data-product-cart]").forEach(b=>b.addEventListener("click",()=>{if(window.JIMPORT_CART_ADD){window.JIMPORT_CART_ADD(b.dataset.productCart);b.textContent="✓ Añadido al pedido";setTimeout(()=>b.textContent="＋ Añadir al pedido",1600);}else alert("El pedido todavía está cargando. Inténtalo nuevamente.");}));
     if(!list.length)grid.innerHTML='<div class="empty">No hay productos para esta selección. <button type="button" id="emptyReset" class="clear-filters">Elegir otra marca o categoría</button></div>';
     document.getElementById("emptyReset")?.addEventListener("click",clearFilters);
     status.textContent=q?`Resultados de búsqueda: ${list.length} producto(s) encontrado(s)`:`Mostrando ${list.length} de ${products.length} productos disponibles`;
