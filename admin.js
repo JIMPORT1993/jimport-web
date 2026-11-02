@@ -61,6 +61,36 @@
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
   async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();}
+  // Auditoría privada de posibles duplicados: lectura solamente.
+  const normalizeDuplicate=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+  function duplicateGroups(items){
+    const byKey=new Map();
+    for(const p of items){
+      const brand=normalizeDuplicate(p.brand), name=normalizeDuplicate(p.name), model=normalizeDuplicate(p.model);
+      const key=brand+'|'+(model&&model.length>2?'modelo:'+model:'nombre:'+name);
+      if(!brand||(!name&&!model))continue;
+      const bucket=byKey.get(key)||[];bucket.push(p);byKey.set(key,bucket);
+    }
+    return [...byKey.values()].filter(g=>g.length>1).sort((a,b)=>b.length-a.length);
+  }
+  function auditDuplicates(){
+    const output=$('duplicateReport');if(!output)return;
+    if(!authorized){output.textContent='Debes iniciar sesión como administrador.';return;}
+    const groups=duplicateGroups(rows);
+    output.replaceChildren();
+    const summary=document.createElement('p');summary.textContent=groups.length?`Se encontraron ${groups.length} grupos de posibles duplicados (${groups.reduce((n,g)=>n+g.length,0)} registros). Revisa cada caso antes de eliminar.`:`No se encontraron coincidencias exactas por marca y modelo o nombre entre ${rows.length} registros. Pueden existir variantes con nombres distintos.`;output.append(summary);
+    for(const group of groups){
+      const section=document.createElement('div');section.className='duplicate-audit-group';
+      const heading=document.createElement('h3');heading.textContent=group[0].name+' · '+group.length+' registros';section.append(heading);
+      for(const p of group){
+        const inv=privateInventory[p.id];const row=document.createElement('div');row.className='duplicate-audit-item';
+        const info=document.createElement('span');info.textContent=`${p.brand||'Sin marca'} · Modelo: ${p.model||'—'} · Estado: ${p.stock||'—'} · Unidades: ${inv?.quantity??'sin registro'} · ${p.active?'Visible':'Oculto'} · ID: ${p.id}`;
+        const edit=document.createElement('button');edit.type='button';edit.className='button button-outline';edit.textContent='Revisar / editar';edit.addEventListener('click',()=>openForm(p));
+        row.append(info,edit);section.append(row);
+      }output.append(section);
+    }
+  }
+  $('auditDuplicates')?.addEventListener('click',auditDuplicates);
   function updateAdminFilters(){
     for(const [id,key] of [['adminCategory','category'],['adminBrand','brand']]){
       const sel=$(id),current=sel.value;
@@ -199,6 +229,14 @@
       }
       if(errors.length){importNote("No se importó ningún producto. Corrige estos errores y vuelve a intentarlo: "+errors.slice(0,8).join(" ")+(errors.length>8?` Y ${errors.length-8} error(es) más.`:""));return;}
       if(!mapped.length){importNote("No se encontraron filas con productos. Usa la hoja Productos de la plantilla JIMPORT.");return;}
+      const incomingGroups=duplicateGroups([...rows,...mapped.map(x=>x.item)]);
+      const existingIds=new Set(rows.map(p=>p.id));
+      const risky=incomingGroups.filter(g=>g.some(p=>!existingIds.has(p.id)));
+      if(risky.length){
+        const names=risky.slice(0,5).map(g=>g[0].name).join(', ');
+        importNote(`Importación detenida: se detectaron ${risky.length} posibles duplicados con el catálogo o dentro del Excel (${names}). Revisa los nombres y modelos antes de importar.`);
+        return;
+      }
       const count=mapped.length;
       if(!confirm(`Se van a importar ${count} producto(s). Los productos se agregarán al catálogo existente; no se eliminará ningún producto. ¿Continuar?`)){importNote("Importación cancelada.");return;}
       importButton.disabled=true;importNote(`Importando ${count} producto(s)…`);
