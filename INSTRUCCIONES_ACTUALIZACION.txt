@@ -1,0 +1,7 @@
+1. Publica todos los archivos en Vercel, incluida la carpeta api/.
+2. Ejecuta ESTADISTICAS_VISITAS_SUPABASE.sql si aún no lo has hecho; luego ejecuta JIMPORT_MARCAS_Y_VISITAS.sql en Supabase SQL Editor.
+3. En Vercel > Project Settings > Environment Variables configura SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY (solo servidor; NUNCA en config.js ni frontend). Vuelve a desplegar.
+4. Abre admin.html, inicia sesión, y arriba encontrarás accesos a Revisar duplicados, Añadir marca, Añadir categoría y Origen de visitas.
+5. Al editar productos existentes se autoguardan los campos válidos tras 1,5 segundos sin escribir. Al crear productos nuevos, pulsa Guardar producto.
+6. Visitantes únicos aproximados: 1 navegador persistente por día; distintos navegadores, modo incógnito o borrar datos pueden contarse otra vez. Ubicación aproximada por encabezados Vercel, puede faltar o ser imprecisa. No se almacena IP.
+7. El panel de duplicados detecta coincidencias por nombre o modelo dentro de la misma marca; no elimina registros automáticamente.

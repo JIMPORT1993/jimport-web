@@ -60,18 +60,43 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await refreshBrands();}
+
+  let extraBrands=[];
+  async function refreshBrands(){
+    const {data,error}=await client.from('jimport_brands').select('name').order('name');
+    if(!error)extraBrands=(data||[]).map(x=>x.name);
+    const all=[...new Set([...rows.map(x=>x.brand).filter(Boolean),...extraBrands])].sort((a,b)=>a.localeCompare(b,'es'));
+    $('knownBrands').replaceChildren(...all.map(v=>{const el=document.createElement('option');el.value=v;return el;}));
+    $('brandsList').textContent='Marcas registradas: '+(all.join(' · ')||'Ninguna');
+    if(error)$('brandCreateStatus').textContent='Para crear marcas, ejecuta JIMPORT_MARCAS_Y_VISITAS.sql en Supabase.';
+  }
+  $('newBrandForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();if(!authorized)return;
+    const name=$('newBrandName').value.trim().replace(/\s+/g,' ').toUpperCase();
+    if(name.length<2)return;
+    if([...rows.map(x=>x.brand),...extraBrands].some(v=>String(v).toUpperCase()===name)){$('brandCreateStatus').textContent='Esta marca ya existe.';return;}
+    const {error}=await client.from('jimport_brands').insert({name});
+    if(error){$('brandCreateStatus').textContent='No se pudo guardar: '+error.message;return;}
+    $('brandCreateStatus').textContent='✓ Marca guardada en Supabase.';
+    $('newBrandName').value='';$('pBrand').value=name;await refreshBrands();
+  });
   // Auditoría privada de posibles duplicados: lectura solamente.
   const normalizeDuplicate=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
   function duplicateGroups(items){
-    const byKey=new Map();
-    for(const p of items){
-      const brand=normalizeDuplicate(p.brand), name=normalizeDuplicate(p.name), model=normalizeDuplicate(p.model);
-      const key=brand+'|'+(model&&model.length>2?'modelo:'+model:'nombre:'+name);
-      if(!brand||(!name&&!model))continue;
-      const bucket=byKey.get(key)||[];bucket.push(p);byKey.set(key,bucket);
-    }
-    return [...byKey.values()].filter(g=>g.length>1).sort((a,b)=>b.length-a.length);
+    const parent=items.map((_,i)=>i);
+    const find=i=>parent[i]===i?i:(parent[i]=find(parent[i]));
+    const union=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent[b]=a;};
+    const keys=new Map();
+    items.forEach((p,i)=>{
+      const brand=normalizeDuplicate(p.brand),name=normalizeDuplicate(p.name),model=normalizeDuplicate(p.model);
+      if(!brand)return;
+      for(const key of [name&&brand+'|nombre|'+name,model&&brand+'|modelo|'+model].filter(Boolean)){
+        if(keys.has(key))union(i,keys.get(key));else keys.set(key,i);
+      }
+    });
+    const groups=new Map();items.forEach((p,i)=>{const root=find(i);const g=groups.get(root)||[];g.push(p);groups.set(root,g);});
+    return [...groups.values()].filter(g=>g.length>1).sort((a,b)=>b.length-a.length);
   }
   function auditDuplicates(){
     const output=$('duplicateReport');if(!output)return;
@@ -141,10 +166,26 @@
   });
   $('filterLowStock').addEventListener('click',()=>{onlyLowStock=!onlyLowStock;$('filterLowStock').textContent=onlyLowStock?'Mostrar todos los productos':'🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed',String(onlyLowStock));draw();});
   function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";updateCategoryChoices();form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+  let autosaveTimer=null, autosaving=false, pendingAutosave=false;
+  const autoStatus=$('autosaveStatus');
+  form.addEventListener('input',scheduleAutosave);
+  form.addEventListener('change',scheduleAutosave);
+  function scheduleAutosave(){
+    clearTimeout(autosaveTimer);
+    if(!$('productId').value)return;
+    autoStatus.textContent='Cambios pendientes…';
+    autosaveTimer=setTimeout(()=>{
+      if(!form.checkValidity()){autoStatus.textContent='Completa los campos obligatorios para guardar.';return;}
+      if(autosaving){pendingAutosave=true;return;}
+      form.requestSubmit();
+    },1500);
+  }
   form.addEventListener("submit",async e=>{
     e.preventDefault();
     if(!client){note("Supabase no está configurado. Revisa config.js.");return;}
     const id=$("productId").value;
+    if(autosaving){pendingAutosave=true;return;}
+    autosaving=true;autoStatus.textContent='Guardando cambios en Supabase…';
     const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:true};
     if(!id)item.old_price=null;
     const save=payload=>id?client.from("products").update(payload).eq("id",id):client.from("products").insert(payload).select("id").single();
@@ -163,8 +204,11 @@
         return;
       }
       {const inventory={product_id:id||result.data?.id,quantity:Number($('pQuantity').value),min_quantity:Number($('pMinimum').value),landed_cost:Number($('pCost').value)};const {error:invError}=await client.from('jimport_inventory_private').upsert(inventory,{onConflict:'product_id'});if(invError){note('Producto guardado, pero inventario no actualizado: '+invError.message);await refresh();return;}}
-      form.hidden=true;note("Producto e inventario guardados correctamente.");await refresh();
+      if(!id)form.hidden=true;
+      autoStatus.textContent='✓ Cambios guardados en Supabase.';
+      note("Producto e inventario guardados correctamente.");await refresh();
     } catch(err) { console.error(err); note("Error inesperado al guardar: "+(err?.message||String(err))); }
+    finally {autosaving=false;if(pendingAutosave){pendingAutosave=false;scheduleAutosave();}}
   });
 
   // Importación masiva desde la plantilla Excel de JIMPORT o un CSV equivalente.
