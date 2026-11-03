@@ -441,20 +441,41 @@
   const reviewStatus=$('reviewAdminStatus');
 
   const saleSelections=new Map();
+  const saleMoney=value=>'$'+Number(value||0).toFixed(2);
+  function saleAvailable(p){const q=Number(p.quantity);return Number.isFinite(q)&&q>=0?q:null;}
   function populateSaleProducts(){
     const el=$('saleProductChoices');if(!el)return;
-    const term=($('saleProductSearch')?.value||'').toLowerCase().trim();
-    const matches=rows.filter(p=>(p.name+' '+(p.brand||'')).toLowerCase().includes(term));
-    el.innerHTML=matches.map(p=>{const id=String(p.id),qty=saleSelections.get(id)||1;return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label style="flex:1;min-width:190px;display:flex;gap:8px;align-items:center"><input type="checkbox" data-sale-check="${safe(id)}" ${saleSelections.has(id)?'checked':''}>${p.image_url?`<img src="${safe(p.image_url)}" alt="" style="width:42px;height:42px;object-fit:contain">`:''}<span>${safe(p.brand||'')} · ${safe(p.name)}</span></label><label>Cant. <input type="number" data-sale-qty="${safe(id)}" min="1" max="100000" step="1" value="${qty}" style="width:75px" ${saleSelections.has(id)?'':'disabled'}></label></div>`}).join('')||'<p>No se encontraron productos.</p>';
+    const brandEl=$('saleBrandFilter');const oldBrand=brandEl?.value||'';
+    const brands=[...new Set(rows.map(p=>String(p.brand||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    if(brandEl){brandEl.replaceChildren(new Option('Todas las marcas',''),...brands.map(x=>new Option(x,x)));brandEl.value=brands.includes(oldBrand)?oldBrand:'';}
+    const term=($('saleProductSearch')?.value||'').toLocaleLowerCase().trim();const brand=brandEl?.value||'';
+    const matches=rows.filter(p=>(!brand||p.brand===brand)&&[p.name,p.brand,p.model].join(' ').toLocaleLowerCase().includes(term));
+    $('saleProductCount').textContent=matches.length+' productos';
+    el.innerHTML=matches.map(p=>{const id=String(p.id),qty=saleSelections.get(id)||1,stock=saleAvailable(p),out=stock===0||String(p.stock||'').toLowerCase()==='agotado',selected=saleSelections.has(id);
+      return `<article class="sale-product-card ${selected?'is-selected':''} ${out?'is-out':''}"><label class="sale-card-check"><input type="checkbox" data-sale-check="${safe(id)}" ${selected?'checked':''} ${out&&!selected?'disabled':''}><span>Seleccionar</span></label><div class="sale-card-image">${p.image_url?`<img src="${safe(p.image_url)}" alt="${safe(p.name||'Producto')}" loading="lazy">`:'<span>📦</span>'}</div><div class="sale-card-info"><small>${safe(p.brand||'Sin marca')}</small><strong>${safe(p.name||'Producto')}</strong><b>${saleMoney(p.price)}</b><span class="sale-stock ${out?'empty':''}">${out?'Agotado':stock===null?'Existencias sin registrar':'Disponibles: '+stock}</span></div><label class="sale-card-quantity">Cantidad<input type="number" inputmode="numeric" data-sale-qty="${safe(id)}" min="1" ${stock!==null?'max="'+stock+'"':''} step="1" value="${qty}" ${selected?'':'disabled'}></label></article>`;}).join('')||'<p class="sale-empty">No se encontraron productos con estos filtros.</p>';
     el.querySelectorAll('[data-sale-check]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleCheck;if(input.checked)saleSelections.set(id,1);else saleSelections.delete(id);populateSaleProducts();}));
-    el.querySelectorAll('[data-sale-qty]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleQty;if(saleSelections.has(id))saleSelections.set(id,Number(input.value));}));
+    el.querySelectorAll('[data-sale-qty]').forEach(input=>input.addEventListener('input',()=>{const id=input.dataset.saleQty;if(saleSelections.has(id)){saleSelections.set(id,input.value===''?0:Number(input.value));renderSaleSummary();}}));
+    renderSaleSummary();
+  }
+  function renderSaleSummary(){
+    const summary=$('saleSelectedItems'),total=$('saleTotal');if(!summary||!total)return;
+    const chosen=[...saleSelections].map(([id,qty])=>({p:rows.find(p=>String(p.id)===id),qty})).filter(x=>x.p);
+    summary.replaceChildren();let amount=0;
+    for(const {p,qty} of chosen){const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent=p.name+' × '+qty;const price=document.createElement('b');price.textContent=saleMoney(Number(p.price||0)*qty);line.append(name,price);summary.append(line);amount+=Number(p.price||0)*qty;}
+    if(!chosen.length)summary.textContent='Selecciona productos para registrar la compra.';
+    total.textContent='Total estimado: '+saleMoney(amount)+' · '+chosen.length+' producto(s)';
   }
   $('saleProductSearch')?.addEventListener('input',populateSaleProducts);
+  $('saleBrandFilter')?.addEventListener('change',populateSaleProducts);
+  $('saleClearFilters')?.addEventListener('click',()=>{$('saleProductSearch').value='';$('saleBrandFilter').value='';populateSaleProducts();});
+  $('saleClearSelection')?.addEventListener('click',()=>{saleSelections.clear();populateSaleProducts();});
   $('verifiedSaleForm')?.addEventListener('submit',async e=>{
     e.preventDefault();const out=$('saleResult');
     const items=[...saleSelections].map(([product_id,quantity])=>({product_id,quantity}));
     const reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),withCode=$('saleWithCode').checked;
     if(!items.length||!reference||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona uno o varios productos, cantidades válidas y una referencia.';return;}
+    const invalidStock=items.find(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));const stock=p&&saleAvailable(p);return stock!==null&&x.quantity>stock;});
+    if(invalidStock){out.textContent='La cantidad supera las existencias disponibles. Revisa los productos seleccionados.';return;}
     if(!confirm('¿Confirmas la venta de '+items.length+' producto(s)? Se descontará su inventario.'))return;
     out.textContent='Registrando venta…';
     const {data,error}=await client.rpc('jimport_register_sale_multi',{sale_items:items,sale_reference:reference,customer_label:customer,generate_code:withCode});
