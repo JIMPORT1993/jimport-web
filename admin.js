@@ -440,17 +440,33 @@
   let reviewRows=[];
   const reviewStatus=$('reviewAdminStatus');
 
-  function populateSaleProducts(){const sel=$('saleProduct');if(!sel)return;sel.innerHTML='<option value="">Seleccionar producto</option>'+rows.map(p=>`<option value="${safe(p.id)}">${safe(p.brand)} · ${safe(p.name)}</option>`).join('');}
+  const saleSelections=new Map();
+  function populateSaleProducts(){
+    const el=$('saleProductChoices');if(!el)return;
+    const term=($('saleProductSearch')?.value||'').toLowerCase().trim();
+    const matches=rows.filter(p=>(p.name+' '+(p.brand||'')).toLowerCase().includes(term));
+    el.innerHTML=matches.map(p=>{const id=String(p.id),qty=saleSelections.get(id)||1;return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label style="flex:1;min-width:190px;display:flex;gap:8px;align-items:center"><input type="checkbox" data-sale-check="${safe(id)}" ${saleSelections.has(id)?'checked':''}>${p.image_url?`<img src="${safe(p.image_url)}" alt="" style="width:42px;height:42px;object-fit:contain">`:''}<span>${safe(p.brand||'')} · ${safe(p.name)}</span></label><label>Cant. <input type="number" data-sale-qty="${safe(id)}" min="1" max="100000" step="1" value="${qty}" style="width:75px" ${saleSelections.has(id)?'':'disabled'}></label></div>`}).join('')||'<p>No se encontraron productos.</p>';
+    el.querySelectorAll('[data-sale-check]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleCheck;if(input.checked)saleSelections.set(id,1);else saleSelections.delete(id);populateSaleProducts();}));
+    el.querySelectorAll('[data-sale-qty]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleQty;if(saleSelections.has(id))saleSelections.set(id,Number(input.value));}));
+  }
+  $('saleProductSearch')?.addEventListener('input',populateSaleProducts);
   $('verifiedSaleForm')?.addEventListener('submit',async e=>{
-    e.preventDefault();const out=$('saleResult');out.textContent='Generando código…';
-    const productId=$('saleProduct').value,reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),qty=Number($('saleQuantity').value),withCode=$('saleWithCode').checked;
-    if(!productId||!reference||!Number.isInteger(qty)||qty<1){out.textContent='Selecciona un producto, cantidad válida y referencia de venta.';return;}if(!confirm('¿Confirmas la venta de '+qty+' unidad(es)? El stock se descontará ahora.')){out.textContent='Venta cancelada.';return;}
-    const {data,error}=await client.rpc('jimport_register_sale',{sold_product_id:productId,sale_reference:reference,customer_label:customer,sold_quantity:qty,generate_code:withCode});
-    if(error){out.textContent='No se pudo generar el código: '+error.message;return;}
-    const code=String(data?.code||'');const url=new URL('index.html',location.href);url.hash='opiniones';
-    out.innerHTML='';const heading=document.createElement('strong');heading.textContent='Venta registrada: '+qty+' unidad(es) descontadas. '+(code?'Código: '+code:'Sin código de opinión.');out.append(heading);
-    const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent('Gracias por comprar en JIMPORT. Puedes dejar tu opinión de compra verificada aquí: '+url.href+' Código: '+code);if(code)out.append(document.createElement('br'),share);
-    $('verifiedSaleForm').reset();await refresh();
+    e.preventDefault();const out=$('saleResult');
+    const items=[...saleSelections].map(([product_id,quantity])=>({product_id,quantity}));
+    const reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),withCode=$('saleWithCode').checked;
+    if(!items.length||!reference||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona uno o varios productos, cantidades válidas y una referencia.';return;}
+    if(!confirm('¿Confirmas la venta de '+items.length+' producto(s)? Se descontará su inventario.'))return;
+    out.textContent='Registrando venta…';
+    const {data,error}=await client.rpc('jimport_register_sale_multi',{sale_items:items,sale_reference:reference,customer_label:customer,generate_code:withCode});
+    if(error){out.textContent='No se pudo registrar la venta: '+error.message+'. Comprueba que ejecutaste JIMPORT_VENTAS_MULTIPRODUCTO.sql en Supabase.';return;}
+    const code=data?.code||null;const url=new URL('index.html',location.href);url.hash='opiniones';
+    out.replaceChildren();const heading=document.createElement('strong');heading.textContent='Venta registrada. '+items.length+' producto(s) descontados y existencias actualizadas.';out.append(heading);
+    if(code){const label=document.createElement('p');label.textContent='Código único para toda la compra: '+code;out.append(label);
+      const productNames=items.map(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return (p?.name||'Producto')+' × '+x.quantity;});
+      const msg='Gracias por comprar en JIMPORT. Puedes calificar tu compra (todos los productos) con un solo código.\nProductos: '+productNames.join(', ')+'\nCódigo: '+code+'\nCalifícanos aquí: '+url.href;
+      const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir código único por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent(msg);out.append(share);
+    }
+    saleSelections.clear();$('verifiedSaleForm').reset();await refresh();populateSaleProducts();
   });
 
   $('reloadReviews').addEventListener('click',refreshReviews);

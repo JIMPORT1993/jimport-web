@@ -1,0 +1,7 @@
+JIMPORT - CAMBIOS REALIZADOS
+
+1. WhatsApp: las consultas incluyen enlaces a las imágenes de los productos, cuando tienen image_url. WhatsApp no permite adjuntar automáticamente fotos binarias mediante wa.me; los enlaces permiten abrirlas.
+2. Compras verificadas: seleccionar varios productos, cantidades individuales y confirmar una venta con una referencia común. Genera un código de opinión por producto.
+3. Ejecutar JIMPORT_VENTAS_MULTIPRODUCTO.sql en Supabase SQL Editor ANTES de utilizar la nueva función. Requiere que las funciones de registro de ventas anteriores ya estén instaladas.
+4. La operación es transaccional: cualquier error cancela todos los descuentos de stock.
+5. Los códigos permiten calificar cada producto por separado usando la sección existente de opiniones.
