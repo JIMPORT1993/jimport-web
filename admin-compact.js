@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ['catalogo','Catálogo y existencias','Productos, búsqueda, filtros e inventario', '#newProduct','#adminProducts'],
   ['marcas','Marcas y categorías','Crear o quitar marcas y categorías', '#brandsPanel','#managedCategories'],
   ['promociones','Promociones','Ofertas y promociones de portada', '#newPromotion','#adminPromotions'],
+  ['reporte','Reporte de ventas y ganancias','Ingresos, costo de llegada y utilidad por día', '#dailySalesReport','#dailySalesReport'],
   ['ventas','Compras verificadas','Registrar ventas y descontar stock', '[aria-labelledby="salesTitle"]','[aria-labelledby="salesTitle"]'],
   ['opiniones','Opiniones de clientes','Aprobar y administrar reseñas', '[aria-labelledby="reviewsAdminTitle"]','[aria-labelledby="reviewsAdminTitle"]']
  ];
@@ -17,9 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
  // Los encabezados de catálogo/promociones son contenedores sin ID propio.
  const toolbarCatalog=pick('#newProduct')?.closest('.admin-toolbar');
  const toolbarPromos=pick('#newPromotion')?.closest('.admin-toolbar');
- const mapping={combos:[pick('#jxComboAdmin'),pick('#jxComboAdmin')],visitas:[pick('.visits-panel'),pick('.visits-panel')],duplicados:[pick('[aria-labelledby="duplicateTitle"]'),pick('[aria-labelledby="duplicateTitle"]')],catalogo:[toolbarCatalog,pick('#adminProducts')],marcas:[pick('#brandsPanel'),pick('#managedCategories')],promociones:[toolbarPromos,pick('#adminPromotions')],ventas:[pick('[aria-labelledby="salesTitle"]'),pick('[aria-labelledby="salesTitle"]')],opiniones:[pick('[aria-labelledby="reviewsAdminTitle"]'),pick('[aria-labelledby="reviewsAdminTitle"]')]};
+ const mapping={combos:[pick('#jxComboAdmin'),pick('#jxComboAdmin')],visitas:[pick('.visits-panel'),pick('.visits-panel')],duplicados:[pick('[aria-labelledby="duplicateTitle"]'),pick('[aria-labelledby="duplicateTitle"]')],catalogo:[toolbarCatalog,pick('#adminProducts')],marcas:[pick('#brandsPanel'),pick('#managedCategories')],promociones:[toolbarPromos,pick('#adminPromotions')],reporte:[pick('#dailySalesReport'),pick('#dailySalesReport')],ventas:[pick('[aria-labelledby="salesTitle"]'),pick('[aria-labelledby="salesTitle"]')],opiniones:[pick('[aria-labelledby="reviewsAdminTitle"]'),pick('[aria-labelledby="reviewsAdminTitle"]')]};
  // Marcas/categorías están originalmente dentro del bloque del catálogo: extraer primero.
- const order=['combos','visitas','duplicados','marcas','catalogo','promociones','ventas','opiniones'];
+ const order=['combos','visitas','duplicados','marcas','catalogo','promociones','ventas','reporte','opiniones'];
  const blocks=new Map();
  for(const id of order){const [start,end]=mapping[id]||[];if(!start||!end)continue;const frag=document.createDocumentFragment();moveRange(start,end,frag);blocks.set(id,frag);}
  const nav=document.createElement('div');nav.className='compact-admin-intro';nav.innerHTML='<h2>Panel de administración</h2><p>Selecciona una sección para ver sus herramientas. Las demás permanecerán ocultas.</p>';

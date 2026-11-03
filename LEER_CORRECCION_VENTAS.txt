@@ -1,0 +1,1 @@
+Ejecuta CORREGIR_VENTAS_AMBIGUEDAD_DEFINITIVO.sql en Supabase SQL Editor. No vuelvas a ejecutar JIMPORT_VENTAS_MULTIPRODUCTO.sql antiguo. Prueba con referencia nueva y una unidad; verifica inventario antes y después.
