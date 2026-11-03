@@ -23,7 +23,7 @@ begin
  if not public.jimport_is_admin() then raise exception 'Administrador no autorizado'; end if;
  if sold_quantity is null or sold_quantity<1 or sold_quantity>100000 then raise exception 'Cantidad inválida'; end if;
  if length(trim(coalesce(sale_reference,''))) not between 2 and 100 then raise exception 'Referencia inválida'; end if;
- if exists(select 1 from public.jimport_sales where product_id=sold_product_id and sale_reference=trim(sale_reference)) then raise exception 'Venta ya registrada para esta referencia y producto'; end if;
+ if exists(select 1 from public.jimport_sales js where js.product_id=sold_product_id and js.sale_reference=trim(jimport_register_sale.sale_reference)) then raise exception 'Venta ya registrada para esta referencia y producto'; end if;
  select quantity,landed_cost into inv from public.jimport_inventory_private where product_id=sold_product_id for update;
  if not found then raise exception 'Primero registra el inventario del producto'; end if;
  if inv.quantity<sold_quantity then raise exception 'Stock insuficiente: quedan % unidades', inv.quantity; end if;
