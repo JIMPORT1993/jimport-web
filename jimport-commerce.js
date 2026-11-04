@@ -18,11 +18,10 @@ function drawCombos(){
  el.innerHTML=combos.map(c=>{
   const ps=(Array.isArray(c.items)?c.items:[]).map(get).filter(Boolean);
   if(ps.length<2)return '';
-  const normal=ps.reduce((a,p)=>a+Number(p.price||0),0);
   const details=[c.description?`<p>${esc(c.description)}</p>`:'',`<ul>${ps.map(p=>`<li>${esc(p.name)}</li>`).join('')}</ul>`].join('');
   const images=ps.slice(0,4).map(p=>p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<span class="jx-combo-placeholder" aria-label="Sin fotografía">📦</span>`).join('');
   const query='Hola JIMPORT, quiero consultar el Súper Combo '+c.name+' por '+money(c.combo_price)+'\n'+ps.map(p=>p.name+photo(p)).join('\n');
-  return `<article class="jx-combo jx-combo-compact"><div class="jx-combo-images jx-combo-photo-grid">${images}</div><div class="jx-combo-content"><span class="jx-combo-tag">🔥 SÚPER COMBO</span><h3 title="${esc(c.name)}">${esc(c.name)}</h3><div class="jx-price"><strong>${money(c.combo_price)}</strong>${normal>Number(c.combo_price)?`<del>${money(normal)}</del>`:''}</div><details class="jx-combo-details"><summary>Ver descripción</summary><div class="jx-combo-detail-body">${details}</div></details><button type="button" class="button jx-combo-add" data-combo="${esc(c.id)}">Añadir al pedido</button><a class="jx-quick" target="_blank" rel="noopener noreferrer" href="${wa(query)}">Consultar por WhatsApp</a></div></article>`;
+  return `<article class="jx-combo jx-combo-compact"><div class="jx-combo-images jx-combo-photo-grid">${images}</div><div class="jx-combo-content"><span class="jx-combo-tag">🔥 SÚPER COMBO</span><h3 title="${esc(c.name)}">${esc(c.name)}</h3><div class="jx-price"><strong>${money(c.combo_price)}</strong></div><details class="jx-combo-details"><summary>Ver descripción</summary><div class="jx-combo-detail-body">${details}</div></details><button type="button" class="button jx-combo-add" data-combo="${esc(c.id)}">Añadir al pedido</button><a class="jx-quick" target="_blank" rel="noopener noreferrer" href="${wa(query)}">Consultar por WhatsApp</a></div></article>`;
  }).join('');
  el.querySelectorAll('[data-combo]').forEach(b=>b.onclick=()=>{const c=combos.find(x=>String(x.id)===b.dataset.combo);if(c)comboAdd(c);});
 }

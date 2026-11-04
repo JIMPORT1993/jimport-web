@@ -47,3 +47,8 @@
 #jxCombos .jx-quick{font-size:.76rem;text-align:center;margin-top:8px;line-height:1.3}
 @media(max-width:900px){#jxCombos.jx-combos{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}}
 @media(max-width:650px){#jxCombos.jx-combos{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#jxCombos .jx-combo-compact{padding:7px;border-radius:11px}#jxCombos .jx-combo-compact h3{font-size:.82rem}#jxCombos .jx-combo-compact .jx-price strong{font-size:1rem}#jxCombos .jx-combo-add{font-size:.72rem;padding:8px 3px}#jxCombos .jx-quick{font-size:.7rem}#jxCombos .jx-combo-photo-grid{gap:3px;padding:4px}}
+
+/* Botón de portada para acceder directamente a Súper Combos */
+.sale-hero-actions .sale-combos{display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:14px 20px;border:2px solid #78f1c4;border-radius:14px;background:linear-gradient(120deg,#0a795d,#075b69);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 0 17px #22dca044;transition:transform .2s,box-shadow .2s}
+.sale-hero-actions .sale-combos:hover{transform:translateY(-2px);box-shadow:0 0 24px #22dca077}
+@media(max-width:650px){.sale-hero-actions .sale-combos{grid-column:1/-1;min-height:45px;padding:12px 8px;font-size:12px;border-radius:13px}}
