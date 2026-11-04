@@ -22,3 +22,28 @@
 .jx-unify-tools>p{margin:0;color:#64748b;font-size:.9rem}
 .jx-unified-preview{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #b8d9cb;background:#f0faf5;border-radius:12px;color:#173b30}
 .jx-unified-preview p{margin:7px 0 0;line-height:1.5;white-space:normal}
+
+/* Súper Combos: tarjetas compactas del mismo formato que el catálogo */
+#jxCombos.jx-combos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:stretch}
+#jxCombos .jx-combo-compact{min-width:0;padding:10px;border-radius:14px;display:flex;flex-direction:column;gap:0;overflow:hidden}
+#jxCombos .jx-combo-photo-grid{width:100%;height:auto;aspect-ratio:1/1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:5px;padding:6px;background:#fff;border-radius:10px;overflow:hidden}
+#jxCombos .jx-combo-photo-grid img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;background:#fff;border-radius:5px}
+#jxCombos .jx-combo-photo-grid img:only-child{grid-column:1/-1;grid-row:1/-1}
+#jxCombos .jx-combo-photo-grid img:nth-child(2):last-child{grid-row:1/-1}
+#jxCombos .jx-combo-photo-grid img:first-child:nth-last-child(2){grid-row:1/-1}
+#jxCombos .jx-combo-placeholder{display:grid;place-items:center;background:#f1f5f9;border-radius:5px;font-size:1.5rem}
+#jxCombos .jx-combo-content{display:flex;flex-direction:column;align-items:stretch;flex:1;min-width:0;padding-top:10px}
+#jxCombos .jx-combo-tag{align-self:flex-start;padding:3px 8px;font-size:9px;letter-spacing:.03em}
+#jxCombos .jx-combo-compact h3{font-size:clamp(.84rem,1.15vw,1rem);line-height:1.35;margin:8px 0 4px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.7em}
+#jxCombos .jx-combo-compact .jx-price{margin:5px 0 10px;gap:7px}
+#jxCombos .jx-combo-compact .jx-price strong{font-size:1.2rem}
+#jxCombos .jx-combo-compact .jx-price del{font-size:.78rem}
+#jxCombos .jx-combo-details{font-size:.82rem;margin-bottom:10px}
+#jxCombos .jx-combo-details summary{cursor:pointer;color:#9fd6ff;font-weight:700;list-style-position:inside}
+#jxCombos .jx-combo-detail-body{padding:8px 0;overflow-wrap:anywhere}
+#jxCombos .jx-combo-detail-body p{font-size:.8rem;margin:0 0 6px}
+#jxCombos .jx-combo-detail-body ul{margin:0;padding-left:18px;font-size:.78rem}
+#jxCombos .jx-combo-add{margin-top:auto;font-size:.79rem;padding:9px 5px;line-height:1.3;white-space:normal}
+#jxCombos .jx-quick{font-size:.76rem;text-align:center;margin-top:8px;line-height:1.3}
+@media(max-width:900px){#jxCombos.jx-combos{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}}
+@media(max-width:650px){#jxCombos.jx-combos{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#jxCombos .jx-combo-compact{padding:7px;border-radius:11px}#jxCombos .jx-combo-compact h3{font-size:.82rem}#jxCombos .jx-combo-compact .jx-price strong{font-size:1rem}#jxCombos .jx-combo-add{font-size:.72rem;padding:8px 3px}#jxCombos .jx-quick{font-size:.7rem}#jxCombos .jx-combo-photo-grid{gap:3px;padding:4px}}
