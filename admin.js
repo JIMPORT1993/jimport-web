@@ -188,6 +188,29 @@
   }
   for(const id of ['adminSearch','adminCategory','adminBrand','adminPageSize']) $(id).addEventListener(id==='adminSearch'?'input':'change',()=>{adminPage=1;draw();});
   $('adminClearFilters').addEventListener('click',()=>{$('adminSearch').value='';$('adminCategory').value='';$('adminBrand').value='';$('adminPageSize').value='10';onlyLowStock=false;$('filterLowStock').textContent='🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed','false');adminPage=1;draw();});
+  async function saveQuickAvailability(id,button){
+    if(!authorized||!client)return;
+    const product=rows.find(p=>String(p.id)===String(id));
+    const select=document.querySelector(`.availability-select[data-id="${CSS.escape(String(id))}"]`);
+    const feedback=document.querySelector(`.availability-feedback[data-feedback="${CSS.escape(String(id))}"]`);
+    if(!product||!select)return;
+    const next=select.value;
+    button.disabled=true;button.textContent='Guardando…';
+    if(feedback)feedback.textContent='';
+    try{
+      const {data,error}=await client.from('products').update({stock:next}).eq('id',id).select('*').single();
+      if(error)throw error;
+      Object.assign(product,data||{stock:next});
+      if(feedback)feedback.textContent='✓ Guardado';
+      note('Disponibilidad actualizada: '+product.name+' · '+next+'. La cantidad del inventario no se modificó.');
+      draw();
+    }catch(err){
+      console.error('No se pudo guardar la disponibilidad:',err);
+      if(feedback)feedback.textContent='No se pudo guardar';
+      note('No se pudo guardar el estado de disponibilidad: '+(err?.message||String(err)));
+      button.disabled=false;button.textContent='Reintentar';
+    }
+  }
   function draw(){
     const el=$('adminProducts');
     const query=$('adminSearch').value.trim().toLocaleLowerCase('es');
@@ -203,9 +226,12 @@
       const inv=privateInventory[p.id], qty=inv?.quantity, minimum=inv?.min_quantity;
       const low=inv && qty<=minimum, empty=inv && qty===0;
       const tag=!inv?'Inventario sin registrar':empty?'AGOTADO · 0 unidades':low?'⚠ STOCK BAJO · '+qty+' unidades':'✓ '+qty+' unidades';
-      return `<article class="admin-row ${low?'admin-low-stock':''} ${empty?'admin-no-stock':''}"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:'✳'}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||'Sin modelo')} · Categoría: ${safe(p.category||'VARIOS')}</span><strong>${money(p.price)} · Costo: ${money(inv?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(inv?.landed_cost||0))} · Mínimo: ${minimum??'—'} ${p.active?'':'· Oculto'}</strong><span class="admin-quantity-tag ${low?'critical':''}">${tag}</span></div><span class="admin-stock">${safe(p.stock||'')}</span><button class="button button-outline visibility" data-id="${safe(p.id)}">${p.active===false?"Mostrar en catálogo":"Ocultar del catálogo"}</button><button class="button button-outline edit" data-id="${safe(p.id)}">Editar</button><button class="button button-danger delete" data-id="${safe(p.id)}">Eliminar</button></article>`;
+      const availability=['En stock','Producto llegando','Bajo pedido','Agotado'];
+      const currentAvailability=availability.includes(p.stock)?p.stock:'En stock';
+      return `<article class="admin-row ${low?'admin-low-stock':''} ${empty?'admin-no-stock':''}"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:'✳'}</div><div class="admin-row-info"><b>${safe(p.name)}</b><span>${safe(p.brand)} · ${safe(p.model||'Sin modelo')} · Categoría: ${safe(p.category||'VARIOS')}</span><strong>${money(p.price)} · Costo: ${money(inv?.landed_cost||0)} · Utilidad bruta: ${money(Number(p.price)-Number(inv?.landed_cost||0))} · Mínimo: ${minimum??'—'} ${p.active?'':'· Oculto'}</strong><span class="admin-quantity-tag ${low?'critical':''}">${tag}</span></div><div class="admin-quick-availability"><label for="availability-${safe(p.id)}">Disponibilidad</label><select id="availability-${safe(p.id)}" class="availability-select" data-id="${safe(p.id)}">${availability.map(v=>`<option value="${safe(v)}" ${v===currentAvailability?'selected':''}>${safe(v)}</option>`).join('')}</select><button type="button" class="button button-outline save-availability" data-id="${safe(p.id)}">Guardar estado</button><small class="availability-feedback" data-feedback="${safe(p.id)}" aria-live="polite"></small></div><button class="button button-outline visibility" data-id="${safe(p.id)}">${p.active===false?"Mostrar en catálogo":"Ocultar del catálogo"}</button><button class="button button-outline edit" data-id="${safe(p.id)}">Editar</button><button class="button button-danger delete" data-id="${safe(p.id)}">Eliminar</button></article>`;
     }).join('');showInventory();
     el.querySelectorAll('.visibility').forEach(b=>b.onclick=()=>{const p=rows.find(p=>String(p.id)===b.dataset.id);if(p)toggleCatalogVisibility(p,b);});
+    el.querySelectorAll('.save-availability').forEach(b=>b.onclick=()=>saveQuickAvailability(b.dataset.id,b));
     el.querySelectorAll('.edit').forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));
     el.querySelectorAll('.delete').forEach(b=>b.onclick=()=>remove(b.dataset.id));
   }

@@ -38,3 +38,11 @@
   #duplicateReport .duplicate-audit-item { align-items: stretch; flex-direction: column; }
   #duplicateReport .duplicate-audit-item button { width: 100%; }
 }
+
+/* Cambio rápido de disponibilidad desde cada producto del catálogo */
+.admin-quick-availability{display:flex;flex-direction:column;gap:6px;min-width:150px;max-width:190px;flex:0 0 170px}
+.admin-quick-availability label{font-size:11px;font-weight:800;color:var(--muted,#aab4c4)}
+.admin-quick-availability select{width:100%;min-width:0;min-height:38px;padding:8px 10px;border:1px solid var(--line,#40516a);border-radius:9px;background:var(--surface,#111827);color:var(--text,#f3f4f6);font-family:inherit;font-size:12px;font-weight:600}
+.admin-quick-availability .save-availability{width:100%;white-space:nowrap}
+.admin-quick-availability .availability-feedback{min-height:14px;font-size:10px;color:#16a36a}
+@media(max-width:800px){.admin-quick-availability{flex:1 1 100%;max-width:none;min-width:100%;order:5}.admin-quick-availability .save-availability{width:100%}}
