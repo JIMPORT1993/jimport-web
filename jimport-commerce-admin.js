@@ -1,13 +1,13 @@
 (()=>{'use strict';
 const cfg=window.JIMPORT_CONFIG||{},db=window.supabase?.createClient?.(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY),$=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD'}).format(Number(n||0));let products=[],combos=[],registeredBrands=[],selected=[],editing='';const status=t=>$('jxAdminStatus').textContent=t;
 async function ready(){if(!db)return;const {data}=await db.auth.getSession();if(!data?.session)return;const {data:admin,error}=await db.rpc('jimport_is_admin');if(error||!admin)return;await load();}
-async function load(){const [a,b,c]=await Promise.all([db.from('products').select('*').order('name').limit(3000),db.from('jimport_super_combos').select('*').order('created_at',{ascending:false}),db.from('jimport_brands').select('name').order('name')]);if(a.error){status('Error al cargar productos: '+a.error.message);return;}products=a.data||[];if(b.error){status('No se pudieron cargar los combos. Ejecuta SUPER_COMBOS_SUPABASE.sql en Supabase: '+b.error.message);return;}combos=b.data||[];registeredBrands=c.error?[]:(c.data||[]).map(x=>String(x.name||'').trim()).filter(Boolean);drawBrands();drawCategories();drawChoices();drawList();if(c.error)status('Se cargaron las marcas existentes en los productos. No se pudo consultar la lista maestra de marcas: '+c.error.message);}
+async function load(){const [a,b,c]=await Promise.all([db.from('products').select('*').order('name').limit(3000),db.from('jimport_super_combos').select('*').order('created_at',{ascending:false}),db.from('jimport_brands').select('*')]);if(a.error){status('Error al cargar productos: '+a.error.message);return;}products=a.data||[];if(b.error){status('No se pudieron cargar los combos. Ejecuta SUPER_COMBOS_SUPABASE.sql en Supabase: '+b.error.message);return;}combos=b.data||[];registeredBrands=c.error?[]:(c.data||[]).map(extractBrandValue).filter(Boolean);drawBrands();drawCategories();drawChoices();drawList();if(!getAvailableBrands().length)status('No se encontraron marcas en los productos ni en la lista maestra. Revisa que los productos tengan una marca asignada.');else if(c.error)status('Marcas cargadas desde los productos. La lista maestra no está disponible: '+c.error.message);}
 function normalizedKey(value){return String(value||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleUpperCase('es');}
 function drawBrands(){const select=$('jxBrandFilter');if(!select)return;const previous=select.value;const names=new Map();for(const name of [...registeredBrands,...products.map(p=>p.brand)]){const raw=String(name||'').trim();const key=normalizedKey(raw);if(key&&!names.has(key))names.set(key,raw.toLocaleUpperCase('es'));}select.replaceChildren();const all=document.createElement('option');all.value='';all.textContent='Todas las marcas';select.append(all);for(const [key,name] of [...names.entries()].sort((a,b)=>a[1].localeCompare(b[1],'es'))){const option=document.createElement('option');option.value=key;option.textContent=name;select.append(option);}select.value=names.has(previous)?previous:'';}
 function drawCategories(){const select=$('jxCategoryFilter');if(!select)return;const previous=select.value;const names=new Map();for(const p of products){if(p.active===false)continue;const raw=String(p.category||'VARIOS').trim()||'VARIOS';const key=normalizedKey(raw);if(!names.has(key))names.set(key,raw.toUpperCase());}select.replaceChildren();const all=document.createElement('option');all.value='';all.textContent='Todas las categorías';select.append(all);for(const [key,name] of [...names.entries()].sort((a,b)=>a[1].localeCompare(b[1],'es'))){const option=document.createElement('option');option.value=key;option.textContent=name;select.append(option);}select.value=[...names.keys()].includes(previous)?previous:'';}
 function drawChoices(){
  const q=$('jxProductSearch').value.trim().toLowerCase(),brand=$('jxBrandFilter')?.value||'',category=$('jxCategoryFilter')?.value||'',sort=$('jxProductSort')?.value||'name';
- const shown=products.filter(p=>p.active!==false&&(!brand||normalizedKey(p.brand)===brand)&&(!category||normalizedKey(p.category||'VARIOS')===category)&&[p.name,p.brand,p.model,p.category].join(' ').toLowerCase().includes(q));
+ const shown=products.filter(p=>p.active!==false&&(!brand||normalizedKey(productBrand(p))===brand)&&(!category||normalizedKey(p.category||'VARIOS')===category)&&[p.name,productBrand(p),p.model,p.category].join(' ').toLowerCase().includes(q));
  shown.sort((a,b)=>sort==='price-asc'?Number(a.price||0)-Number(b.price||0):sort==='price-desc'?Number(b.price||0)-Number(a.price||0):String(a.name||'').localeCompare(String(b.name||''),'es'));
  const target=$('jxProductChoices');target.replaceChildren();
  for(const p of shown){
@@ -21,7 +21,7 @@ function drawChoices(){
   }else photo.textContent='Sin foto';
   const details=document.createElement('div');details.className='jx-choice-details';
   const name=document.createElement('strong');name.textContent=p.name;
-  const model=document.createElement('small');model.textContent=[p.brand,p.model,p.category||'VARIOS'].filter(Boolean).join(' · ');
+  const model=document.createElement('small');model.textContent=[productBrand(p),p.model,p.category||'VARIOS'].filter(Boolean).join(' · ');
   const price=document.createElement('b');price.textContent=money(p.price);
   details.append(name,model,price);label.append(cb,photo,details);target.append(label);
  }
@@ -33,7 +33,7 @@ function unifyComboInfo(){
  const chosen=selected.map(id=>products.find(p=>String(p.id)===id)).filter(Boolean);
  if(chosen.length<2){status('Selecciona al menos dos productos para unificar la información.');return;}
  const unique=(arr)=>[...new Set(arr.map(v=>String(v||'').trim()).filter(Boolean))];
- const brands=unique(chosen.map(p=>p.brand));
+ const brands=unique(chosen.map(productBrand));
  const names=chosen.map(p=>p.name).filter(Boolean);
  const models=unique(chosen.map(p=>p.model));
  const generatedName='Combo '+(brands.length?brands.join(' + ')+' · ':'')+names.join(' + ');
