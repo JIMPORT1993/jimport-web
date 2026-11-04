@@ -1,0 +1,28 @@
+/* JIMPORT: tarjetas del carrusel móvil con proporciones de Súper Combos.
+   Solo presentación: conserva stock, detalles, WhatsApp y carrito. */
+@media (max-width:800px) {
+  #catalogTeasers, .catalog-teasers {max-width:100%!important;}
+  .teaser-carousel {gap:4px!important;align-items:center!important;}
+  .teaser-carousel .teaser-arrow {flex:0 0 20px!important;width:20px!important;min-width:20px!important;padding:0!important;font-size:14px!important;}
+  .teaser-carousel .catalog-teaser-row {grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;align-items:stretch!important;}
+  .teaser-carousel .catalog-teaser {box-sizing:border-box!important;min-width:0!important;height:100%!important;min-height:0!important;padding:7px!important;gap:5px!important;border-radius:11px!important;justify-content:flex-start!important;}
+  .teaser-carousel .catalog-teaser>img {display:block!important;width:100%!important;height:auto!important;aspect-ratio:1/1!important;object-fit:contain!important;box-sizing:border-box!important;background:#fff!important;padding:4px!important;border-radius:10px!important;filter:none!important;}
+  .teaser-carousel .catalog-teaser>span {display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;min-height:2.65em!important;max-height:2.65em!important;width:100%!important;font-size:12px!important;line-height:1.32!important;text-align:left!important;}
+  .teaser-carousel .catalog-teaser>small {width:100%!important;align-self:flex-start!important;font-size:10px!important;line-height:1.2!important;}
+  .teaser-carousel .catalog-teaser .teaser-price {align-self:flex-start!important;margin:3px 0!important;font-size:17px!important;line-height:1.25!important;}
+  .teaser-carousel .catalog-teaser .teaser-old-price {align-self:flex-start!important;margin:0!important;font-size:10px!important;}
+  .teaser-carousel .catalog-teaser .teaser-stock {box-sizing:border-box!important;align-self:flex-start!important;max-width:100%!important;min-width:0!important;width:auto!important;min-height:25px!important;margin:2px 0!important;padding:4px 7px!important;font-size:9px!important;line-height:1.15!important;border-radius:8px!important;letter-spacing:0!important;}
+  .teaser-carousel .catalog-teaser .teaser-info-button,
+  .teaser-carousel .catalog-teaser .teaser-whatsapp-button,
+  .teaser-carousel .catalog-teaser .teaser-brand-button {display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;min-height:32px!important;height:auto!important;padding:6px 3px!important;margin:1px 0!important;border-radius:9px!important;font-size:10px!important;line-height:1.2!important;text-align:center!important;white-space:normal!important;overflow-wrap:anywhere!important;}
+  .teaser-carousel .catalog-teaser .teaser-info-button {margin-top:auto!important;}
+  .teaser-progress {margin-top:10px!important;}
+}
+@media(max-width:360px){
+  .teaser-carousel .teaser-arrow {flex-basis:16px!important;width:16px!important;min-width:16px!important;}
+  .teaser-carousel .catalog-teaser-row {gap:6px!important;}
+  .teaser-carousel .catalog-teaser {padding:5px!important;}
+  .teaser-carousel .catalog-teaser .teaser-info-button,
+  .teaser-carousel .catalog-teaser .teaser-whatsapp-button,
+  .teaser-carousel .catalog-teaser .teaser-brand-button {font-size:9px!important;}
+}
