@@ -305,7 +305,10 @@
     const qty=asNumber(getVal(r,["Stock / Cantidad","Cantidad","Stock","quantity"]),null);
     const stockRaw=String(getVal(r,["Disponibilidad","Estado de stock","stock"])||"").trim().toLowerCase();
     let stock="En stock";
-    if(["agotado","sin stock","out of stock"].includes(stockRaw) || qty===0) stock="Agotado";
+    // La disponibilidad explícita tiene prioridad para permitir marcar productos en camino,
+    // incluso si todavía no tienen unidades físicas registradas.
+    if(stockRaw.includes("lleg") || stockRaw.includes("próxim") || stockRaw.includes("proxim")) stock="Producto llegando";
+    else if(["agotado","sin stock","out of stock"].includes(stockRaw) || qty===0) stock="Agotado";
     else if(["bajo pedido","por pedido","on order"].includes(stockRaw)) stock="Bajo pedido";
     else if(["en stock","disponible","in stock"].includes(stockRaw)) stock="En stock";
     const active=asBool(getVal(r,["Estado (activo/inactivo)","Estado","active"]),true);

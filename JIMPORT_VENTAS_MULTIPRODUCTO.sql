@@ -55,8 +55,15 @@ grant execute on function public.jimport_register_sale_multi(jsonb,text,text,boo
 create or replace function public.jimport_sync_stock_status() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
- update public.products set stock=case when new.quantity<=0 then 'Agotado' else 'En stock' end
- where id=new.product_id;
+ -- Solo automatizar el estado cuando las unidades realmente cambian.
+ -- Así, al llegar a cero se marca Agotado; después el administrador puede
+ -- cambiar manualmente a "Producto llegando" y ese estado no se sobrescribe
+ -- por guardados que mantengan la misma cantidad.
+ if tg_op = 'INSERT' or old.quantity is distinct from new.quantity then
+   update public.products
+      set stock=case when new.quantity<=0 then 'Agotado' else 'En stock' end
+    where id=new.product_id;
+ end if;
  return new;
 end $$;
 drop trigger if exists jimport_inventory_stock_status on public.jimport_inventory_private;

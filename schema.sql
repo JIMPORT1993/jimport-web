@@ -6,7 +6,7 @@ create table if not exists public.products (
   model text,
   price numeric(12,2) not null default 0 check (price >= 0),
   old_price numeric(12,2) check (old_price is null or old_price >= 0),
-  stock text not null default 'En stock' check (stock in ('En stock','Bajo pedido','Agotado')),
+  stock text not null default 'En stock' check (stock in ('En stock','Bajo pedido','Agotado','Producto llegando')),
   image_url text,
   description text,
   category text not null default 'VARIOS',
