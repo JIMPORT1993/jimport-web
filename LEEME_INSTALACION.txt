@@ -1,0 +1,21 @@
+JIMPORT - PAQUETE DEPURADO CON DIAGNOSTICO DE GUARDADO
+
+Contenido:
+- Archivos HTML, CSS y JavaScript que están referenciados por la tienda o el administrador.
+- Recursos gráficos utilizados.
+- Endpoint api/visit.js para el registro de visitas en despliegues compatibles con Vercel.
+- Scripts SQL de instalación, actualización y reparación. Se conservan porque pueden ser necesarios para la base de datos.
+
+Instalación:
+1. Descarga y descomprime el ZIP.
+2. Reemplaza el contenido del repositorio GitHub con la carpeta jimport-web-main.
+3. Conserva las variables/configuración de Supabase que ya utilizas en config.js.
+4. Espera el despliegue y recarga el sitio con Ctrl+F5.
+
+Diagnóstico:
+Al editar un producto, pulsa Guardar producto. Si Supabase rechaza el guardado, el panel Diagnóstico del guardado mostrará etapa, operación, tabla, código, mensaje, detalles y sugerencia. Copia ese reporte y compártelo para identificar la corrección necesaria.
+
+Importante:
+- No ejecutes todos los SQL de esta carpeta indiscriminadamente.
+- No se eliminó ni modificó ninguna tabla de Supabase.
+- Los archivos de diseño antiguos, notas y recursos estáticos sin referencias fueron retirados del ZIP.

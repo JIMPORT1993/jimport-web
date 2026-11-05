@@ -257,101 +257,125 @@
   });
   $('filterLowStock').addEventListener('click',()=>{onlyLowStock=!onlyLowStock;$('filterLowStock').textContent=onlyLowStock?'Mostrar todos los productos':'🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed',String(onlyLowStock));draw();});
   function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pWholesalePrice").value=p?.wholesale_price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";updateCategoryChoices();form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
-  let savingProduct=false;
+  let autosaving=false;
   const autoStatus=$('autosaveStatus');
-  // Edición con guardado explícito: evita envíos automáticos mientras se completa el formulario.
+  const diagnosticPanel=$('saveDiagnostic');
+  const diagnosticText=$('saveDiagnosticText');
+  function showSaveDiagnostic({stage,operation,id,error,payload,extra}){
+    const report={
+      fecha_hora:new Date().toISOString(),
+      etapa:stage,
+      operacion:operation,
+      tabla:stage==='inventario'?'jimport_inventory_private':'products',
+      producto_id:id||null,
+      error:{
+        message:error?.message||String(error||'Error desconocido'),
+        code:error?.code||null,
+        details:error?.details||null,
+        hint:error?.hint||null,
+        status:error?.status||error?.statusCode||null
+      },
+      campos_enviados:payload?Object.keys(payload):[],
+      ...(extra?{contexto:extra}:{})
+    };
+    const raw=JSON.stringify(report,null,2);
+    if(diagnosticText)diagnosticText.textContent=raw;
+    if(diagnosticPanel)diagnosticPanel.hidden=false;
+    console.error('Diagnóstico de guardado JIMPORT:',report);
+    return raw;
+  }
+  $('copySaveDiagnostic')?.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(diagnosticText?.textContent||'');$('copySaveDiagnostic').textContent='Copiado';}
+    catch(_){note('No se pudo copiar automáticamente. Selecciona el texto del diagnóstico y cópialo manualmente.');}
+  });
   form.addEventListener("submit",async e=>{
     e.preventDefault();
     if(!client){note("Supabase no está configurado. Revisa config.js.");autoStatus.textContent="Error: Supabase no está configurado.";return;}
-    if(savingProduct)return;
-    if(!form.reportValidity()){autoStatus.textContent="Revisa los campos obligatorios antes de guardar.";return;}
     const id=$("productId").value.trim();
+    if(autosaving)return;
     const submitButton=form.querySelector('button[type="submit"]');
-    savingProduct=true;
+    autosaving=true;
     if(submitButton){submitButton.disabled=true;submitButton.textContent='Guardando…';}
-    autoStatus.textContent='Guardando producto en Supabase…';
+    if(diagnosticPanel)diagnosticPanel.hidden=true;
+    autoStatus.textContent='Guardando cambios en Supabase…';
     const publicPrice=Number($("pPrice").value);
     const wholesaleInput=$("pWholesalePrice").value.trim();
-    const wholesalePrice=wholesaleInput===""?publicPrice:Number(wholesaleInput);
-    const quantity=Number($('pQuantity').value);
-    const minimum=Number($('pMinimum').value);
-    const landedCost=Number($('pCost').value);
-    if(!Number.isFinite(publicPrice)||publicPrice<0||!Number.isFinite(wholesalePrice)||wholesalePrice<0||
-       !Number.isInteger(quantity)||quantity<0||!Number.isInteger(minimum)||minimum<0||
-       !Number.isFinite(landedCost)||landedCost<0){
-      autoStatus.textContent='Error: revisa precios, cantidades y costo.';
-      note('No se guardó: los precios y costos deben ser números iguales o mayores que cero; las cantidades deben ser enteros no negativos.');
-      savingProduct=false;
-      if(submitButton){submitButton.disabled=false;submitButton.textContent='Guardar producto';}
-      return;
-    }
     const item={
       name:$("pName").value.trim(),
       brand:$("pBrand").value.trim(),
       model:$("pModel").value.trim()||null,
       price:publicPrice,
-      wholesale_price:wholesalePrice,
+      wholesale_price:wholesaleInput===""?publicPrice:Number(wholesaleInput),
       stock:$("pStock").value,
       category:$("pCategory").value,
       image_url:$("pImage").value.trim()||null,
       description:$("pDescription").value.trim()||null,
       active:id?(rows.find(p=>String(p.id)===String(id))?.active!==false):true
     };
+    if(!Number.isFinite(publicPrice)||publicPrice<0||!Number.isFinite(item.wholesale_price)||item.wholesale_price<0){
+      autoStatus.textContent='Error de validación: revisa los precios ingresados.';
+      note('No se guardó: los precios deben ser números iguales o mayores que cero.');
+      autosaving=false;
+      if(submitButton){submitButton.disabled=false;submitButton.textContent='Guardar producto';}
+      return;
+    }
     if(!id)item.old_price=null;
-    try{
-      let result;
-      if(id){
-        result=await client.from("products").update(item).eq("id",id)
-          .select("id,name,price,wholesale_price,stock,category,active").maybeSingle();
-      }else{
-        result=await client.from("products").insert(item)
-          .select("id,name,price,wholesale_price,stock,category,active").single();
+    const operation=id?'UPDATE':'INSERT';
+    const save=payload=>id
+      ?client.from("products").update(payload).eq("id",id).select("id,name,price,wholesale_price,stock,category,active").maybeSingle()
+      :client.from("products").insert(payload).select("id,name,price,wholesale_price,stock,category,active").single();
+    try {
+      let result=await save(item);
+      if(result.error && /column .*category.* does not exist|could not find the .*category.* column/i.test(result.error.message||"")) {
+        const legacyItem={...item}; delete legacyItem.category;
+        result=await save(legacyItem);
+        if(!result.error && result.data){
+          autoStatus.textContent='Producto guardado, pero falta la columna categoría en Supabase.';
+          note("El producto se guardó sin categoría. Ejecuta la migración de categoría en Supabase.");
+          await refresh();return;
+        }
       }
       if(result.error){
-        const msg=result.error.message||"Error desconocido";
-        if(/wholesale_price/i.test(msg)){
-          throw new Error("Supabase no reconoce la columna wholesale_price. Ejecuta PRECIOS_MAYORISTAS_Y_MODO_GLOBAL.sql y vuelve a intentar. Detalle: "+msg);
-        }
-        if(/category/i.test(msg)){
-          throw new Error("Supabase no reconoce la columna category. Ejecuta la migración de categorías y vuelve a intentar. Detalle: "+msg);
-        }
-        throw result.error;
+        showSaveDiagnostic({stage:'producto',operation,id,error:result.error,payload:item,extra:'Supabase rechazó la escritura en public.products.'});
+        throw new Error([result.error.message,result.error.details,result.error.hint].filter(Boolean).join(' — ')||result.error.code||'Error de Supabase');
       }
       if(!result.data?.id){
-        throw new Error(id
-          ?"Supabase no confirmó la actualización. Comprueba que el producto exista y que tu usuario tenga permiso UPDATE sobre public.products."
-          :"Supabase no devolvió el ID del producto creado.");
+        const error={message:id?'La actualización no devolvió ninguna fila. Posible ID inexistente o política RLS que bloquea UPDATE.':'Supabase no devolvió el identificador del producto creado.',code:'NO_ROW_RETURNED'};
+        showSaveDiagnostic({stage:'producto',operation,id,error,payload:item,extra:'La petición no produjo una fila confirmada. Revisa que el usuario sea administrador y que exista una política UPDATE/INSERT para public.products.'});
+        throw new Error(error.message);
       }
       const savedProductId=result.data.id;
       const inventory={
         product_id:savedProductId,
-        quantity,
-        min_quantity:minimum,
-        landed_cost:landedCost
+        quantity:Number($('pQuantity').value),
+        min_quantity:Number($('pMinimum').value),
+        landed_cost:Number($('pCost').value)
       };
-      const invResult=await client.from('jimport_inventory_private')
-        .upsert(inventory,{onConflict:'product_id'})
-        .select('product_id').maybeSingle();
+      const invResult=await client.from('jimport_inventory_private').upsert(inventory,{onConflict:'product_id'}).select('product_id').maybeSingle();
       if(invResult.error){
-        throw new Error("El producto y sus precios se guardaron, pero falló el inventario: "+invResult.error.message);
+        showSaveDiagnostic({stage:'inventario',operation:'UPSERT',id:savedProductId,error:invResult.error,payload:inventory,extra:'El producto sí se guardó en public.products, pero falló el guardado de cantidad/costo en jimport_inventory_private. Revisa tabla, columnas y permisos RLS.'});
+        throw new Error('El producto se guardó, pero falló el inventario: '+invResult.error.message);
       }
       if(!invResult.data?.product_id){
-        throw new Error("El producto y sus precios se guardaron, pero Supabase no confirmó el inventario. Revisa los permisos de jimport_inventory_private.");
+        const error={message:'Supabase no confirmó la fila de inventario.',code:'INVENTORY_NO_ROW_RETURNED'};
+        showSaveDiagnostic({stage:'inventario',operation:'UPSERT',id:savedProductId,error,payload:inventory,extra:'El producto sí se guardó; el inventario no devolvió una fila confirmada.'});
+        throw new Error(error.message);
       }
-      form.hidden=true;
+      if(!id)form.hidden=true;
       autoStatus.textContent='✓ Producto, precios e inventario guardados correctamente.';
-      note((id?'Producto actualizado':'Producto creado')+' correctamente. Precio público: '+money(publicPrice)+' · Precio mayorista: '+money(wholesalePrice)+'. Inventario actualizado.');
+      note('Producto, precios e inventario guardados correctamente.');
       await refresh();
-    }catch(err){
+    } catch(err) {
       console.error('Error al guardar producto e inventario:',err);
-      const detail=[err?.message,err?.details,err?.hint].filter(Boolean).join(' — ')||String(err);
+      const detail=err?.message||String(err);
       autoStatus.textContent='No se guardó: '+detail;
-      note('No se pudo guardar el producto: '+detail);
-    }finally{
-      savingProduct=false;
+      note('No se pudo completar el guardado: '+detail+'. Revisa el diagnóstico debajo del formulario.');
+    } finally {
+      autosaving=false;
       if(submitButton){submitButton.disabled=false;submitButton.textContent='Guardar producto';}
     }
   });
+
   // Importación masiva desde la plantilla Excel de JIMPORT o un CSV equivalente.
   const importButton=$("importProducts"), importInput=$("productImportFile"), importStatus=$("importStatus");
   function importNote(t){importStatus.textContent=t;importStatus.hidden=false;}
