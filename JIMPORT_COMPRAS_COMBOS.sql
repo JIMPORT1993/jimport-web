@@ -8,7 +8,7 @@ declare
  total_qty integer; unit_price numeric; part_total numeric; product_price numeric;
  item_cost numeric; inv_qty integer; first_product uuid; purchase_uuid uuid; code text;
  combined jsonb := '{}'::jsonb; revenues jsonb := '{}'::jsonb; total_revenue numeric := 0;
- product_count integer := 0; component_count integer := 0; remaining integer;
+ product_count integer := 0; component_count integer := 0; remaining integer; sale_row record;
 begin
  if not public.jimport_is_admin() then raise exception 'Administrador no autorizado'; end if;
  if jsonb_typeof(sale_items) is distinct from 'array' or jsonb_typeof(sale_combos) is distinct from 'array' then raise exception 'Formato de venta inválido'; end if;
@@ -45,8 +45,8 @@ begin
    end loop;
  end loop;
  -- Se registra cada producto físico una sola vez por referencia, incluso si aparece en varios combos.
- for entry in select key,value from jsonb_each_text(combined) order by key loop
-   pid := (entry->>'key')::uuid; total_qty := (entry->>'value')::integer;
+ for sale_row in select key,value from jsonb_each(combined) order by key loop
+   pid := sale_row.key::uuid; total_qty := (sale_row.value #>> '{}')::integer;
    select quantity,landed_cost into inv_qty,item_cost from public.jimport_inventory_private where product_id=pid for update;
    if not found then raise exception 'Falta registrar inventario de producto %',pid; end if;
    if inv_qty<total_qty then raise exception 'Inventario insuficiente para producto %: quedan %',pid,inv_qty; end if;
@@ -62,9 +62,9 @@ begin
  if generate_code then
    code:=public.create_verified_purchase(first_product,trim(sale_reference),coalesce(customer_label,''));
    select vp.id into purchase_uuid from public.verified_purchases vp where vp.sale_reference=trim(jimport_register_sale_with_combos.sale_reference) and vp.product_id=first_product;
-   for entry in select key,value from jsonb_each_text(combined) loop
+   for sale_row in select key,value from jsonb_each(combined) loop
      insert into public.jimport_verified_purchase_items(purchase_id,product_id,quantity)
-     values(purchase_uuid,(entry->>'key')::uuid,(entry->>'value')::integer);
+     values(purchase_uuid,sale_row.key::uuid,(sale_row.value #>> '{}')::integer);
    end loop;
  end if;
  return jsonb_build_object('code',code,'products_count',product_count,'combo_components',component_count,'sale_total',total_revenue);

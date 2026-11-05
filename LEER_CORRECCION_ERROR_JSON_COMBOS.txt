@@ -1,0 +1,10 @@
+CORRECCIÓN DEL ERROR: invalid input syntax for type json
+
+1. En Supabase abre SQL Editor.
+2. Ejecuta nuevamente TODO el archivo JIMPORT_COMPRAS_COMBOS.sql incluido en esta actualización.
+3. El archivo corregido reemplaza la función jimport_register_sale_with_combos.
+4. Recarga la página de administración (Ctrl + F5) y vuelve a probar con una referencia nueva.
+
+CAUSA: la función SQL recorría jsonb_each_text como si cada fila fuera un objeto JSON. PostgreSQL intentaba convertir una clave de texto (UUID) a JSON y producía el error. La función ahora recorre jsonb_each y lee la clave y el valor como columnas separadas.
+
+La corrección no borra ventas ni modifica productos, precios, combos o existencias. La venta y el descuento de inventario siguen ejecutándose dentro de una sola transacción: si falla la operación, no se registra parcialmente.

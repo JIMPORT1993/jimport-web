@@ -1,0 +1,11 @@
+ACTUALIZACIÓN: PRECIOS MANUALES POR PRODUCTO EN SÚPER COMBOS
+
+En Administrador > Compras verificadas, al seleccionar un Súper Combo se muestran sus productos componentes y un campo de precio para cada uno.
+
+- Ingresa el precio de venta individual de cada producto que integra el combo.
+- El total del combo se calcula sumando esos precios y multiplicando por la cantidad de combos.
+- El precio publicado del combo y los precios registrados en el catálogo no se modifican.
+- Al registrar la venta, se descuenta del inventario una unidad de cada componente por cada combo vendido.
+- El costo y la ganancia se calculan usando los costos privados registrados para cada producto.
+
+IMPORTANTE: después de subir los archivos actualizados a GitHub, ejecuta nuevamente JIMPORT_COMPRAS_COMBOS.sql en Supabase > SQL Editor para actualizar la función de registro de ventas. La función ahora recibe el precio manual por componente.
