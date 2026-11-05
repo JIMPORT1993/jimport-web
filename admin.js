@@ -492,11 +492,20 @@
       const check=document.createElement('input');check.type='checkbox';check.checked=!!sel;check.disabled=available===0&&!sel;
       const label=document.createElement('label');label.append(check,document.createTextNode(' Seleccionar Súper Combo'));
       const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.value=sel?.quantity||1;qty.disabled=!sel;qty.style.width='90px';
-      const price=document.createElement('input');price.type='number';price.min='0.01';price.step='0.01';price.placeholder='Precio manual $';price.value=sel?.price??'';price.disabled=!sel;price.style.width='145px';
-      check.addEventListener('change',()=>{if(check.checked)saleComboSelections.set(id,{quantity:1,price:''});else saleComboSelections.delete(id);renderSaleCombos();renderSaleSummary();});
+      check.addEventListener('change',()=>{if(check.checked){const prices={};parts.forEach(p=>prices[String(p.id)]='');saleComboSelections.set(id,{quantity:1,prices});}else saleComboSelections.delete(id);renderSaleCombos();renderSaleSummary();});
       qty.addEventListener('input',()=>{if(saleComboSelections.has(id)){saleComboSelections.get(id).quantity=Number(qty.value);renderSaleSummary();}});
-      price.addEventListener('input',()=>{if(saleComboSelections.has(id)){saleComboSelections.get(id).price=price.value;renderSaleSummary();}});
-      const fields=document.createElement('div');fields.style.display='flex';fields.style.gap='10px';fields.style.flexWrap='wrap';fields.append(document.createTextNode('Cantidad: '),qty,document.createTextNode('Precio por combo: '),price);
+      const fields=document.createElement('div');fields.style.display='grid';fields.style.gap='8px';fields.style.marginTop='8px';
+      const qtyRow=document.createElement('label');qtyRow.textContent='Cantidad del combo: ';qtyRow.append(qty);fields.append(qtyRow);
+      if(sel){
+        const heading=document.createElement('small');heading.textContent='Ingresa el precio de venta de cada producto:';fields.append(heading);
+        parts.forEach(p=>{
+          const row=document.createElement('label');row.style.display='flex';row.style.justifyContent='space-between';row.style.alignItems='center';row.style.gap='8px';
+          const name=document.createElement('span');name.textContent=p.name;
+          const price=document.createElement('input');price.type='number';price.min='0.01';price.step='0.01';price.placeholder='Precio $';price.value=sel.prices?.[String(p.id)]??'';price.style.width='120px';price.setAttribute('aria-label','Precio de venta de '+p.name);
+          price.addEventListener('input',()=>{if(saleComboSelections.has(id)){saleComboSelections.get(id).prices[String(p.id)]=price.value;renderSaleSummary();}});
+          row.append(name,price);fields.append(row);
+        });
+      }
       card.append(label,title,desc,stock,fields);el.append(card);
     }
   }
@@ -522,7 +531,7 @@
     const chosen=[...saleSelections].map(([id,qty])=>({p:rows.find(p=>String(p.id)===id),qty})).filter(x=>x.p);
     summary.replaceChildren();let amount=0;
     for(const {p,qty} of chosen){const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent=p.name+' × '+qty;const price=document.createElement('b');price.textContent=saleMoney(Number(p.price||0)*qty);line.append(name,price);summary.append(line);amount+=Number(p.price||0)*qty;}
-    for(const [id,selection] of saleComboSelections){const c=saleCombos.find(x=>String(x.id)===id);if(!c)continue;const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent='Súper Combo: '+c.name+' × '+selection.quantity;const price=document.createElement('b');price.textContent=selection.price===''?'Precio pendiente':saleMoney(Number(selection.price)*selection.quantity);line.append(name,price);summary.append(line);amount+=Number(selection.price||0)*selection.quantity;}
+    for(const [id,selection] of saleComboSelections){const c=saleCombos.find(x=>String(x.id)===id);if(!c)continue;const parts=(c.items||[]).map(x=>rows.find(p=>String(p.id)===String(x))).filter(Boolean);const subtotal=parts.reduce((sum,p)=>sum+Number(selection.prices?.[String(p.id)]||0),0);const complete=parts.length===(c.items||[]).length&&parts.every(p=>Number(selection.prices?.[String(p.id)]||0)>0);const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent='Súper Combo: '+c.name+' × '+selection.quantity;const price=document.createElement('b');price.textContent=complete?saleMoney(subtotal*selection.quantity):'Completa precios';line.append(name,price);summary.append(line);amount+=subtotal*selection.quantity;}
     if(!chosen.length&&!saleComboSelections.size)summary.textContent='Selecciona productos o Súper Combos para registrar la compra.';
     total.textContent='Total estimado: '+saleMoney(amount)+' · '+chosen.length+' producto(s) y '+saleComboSelections.size+' combo(s)';
   }
@@ -533,9 +542,9 @@
   $('verifiedSaleForm')?.addEventListener('submit',async e=>{
     e.preventDefault();const out=$('saleResult');
     const items=[...saleSelections].map(([product_id,quantity])=>({product_id,quantity}));
-    const combos=[...saleComboSelections].map(([combo_id,v])=>({combo_id,quantity:v.quantity,unit_price:Number(v.price)}));
+    const combos=[...saleComboSelections].map(([combo_id,v])=>({combo_id,quantity:v.quantity,items:Object.entries(v.prices||{}).map(([product_id,unit_price])=>({product_id,unit_price:Number(unit_price)}))}));
     const reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),withCode=$('saleWithCode').checked;
-    if((!items.length&&!combos.length)||!reference||combos.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<=0)||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona uno o varios productos, cantidades válidas y una referencia.';return;}
+    if((!items.length&&!combos.length)||!reference||combos.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||!x.items.length||x.items.some(i=>!Number.isFinite(i.unit_price)||i.unit_price<=0))||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona productos, ingresa un precio válido para cada componente de los Súper Combos y completa la referencia.';return;}
     const invalidStock=items.find(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));const stock=p&&saleAvailable(p);return stock!==null&&x.quantity>stock;});
     if(invalidStock){out.textContent='La cantidad supera las existencias disponibles. Revisa los productos seleccionados.';return;}
     if(!confirm('¿Confirmas la venta de '+items.length+' producto(s) y '+combos.length+' Súper Combo(s)? Se descontará el inventario de todos sus componentes.'))return;

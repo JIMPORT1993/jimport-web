@@ -4,7 +4,7 @@ create or replace function public.jimport_register_sale_with_combos(
  sale_items jsonb, sale_combos jsonb, sale_reference text, customer_label text default '', generate_code boolean default true
 ) returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
- entry jsonb; combo_entry jsonb; combo record; part text; pid uuid; qty integer;
+ entry jsonb; combo_entry jsonb; component_entry jsonb; combo record; part text; pid uuid; qty integer;
  total_qty integer; unit_price numeric; part_total numeric; product_price numeric;
  item_cost numeric; inv_qty integer; first_product uuid; purchase_uuid uuid; code text;
  combined jsonb := '{}'::jsonb; revenues jsonb := '{}'::jsonb; total_revenue numeric := 0;
@@ -26,21 +26,23 @@ begin
    total_revenue := total_revenue+product_price*qty;
  end loop;
  for combo_entry in select value from jsonb_array_elements(sale_combos) t(value) loop
-   qty := (combo_entry->>'quantity')::integer; unit_price := (combo_entry->>'unit_price')::numeric;
-   if qty is null or qty not between 1 and 100000 or unit_price is null or unit_price<=0 or unit_price>10000000 then raise exception 'Cantidad o precio manual inválido'; end if;
+   qty := (combo_entry->>'quantity')::integer;
+   if qty is null or qty not between 1 and 100000 then raise exception 'Cantidad de Súper Combo inválida'; end if;
    select * into combo from public.jimport_super_combos where id=(combo_entry->>'combo_id')::uuid;
    if not found then raise exception 'Súper Combo no encontrado'; end if;
    if jsonb_array_length(combo.items)<2 then raise exception 'Combo sin componentes suficientes'; end if;
-   select sum(coalesce(p.price,0)) into part_total from jsonb_array_elements_text(combo.items) t(id) join public.products p on p.id=t.id::uuid;
-   if part_total is null or part_total<=0 or (select count(*) from jsonb_array_elements_text(combo.items)) <> (select count(*) from jsonb_array_elements_text(combo.items) t(id) join public.products p on p.id=t.id::uuid) then raise exception 'El combo contiene productos inválidos'; end if;
-   for part in select value from jsonb_array_elements_text(combo.items) t(value) loop
-     pid := part::uuid;
-     select price into product_price from public.products where id=pid;
+   if jsonb_typeof(combo_entry->'items') is distinct from 'array' or jsonb_array_length(combo_entry->'items') <> jsonb_array_length(combo.items) or (select count(distinct value->>'product_id') from jsonb_array_elements(combo_entry->'items') t(value)) <> jsonb_array_length(combo.items) then raise exception 'Debes ingresar el precio manual de cada producto del Súper Combo'; end if;
+   for component_entry in select value from jsonb_array_elements(combo_entry->'items') t(value) loop
+     pid := (component_entry->>'product_id')::uuid;
+     unit_price := (component_entry->>'unit_price')::numeric;
+     if pid is null or unit_price is null or unit_price<=0 or unit_price>10000000 then raise exception 'Precio manual inválido en un producto del Súper Combo'; end if;
+     if not exists(select 1 from jsonb_array_elements_text(combo.items) t(id) where t.id=pid::text) then raise exception 'El producto indicado no pertenece a este Súper Combo'; end if;
+     if not exists(select 1 from public.products where id=pid) then raise exception 'Producto del Súper Combo no encontrado'; end if;
      combined := jsonb_set(combined,array[pid::text],to_jsonb(coalesce((combined->>pid::text)::integer,0)+qty),true);
-     revenues := jsonb_set(revenues,array[pid::text],to_jsonb(coalesce((revenues->>pid::text)::numeric,0)+(unit_price*qty*product_price/part_total)),true);
+     revenues := jsonb_set(revenues,array[pid::text],to_jsonb(coalesce((revenues->>pid::text)::numeric,0)+(unit_price*qty)),true);
+     total_revenue := total_revenue+unit_price*qty;
      component_count := component_count+1;
    end loop;
-   total_revenue := total_revenue+unit_price*qty;
  end loop;
  -- Se registra cada producto físico una sola vez por referencia, incluso si aparece en varios combos.
  for entry in select key,value from jsonb_each_text(combined) order by key loop
