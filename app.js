@@ -10,8 +10,8 @@
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
   let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail";
-  const displayPrice = p => displayPriceMode === "wholesale" ? (p.wholesale_price == null ? null : Number(p.wholesale_price)) : Number(p.price || 0);
-  const displayPriceText = p => displayPrice(p) == null ? "Precio mayorista no configurado" : money(displayPrice(p));
+  const displayPrice = p => displayPriceMode === "wholesale" ? Number(p.wholesale_price ?? p.price ?? 0) : Number(p.price || 0);
+  const displayPriceText = p => money(displayPrice(p));
   const knownBrands=[]; // Las marcas se obtienen de los productos reales, no de una lista fija.
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},

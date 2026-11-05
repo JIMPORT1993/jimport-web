@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const cfg=window.JIMPORT_CONFIG||{},db=window.supabase?.createClient?.(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY),$=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD'}).format(Number(n||0)),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let products=[],combos=[],cart=[],compare=[],displayPriceMode="retail";
-const displayPrice=p=>displayPriceMode==="wholesale"&&p?.wholesale_price!=null?Number(p.wholesale_price):Number(p?.price||0);
+const displayPrice=p=>displayPriceMode==="wholesale"?Number(p?.wholesale_price??p?.price??0):Number(p?.price||0);
 const photo=p=>p?.image_url?'\n📷 '+p.image_url:'';
 const wa=msg=>'https://wa.me/'+String(cfg.WHATSAPP_NUMBER||'').replace(/\D/g,'')+'?text='+encodeURIComponent(msg);
 function visible(p){return p.active!==false;}
