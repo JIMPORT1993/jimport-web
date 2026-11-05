@@ -234,7 +234,7 @@
     }).join('');showInventory();
     el.querySelectorAll('.visibility').forEach(b=>b.onclick=()=>{const p=rows.find(p=>String(p.id)===b.dataset.id);if(p)toggleCatalogVisibility(p,b);});
     el.querySelectorAll('.save-availability').forEach(b=>b.onclick=()=>saveQuickAvailability(b.dataset.id,b));
-    el.querySelectorAll('.edit').forEach(b=>b.onclick=()=>openForm(rows.find(p=>p.id===b.dataset.id)));
+    el.querySelectorAll('.edit').forEach(b=>b.onclick=()=>{const product=rows.find(p=>String(p.id)===String(b.dataset.id));if(product)openForm(product);else note('No se encontró el producto seleccionado. Actualiza el catálogo e inténtalo nuevamente.');});
     el.querySelectorAll('.delete').forEach(b=>b.onclick=()=>remove(b.dataset.id));
   }
   $('setAllMinimumOne').addEventListener('click',async()=>{
@@ -273,33 +273,52 @@
   }
   form.addEventListener("submit",async e=>{
     e.preventDefault();
-    if(!client){note("Supabase no está configurado. Revisa config.js.");return;}
-    const id=$("productId").value;
+    if(!client){note("Supabase no está configurado. Revisa config.js.");autoStatus.textContent="Error: Supabase no está configurado.";return;}
+    const id=$("productId").value.trim();
     if(autosaving){pendingAutosave=true;return;}
-    autosaving=true;autoStatus.textContent='Guardando cambios en Supabase…';
-    const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:Number($("pPrice").value),wholesale_price:$("pWholesalePrice").value===""?null:Number($("pWholesalePrice").value),stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:id?(rows.find(p=>String(p.id)===String(id))?.active!==false):true};
+    const submitButton=form.querySelector('button[type="submit"]');
+    autosaving=true; if(submitButton){submitButton.disabled=true;submitButton.textContent='Guardando…';}
+    autoStatus.textContent='Guardando cambios en Supabase…';
+    const publicPrice=Number($("pPrice").value);
+    const wholesaleInput=$("pWholesalePrice").value.trim();
+    const item={name:$("pName").value.trim(),brand:$("pBrand").value.trim(),model:$("pModel").value.trim()||null,price:publicPrice,wholesale_price:wholesaleInput===""?publicPrice:Number(wholesaleInput),stock:$("pStock").value,category:$("pCategory").value,image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,active:id?(rows.find(p=>String(p.id)===String(id))?.active!==false):true};
+    if(!Number.isFinite(publicPrice)||publicPrice<0||!Number.isFinite(item.wholesale_price)||item.wholesale_price<0){autosaving=false;if(submitButton){submitButton.disabled=false;submitButton.textContent='Guardar producto';}autoStatus.textContent='Error: revisa los precios ingresados.';note('No se guardó: los precios deben ser números iguales o mayores que cero.');return;}
     if(!id)item.old_price=null;
-    const save=payload=>id?client.from("products").update(payload).eq("id",id):client.from("products").insert(payload).select("id").single();
+    const save=payload=>id
+      ?client.from("products").update(payload).eq("id",id).select("id,name,price,wholesale_price,stock,category,active").maybeSingle()
+      :client.from("products").insert(payload).select("id,name,price,wholesale_price,stock,category,active").single();
     try {
       let result=await save(item);
       // Compatibility with an older database that has not yet received the category migration.
       if(result.error && /column .*category.* does not exist|could not find the .*category.* column/i.test(result.error.message||"")) {
         const legacyItem={...item}; delete legacyItem.category;
         result=await save(legacyItem);
-        if(!result.error){form.hidden=true;note("Producto guardado, pero la categoría aún no se guardó porque falta actualizar Supabase. Ejecuta en SQL Editor: ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'VARIOS';");await refresh();return;}
+        if(!result.error && result.data){
+          autoStatus.textContent='Producto guardado; falta actualizar la columna categoría en Supabase.';
+          note("Producto guardado, pero la categoría aún no se guardó. Ejecuta: ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'VARIOS';");
+          await refresh();return;
+        }
       }
-      if(result.error){
-        console.error("Error de Supabase al guardar producto:",result.error);
-        const detail=[result.error.message,result.error.details,result.error.hint].filter(Boolean).join(" — ");
-        note("No se pudo guardar el producto: "+(detail||result.error.code||"error desconocido")+". Revisa el mensaje para identificar qué corregir.");
-        return;
-      }
-      {const inventory={product_id:id||result.data?.id,quantity:Number($('pQuantity').value),min_quantity:Number($('pMinimum').value),landed_cost:Number($('pCost').value)};const {error:invError}=await client.from('jimport_inventory_private').upsert(inventory,{onConflict:'product_id'});if(invError){note('Producto guardado, pero inventario no actualizado: '+invError.message);await refresh();return;}}
+      if(result.error) throw result.error;
+      if(!result.data?.id) throw new Error(id?'Supabase no actualizó ninguna fila. Verifica que el producto exista y que tu usuario tenga permiso UPDATE en public.products.':'Supabase no devolvió el identificador del producto creado.');
+      const inventory={product_id:result.data.id,quantity:Number($('pQuantity').value),min_quantity:Number($('pMinimum').value),landed_cost:Number($('pCost').value)};
+      const invResult=await client.from('jimport_inventory_private').upsert(inventory,{onConflict:'product_id'}).select('product_id').maybeSingle();
+      if(invResult.error) throw new Error('El producto se guardó, pero el inventario no: '+invResult.error.message);
+      if(!invResult.data?.product_id) throw new Error('El producto se guardó, pero Supabase no confirmó el guardado del inventario. Revisa los permisos de jimport_inventory_private.');
       if(!id)form.hidden=true;
-      autoStatus.textContent='✓ Cambios guardados en Supabase.';
-      note("Producto e inventario guardados correctamente.");await refresh();
-    } catch(err) { console.error(err); note("Error inesperado al guardar: "+(err?.message||String(err))); }
-    finally {autosaving=false;if(pendingAutosave){pendingAutosave=false;scheduleAutosave();}}
+      autoStatus.textContent='✓ Producto, precios e inventario guardados correctamente.';
+      note('Producto, precios e inventario guardados correctamente.');
+      await refresh();
+    } catch(err) {
+      console.error('Error al guardar producto e inventario:',err);
+      const detail=[err?.message,err?.details,err?.hint].filter(Boolean).join(' — ')||String(err);
+      autoStatus.textContent='No se guardó: '+detail;
+      note('No se pudo guardar el producto: '+detail);
+    } finally {
+      autosaving=false;
+      if(submitButton){submitButton.disabled=false;submitButton.textContent='Guardar producto';}
+      if(pendingAutosave){pendingAutosave=false;scheduleAutosave();}
+    }
   });
 
   // Importación masiva desde la plantilla Excel de JIMPORT o un CSV equivalente.
