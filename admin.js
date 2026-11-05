@@ -74,7 +74,7 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await refreshBrands();updateCategoryChoices();}
+  async function refresh(){const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await loadSaleCombos();await refreshBrands();updateCategoryChoices();}
 
   let extraBrands=[];
   async function refreshBrands(){
@@ -470,6 +470,37 @@
   const reviewStatus=$('reviewAdminStatus');
 
   const saleSelections=new Map();
+  const saleComboSelections=new Map();
+  let saleCombos=[];
+  async function loadSaleCombos(){
+    if(!client)return;
+    const {data,error}=await client.from('jimport_super_combos').select('id,name,items,combo_price,active').order('name');
+    if(error){$('saleComboChoices').textContent='No se pudieron cargar los Súper Combos: '+error.message;return;}
+    saleCombos=data||[];renderSaleCombos();
+  }
+  function renderSaleCombos(){
+    const el=$('saleComboChoices');if(!el)return;
+    el.replaceChildren();
+    if(!saleCombos.length){el.textContent='No hay Súper Combos registrados.';return;}
+    for(const c of saleCombos){
+      const id=String(c.id),sel=saleComboSelections.get(id),parts=(c.items||[]).map(x=>rows.find(p=>String(p.id)===String(x))).filter(Boolean);
+      const available=parts.length===(c.items||[]).length&&parts.every(p=>saleAvailable(p)!==null)?Math.min(...parts.map(p=>saleAvailable(p))):null;
+      const card=document.createElement('article');card.className='sale-product-card'+(sel?' is-selected':'');
+      const title=document.createElement('strong');title.textContent=c.name;
+      const desc=document.createElement('small');desc.textContent=parts.map(p=>p.name).join(' + ')||'Revisa los productos del combo';
+      const stock=document.createElement('span');stock.className='sale-stock';stock.textContent=available===null?'Revisar inventario':`Combos disponibles: ${available}`;
+      const check=document.createElement('input');check.type='checkbox';check.checked=!!sel;check.disabled=available===0&&!sel;
+      const label=document.createElement('label');label.append(check,document.createTextNode(' Seleccionar Súper Combo'));
+      const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.value=sel?.quantity||1;qty.disabled=!sel;qty.style.width='90px';
+      const price=document.createElement('input');price.type='number';price.min='0.01';price.step='0.01';price.placeholder='Precio manual $';price.value=sel?.price??'';price.disabled=!sel;price.style.width='145px';
+      check.addEventListener('change',()=>{if(check.checked)saleComboSelections.set(id,{quantity:1,price:''});else saleComboSelections.delete(id);renderSaleCombos();renderSaleSummary();});
+      qty.addEventListener('input',()=>{if(saleComboSelections.has(id)){saleComboSelections.get(id).quantity=Number(qty.value);renderSaleSummary();}});
+      price.addEventListener('input',()=>{if(saleComboSelections.has(id)){saleComboSelections.get(id).price=price.value;renderSaleSummary();}});
+      const fields=document.createElement('div');fields.style.display='flex';fields.style.gap='10px';fields.style.flexWrap='wrap';fields.append(document.createTextNode('Cantidad: '),qty,document.createTextNode('Precio por combo: '),price);
+      card.append(label,title,desc,stock,fields);el.append(card);
+    }
+  }
+
   const saleMoney=value=>'$'+Number(value||0).toFixed(2);
   function saleAvailable(p){const q=Number(p.quantity);return Number.isFinite(q)&&q>=0?q:null;}
   function populateSaleProducts(){
@@ -491,32 +522,35 @@
     const chosen=[...saleSelections].map(([id,qty])=>({p:rows.find(p=>String(p.id)===id),qty})).filter(x=>x.p);
     summary.replaceChildren();let amount=0;
     for(const {p,qty} of chosen){const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent=p.name+' × '+qty;const price=document.createElement('b');price.textContent=saleMoney(Number(p.price||0)*qty);line.append(name,price);summary.append(line);amount+=Number(p.price||0)*qty;}
-    if(!chosen.length)summary.textContent='Selecciona productos para registrar la compra.';
-    total.textContent='Total estimado: '+saleMoney(amount)+' · '+chosen.length+' producto(s)';
+    for(const [id,selection] of saleComboSelections){const c=saleCombos.find(x=>String(x.id)===id);if(!c)continue;const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent='Súper Combo: '+c.name+' × '+selection.quantity;const price=document.createElement('b');price.textContent=selection.price===''?'Precio pendiente':saleMoney(Number(selection.price)*selection.quantity);line.append(name,price);summary.append(line);amount+=Number(selection.price||0)*selection.quantity;}
+    if(!chosen.length&&!saleComboSelections.size)summary.textContent='Selecciona productos o Súper Combos para registrar la compra.';
+    total.textContent='Total estimado: '+saleMoney(amount)+' · '+chosen.length+' producto(s) y '+saleComboSelections.size+' combo(s)';
   }
   $('saleProductSearch')?.addEventListener('input',populateSaleProducts);
   $('saleBrandFilter')?.addEventListener('change',populateSaleProducts);
   $('saleClearFilters')?.addEventListener('click',()=>{$('saleProductSearch').value='';$('saleBrandFilter').value='';populateSaleProducts();});
-  $('saleClearSelection')?.addEventListener('click',()=>{saleSelections.clear();populateSaleProducts();});
+  $('saleClearSelection')?.addEventListener('click',()=>{saleSelections.clear();saleComboSelections.clear();populateSaleProducts();renderSaleCombos();});
   $('verifiedSaleForm')?.addEventListener('submit',async e=>{
     e.preventDefault();const out=$('saleResult');
     const items=[...saleSelections].map(([product_id,quantity])=>({product_id,quantity}));
+    const combos=[...saleComboSelections].map(([combo_id,v])=>({combo_id,quantity:v.quantity,unit_price:Number(v.price)}));
     const reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),withCode=$('saleWithCode').checked;
-    if(!items.length||!reference||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona uno o varios productos, cantidades válidas y una referencia.';return;}
+    if((!items.length&&!combos.length)||!reference||combos.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<=0)||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona uno o varios productos, cantidades válidas y una referencia.';return;}
     const invalidStock=items.find(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));const stock=p&&saleAvailable(p);return stock!==null&&x.quantity>stock;});
     if(invalidStock){out.textContent='La cantidad supera las existencias disponibles. Revisa los productos seleccionados.';return;}
-    if(!confirm('¿Confirmas la venta de '+items.length+' producto(s)? Se descontará su inventario.'))return;
+    if(!confirm('¿Confirmas la venta de '+items.length+' producto(s) y '+combos.length+' Súper Combo(s)? Se descontará el inventario de todos sus componentes.'))return;
     out.textContent='Registrando venta…';
-    const {data,error}=await client.rpc('jimport_register_sale_multi',{sale_items:items,sale_reference:reference,customer_label:customer,generate_code:withCode});
-    if(error){out.textContent='No se pudo registrar la venta: '+error.message+'. Comprueba que ejecutaste JIMPORT_VENTAS_MULTIPRODUCTO.sql en Supabase.';return;}
+    const {data,error}=await client.rpc('jimport_register_sale_with_combos',{sale_items:items,sale_combos:combos,sale_reference:reference,customer_label:customer,generate_code:withCode});
+    if(error){out.textContent='No se pudo registrar la venta: '+error.message+'. Comprueba que ejecutaste JIMPORT_COMPRAS_COMBOS.sql en Supabase.';return;}
     const code=data?.code||null;const url=new URL('index.html',location.href);url.hash='opiniones';
-    out.replaceChildren();const heading=document.createElement('strong');heading.textContent='Venta registrada. '+items.length+' producto(s) descontados y existencias actualizadas.';out.append(heading);
+    out.replaceChildren();const heading=document.createElement('strong');heading.textContent='Venta registrada. '+items.length+' producto(s) y '+combos.length+' Súper Combo(s). Inventario actualizado.';out.append(heading);
     if(code){const label=document.createElement('p');label.textContent='Código único para toda la compra: '+code;out.append(label);
       const productNames=items.map(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return (p?.name||'Producto')+' × '+x.quantity;});
+      productNames.push(...combos.map(x=>(saleCombos.find(c=>String(c.id)===x.combo_id)?.name||'Súper Combo')+' × '+x.quantity));
       const msg='Gracias por comprar en JIMPORT. Puedes calificar tu compra (todos los productos) con un solo código.\nProductos: '+productNames.join(', ')+'\nCódigo: '+code+'\nCalifícanos aquí: '+url.href;
       const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir código único por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent(msg);out.append(share);
     }
-    saleSelections.clear();$('verifiedSaleForm').reset();await refresh();populateSaleProducts();
+    saleSelections.clear();saleComboSelections.clear();$('verifiedSaleForm').reset();await refresh();populateSaleProducts();renderSaleCombos();
   });
 
   $('reloadReviews').addEventListener('click',refreshReviews);
