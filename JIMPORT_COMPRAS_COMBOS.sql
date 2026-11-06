@@ -61,7 +61,10 @@ begin
  end loop;
  if generate_code then
    code:=public.create_verified_purchase(first_product,trim(sale_reference),coalesce(customer_label,''));
-   select vp.id into purchase_uuid from public.verified_purchases vp where vp.sale_reference=trim(jimport_register_sale_with_combos.sale_reference) and vp.product_id=first_product;
+   select vp.id into purchase_uuid
+     from public.verified_purchases vp
+     where vp.code_hash=encode(extensions.digest(code,'sha256'),'hex')
+     limit 1;
    for sale_row in select key,value from jsonb_each(combined) loop
      insert into public.jimport_verified_purchase_items(purchase_id,product_id,quantity)
      values(purchase_uuid,sale_row.key::uuid,(sale_row.value #>> '{}')::integer);

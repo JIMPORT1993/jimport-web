@@ -1,0 +1,20 @@
+JIMPORT — ELIMINAR VENTAS Y REINTEGRAR INVENTARIO
+
+1. Haz una copia de seguridad del proyecto actual.
+2. En Supabase > SQL Editor, ejecuta UNA SOLA VEZ:
+   ELIMINAR_VENTA_REINTEGRAR_INVENTARIO.sql
+3. Sube los archivos actualizados del proyecto a GitHub/Vercel.
+4. En Administrador > Reporte diario de ventas y ganancias, consulta el período.
+5. En la primera fila de cada referencia aparece “Eliminar venta”.
+
+Al confirmar, se reintegra la cantidad total de cada producto físico de esa venta
+(incluidos los componentes de Súper Combos) y se elimina el registro de venta.
+La operación es atómica: si falta el inventario de un producto o ocurre un error,
+no se elimina la venta ni se deja el inventario parcialmente modificado.
+
+Los códigos de calificación no utilizados de esa venta quedan invalidados.
+Las opiniones ya registradas se conservan.
+
+IMPORTANTE:
+- La eliminación es por referencia completa: elimina todos los productos de esa venta.
+- No borres ventas directamente desde las tablas de Supabase.

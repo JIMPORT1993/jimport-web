@@ -1,0 +1,22 @@
+CORRECCIÓN JIMPORT — CÓDIGO DE CALIFICACIÓN DUPLICADO
+
+Error corregido:
+duplicate key value violates unique constraint "verified_purchase_reference_product_idx"
+
+PASOS:
+1. Abre Supabase > SQL Editor.
+2. Copia y ejecuta TODO el archivo CORREGIR_CODIGOS_COMPRA_DUPLICADOS.sql.
+3. Espera el mensaje de ejecución correcta.
+4. No vuelvas a ejecutar una venta ya registrada solo para probar el código.
+5. Para comprobarlo, registra una venta NUEVA con una referencia nueva y activa la generación de código.
+
+QUÉ CAMBIA:
+- Permite varios códigos únicos para una misma referencia y producto.
+- Cada código sigue siendo único y de un solo uso.
+- No elimina códigos existentes, compras verificadas ni opiniones.
+- No modifica cantidades ni productos del inventario.
+- Corrige la asociación de los componentes de Súper Combos al código recién generado.
+
+IMPORTANTE:
+La función de registro de ventas con combos queda actualizada al ejecutar el SQL de corrección.
+No necesitas volver a subir archivos a GitHub para reparar este error específico.
