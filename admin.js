@@ -634,8 +634,8 @@
       const productNames=items.map(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return (p?.name||'Producto')+' × '+x.quantity;});
       productNames.push(...combos.map(x=>(saleCombos.find(c=>String(c.id)===x.combo_id)?.name||'Súper Combo')+' × '+x.quantity));
       const greeting=customer?'Hola '+customer+', ':'Hola, ';
-      const thanksMsg=greeting+'¡gracias por tu compra en JIMPORT! 🛍️\n\nTu compra: '+productNames.join(', ')+'.\n\n¿Nos ayudarías calificando tu experiencia? ⭐ Tu opinión nos ayuda a seguir mejorando.\n\nCalifícanos aquí: '+url.href+'\n\n¡Gracias por confiar en nosotros!';
-      const codeMsg='Código de verificación de tu compra JIMPORT:\n\n'+code+'\n\nCopia este código y úsalo al dejar tu calificación en nuestra página.';
+      const thanksMsg=greeting+'gracias por tu compra en JIMPORT.\n\nTu compra: '+productNames.join(', ')+'.\n\n¿Nos ayudarías calificando tu experiencia? Tu opinión nos ayuda a seguir mejorando.\n\nCalifícanos aquí: '+url.href+'\n\nPuedes usar el código que te enviaremos en un segundo mensaje en nuestra página para registrar tu calificación.\n\n¡Gracias por confiar en nosotros!';
+      const codeMsg=code;
       const thanksShare=document.createElement('a');thanksShare.className='button button-outline';thanksShare.target='_blank';thanksShare.rel='noopener noreferrer';thanksShare.textContent='1. Enviar agradecimiento y enlace ↗';thanksShare.href='https://wa.me/?text='+encodeURIComponent(thanksMsg);out.append(thanksShare);
       const codeShare=document.createElement('a');codeShare.className='button button-outline';codeShare.target='_blank';codeShare.rel='noopener noreferrer';codeShare.textContent='2. Enviar código de compra ↗';codeShare.href='https://wa.me/?text='+encodeURIComponent(codeMsg);out.append(codeShare);
     }
