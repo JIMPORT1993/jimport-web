@@ -19,7 +19,7 @@ function showComboInfo(c){
  if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportComboInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
  const desc=c.description?`<p class="jimport-dialog-text">${esc(c.description)}</p>`:'';
  const list=ps.map(p=>`<li>${esc(p.name)}</li>`).join('');
- dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción del Súper Combo</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div><h3>${esc(c.name)}</h3>${desc}<p class="jimport-dialog-model">Productos incluidos:</p><ul class="jx-combo-dialog-items">${list}</ul><strong class="jimport-dialog-price">${money(c.combo_price)}</strong><a class="button" target="_blank" rel="noopener noreferrer" href="${wa('Hola JIMPORT, deseo información sobre el Súper Combo '+c.name)}">Consultar por WhatsApp ↗</a>`;
+ dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción del Súper Combo</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div><h3>${esc(c.name)}</h3>${desc}<p class="jimport-dialog-model">Productos incluidos:</p><ul class="jx-combo-dialog-items">${list}</ul><strong class="jimport-dialog-price">${money(c.combo_price)}</strong><a class="button" target="_blank" rel="noopener noreferrer" href="${wa('Hola JIMPORT, deseo información sobre el Súper Combo '+c.name+'\n💵 Precio del combo: '+money(c.combo_price))}">Consultar por WhatsApp ↗</a>`;
  dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();
  dlg.showModal();
 }
