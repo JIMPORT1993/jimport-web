@@ -1,1 +1,3 @@
 .daily-report-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.daily-report-filters label{display:grid;gap:5px}.daily-report-summary{padding:14px;margin:14px 0;border:1px solid #526276;border-radius:12px;font-weight:700}.daily-report-day{padding:10px;border-bottom:1px solid #526276}.daily-report-scroll{overflow-x:auto;max-width:100%}.daily-report-scroll table{width:100%;border-collapse:collapse;min-width:900px}.daily-report-scroll th,.daily-report-scroll td{padding:9px;border-bottom:1px solid #526276;text-align:left;font-size:13px}
+
+.daily-report-scroll td:last-child{white-space:nowrap}.jimport-delete-sale{font-size:12px;padding:7px 10px;min-height:34px}.jimport-delete-sale:disabled{opacity:.6;cursor:wait}
