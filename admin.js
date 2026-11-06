@@ -633,8 +633,11 @@
     if(code){const label=document.createElement('p');label.textContent='Código único para toda la compra: '+code;out.append(label);
       const productNames=items.map(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return (p?.name||'Producto')+' × '+x.quantity;});
       productNames.push(...combos.map(x=>(saleCombos.find(c=>String(c.id)===x.combo_id)?.name||'Súper Combo')+' × '+x.quantity));
-      const msg='Gracias por comprar en JIMPORT. Puedes calificar tu compra (todos los productos) con un solo código.\nProductos: '+productNames.join(', ')+'\nCódigo: '+code+'\nCalifícanos aquí: '+url.href;
-      const share=document.createElement('a');share.className='button button-outline';share.target='_blank';share.rel='noopener noreferrer';share.textContent='Compartir código único por WhatsApp ↗';share.href='https://wa.me/?text='+encodeURIComponent(msg);out.append(share);
+      const greeting=customer?'Hola '+customer+', ':'Hola, ';
+      const thanksMsg=greeting+'¡gracias por tu compra en JIMPORT! 🛍️\n\nTu compra: '+productNames.join(', ')+'.\n\n¿Nos ayudarías calificando tu experiencia? ⭐ Tu opinión nos ayuda a seguir mejorando.\n\nCalifícanos aquí: '+url.href+'\n\n¡Gracias por confiar en nosotros!';
+      const codeMsg='Código de verificación de tu compra JIMPORT:\n\n'+code+'\n\nCopia este código y úsalo al dejar tu calificación en nuestra página.';
+      const thanksShare=document.createElement('a');thanksShare.className='button button-outline';thanksShare.target='_blank';thanksShare.rel='noopener noreferrer';thanksShare.textContent='1. Enviar agradecimiento y enlace ↗';thanksShare.href='https://wa.me/?text='+encodeURIComponent(thanksMsg);out.append(thanksShare);
+      const codeShare=document.createElement('a');codeShare.className='button button-outline';codeShare.target='_blank';codeShare.rel='noopener noreferrer';codeShare.textContent='2. Enviar código de compra ↗';codeShare.href='https://wa.me/?text='+encodeURIComponent(codeMsg);out.append(codeShare);
     }
     saleSelections.clear();saleComboSelections.clear();$('verifiedSaleForm').reset();await refresh();populateSaleProducts();renderSaleCombos();
   });
