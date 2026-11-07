@@ -565,7 +565,7 @@
       const title=document.createElement('strong');title.textContent=c.name;
       const desc=document.createElement('small');desc.textContent=parts.map(p=>p.name).join(' + ')||'Revisa los productos del combo';
       const stock=document.createElement('span');stock.className='sale-stock';stock.textContent=available===null?'Revisar inventario':`Combos disponibles: ${available}`;
-      const check=document.createElement('input');check.type='checkbox';check.checked=!!sel;check.disabled=available===0&&!sel;
+      const check=document.createElement('input');check.type='checkbox';check.checked=!!sel;check.disabled=(available===null||available===0)&&!sel;
       const label=document.createElement('label');label.append(check,document.createTextNode(' Seleccionar Súper Combo'));
       const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.value=sel?.quantity||1;qty.disabled=!sel;qty.style.width='90px';
       check.addEventListener('change',()=>{if(check.checked){const prices={};parts.forEach(p=>prices[String(p.id)]='');saleComboSelections.set(id,{quantity:1,prices});}else saleComboSelections.delete(id);renderSaleCombos();renderSaleSummary();});
@@ -588,7 +588,7 @@
 
   const saleMoney=value=>'$'+Number(value||0).toFixed(2);
   const saleUnitPrice=p=>saleDisplayPriceMode==='wholesale'?Number(p?.wholesale_price??p?.price??0):Number(p?.price||0);
-  function saleAvailable(p){const q=Number(p.quantity);return Number.isFinite(q)&&q>=0?q:null;}
+  function saleAvailable(p){const inv=privateInventory[p?.id];if(!inv)return null;const q=Number(inv.quantity);return Number.isInteger(q)&&q>=0?q:null;}
   function populateSaleProducts(){
     const el=$('saleProductChoices');if(!el)return;
     const brandEl=$('saleBrandFilter');const oldBrand=brandEl?.value||'';
@@ -597,8 +597,8 @@
     const term=($('saleProductSearch')?.value||'').toLocaleLowerCase().trim();const brand=brandEl?.value||'';
     const matches=rows.filter(p=>(!brand||p.brand===brand)&&[p.name,p.brand,p.model].join(' ').toLocaleLowerCase().includes(term));
     $('saleProductCount').textContent=matches.length+' productos';
-    el.innerHTML=matches.map(p=>{const id=String(p.id),qty=saleSelections.get(id)||1,stock=saleAvailable(p),out=stock===0||String(p.stock||'').toLowerCase()==='agotado',selected=saleSelections.has(id),unitPrice=saleUnitPrice(p),missingPrice=unitPrice===null||!Number.isFinite(unitPrice);
-      return `<article class="sale-product-card ${selected?'is-selected':''} ${out?'is-out':''}"><label class="sale-card-check"><input type="checkbox" data-sale-check="${safe(id)}" ${selected?'checked':''} ${((out&&!selected)||(missingPrice&&!selected))?'disabled':''}><span>Seleccionar</span></label><div class="sale-card-image">${p.image_url?`<img src="${safe(p.image_url)}" alt="${safe(p.name||'Producto')}" loading="lazy">`:'<span>📦</span>'}</div><div class="sale-card-info"><small>${safe(p.brand||'Sin marca')}</small><strong>${safe(p.name||'Producto')}</strong><b>${saleMoney(unitPrice)}</b><span class="sale-stock ${out||missingPrice?'empty':''}">${out?'Agotado':stock===null?'Existencias sin registrar':'Disponibles: '+stock}</span></div><label class="sale-card-quantity">Cantidad<input type="number" inputmode="numeric" data-sale-qty="${safe(id)}" min="1" ${stock!==null?'max="'+stock+'"':''} step="1" value="${qty}" ${selected?'':'disabled'}></label></article>`;}).join('')||'<p class="sale-empty">No se encontraron productos con estos filtros.</p>';
+    el.innerHTML=matches.map(p=>{const id=String(p.id),qty=saleSelections.get(id)||1,stock=saleAvailable(p),out=stock===null||stock===0||String(p.stock||'').toLowerCase()==='agotado',selected=saleSelections.has(id),unitPrice=saleUnitPrice(p),missingPrice=unitPrice===null||!Number.isFinite(unitPrice);
+      return `<article class="sale-product-card ${selected?'is-selected':''} ${out?'is-out':''}"><label class="sale-card-check"><input type="checkbox" data-sale-check="${safe(id)}" ${selected?'checked':''} ${((out&&!selected)||(missingPrice&&!selected))?'disabled':''}><span>Seleccionar</span></label><div class="sale-card-image">${p.image_url?`<img src="${safe(p.image_url)}" alt="${safe(p.name||'Producto')}" loading="lazy">`:'<span>📦</span>'}</div><div class="sale-card-info"><small>${safe(p.brand||'Sin marca')}</small><strong>${safe(p.name||'Producto')}</strong><b>${saleMoney(unitPrice)}</b><span class="sale-stock ${out||missingPrice?'empty':''}">${stock===null?'Inventario sin registrar':out?'Agotado':'Disponibles: '+stock}</span></div><label class="sale-card-quantity">Cantidad<input type="number" inputmode="numeric" data-sale-qty="${safe(id)}" min="1" ${stock!==null?'max="'+stock+'"':''} step="1" value="${qty}" ${selected?'':'disabled'}></label></article>`;}).join('')||'<p class="sale-empty">No se encontraron productos con estos filtros.</p>';
     el.querySelectorAll('[data-sale-check]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleCheck;if(input.checked)saleSelections.set(id,1);else saleSelections.delete(id);populateSaleProducts();}));
     el.querySelectorAll('[data-sale-qty]').forEach(input=>input.addEventListener('input',()=>{const id=input.dataset.saleQty;if(saleSelections.has(id)){saleSelections.set(id,input.value===''?0:Number(input.value));renderSaleSummary();}}));
     renderSaleSummary();
@@ -622,12 +622,27 @@
     const combos=[...saleComboSelections].map(([combo_id,v])=>({combo_id,quantity:v.quantity,items:Object.entries(v.prices||{}).map(([product_id,unit_price])=>({product_id,unit_price:Number(unit_price)}))}));
     const reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),withCode=$('saleWithCode').checked;
     if((!items.length&&!combos.length)||!reference||items.some(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return !p||saleUnitPrice(p)===null||!Number.isFinite(saleUnitPrice(p));})||combos.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||!x.items.length||x.items.some(i=>!Number.isFinite(i.unit_price)||i.unit_price<=0))||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona productos, ingresa un precio válido para cada componente de los Súper Combos y completa la referencia.';return;}
-    const invalidStock=items.find(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));const stock=p&&saleAvailable(p);return stock!==null&&x.quantity>stock;});
-    if(invalidStock){out.textContent='La cantidad supera las existencias disponibles. Revisa los productos seleccionados.';return;}
+    // Valida el inventario real, sumando artículos individuales y componentes de combos.
+    const required=new Map();
+    for(const x of items)required.set(x.product_id,(required.get(x.product_id)||0)+x.quantity);
+    for(const c of combos)for(const part of c.items)required.set(part.product_id,(required.get(part.product_id)||0)+c.quantity);
+    for(const [id,needed] of required){
+      const product=rows.find(p=>String(p.id)===String(id));
+      const available=product?saleAvailable(product):null;
+      if(available===null){out.textContent='El producto «'+(product?.name||id)+'» no tiene inventario registrado. Ve a Productos → Editar, ingresa las unidades reales y guarda antes de vender.';return;}
+      if(needed>available){out.textContent='Inventario insuficiente de «'+product.name+'»: necesitas '+needed+' y hay '+available+'. Actualiza el inventario antes de vender.';return;}
+    }
     if(!confirm('¿Confirmas la venta de '+items.length+' producto(s) y '+combos.length+' Súper Combo(s)? Se descontará el inventario de todos sus componentes.'))return;
     out.textContent='Registrando venta…';
     const {data,error}=await client.rpc('jimport_register_sale_with_combos',{sale_items:items,sale_combos:combos,sale_reference:reference,customer_label:customer,generate_code:withCode});
-    if(error){out.textContent='No se pudo registrar la venta: '+error.message+'. Comprueba que ejecutaste JIMPORT_COMPRAS_COMBOS.sql en Supabase.';return;}
+    if(error){
+      const msg=error.message||'Error desconocido';
+      if(/Falta registrar inventario|Inventario insuficiente/i.test(msg)){
+        out.textContent='No se pudo registrar la venta: '+msg+'. Actualiza el inventario del producto desde Productos → Editar y vuelve a intentar. Si hay productos antiguos sin inventario, ejecuta CORREGIR_INVENTARIO_VENTAS_JIMPORT.sql en Supabase.';
+        await loadPrivate();populateSaleProducts();renderSaleCombos();
+      }else out.textContent='No se pudo registrar la venta: '+msg;
+      return;
+    }
     const code=data?.code||null;const url=new URL('index.html',location.href);url.hash='opiniones';
     out.replaceChildren();const heading=document.createElement('strong');heading.textContent='Venta registrada. '+items.length+' producto(s) y '+combos.length+' Súper Combo(s). Inventario actualizado.';out.append(heading);
     if(code){const label=document.createElement('p');label.textContent='Código único para toda la compra: '+code;out.append(label);
