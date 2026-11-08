@@ -546,6 +546,7 @@
   const reviewStatus=$('reviewAdminStatus');
 
   const saleSelections=new Map();
+  const saleManualPrices=new Map();
   const saleComboSelections=new Map();
   let saleCombos=[];
   async function loadSaleCombos(){
@@ -599,15 +600,40 @@
     $('saleProductCount').textContent=matches.length+' productos';
     el.innerHTML=matches.map(p=>{const id=String(p.id),qty=saleSelections.get(id)||1,stock=saleAvailable(p),out=stock===null||stock===0||String(p.stock||'').toLowerCase()==='agotado',selected=saleSelections.has(id),unitPrice=saleUnitPrice(p),missingPrice=unitPrice===null||!Number.isFinite(unitPrice);
       return `<article class="sale-product-card ${selected?'is-selected':''} ${out?'is-out':''}"><label class="sale-card-check"><input type="checkbox" data-sale-check="${safe(id)}" ${selected?'checked':''} ${((out&&!selected)||(missingPrice&&!selected))?'disabled':''}><span>Seleccionar</span></label><div class="sale-card-image">${p.image_url?`<img src="${safe(p.image_url)}" alt="${safe(p.name||'Producto')}" loading="lazy">`:'<span>📦</span>'}</div><div class="sale-card-info"><small>${safe(p.brand||'Sin marca')}</small><strong>${safe(p.name||'Producto')}</strong><b>${saleMoney(unitPrice)}</b><span class="sale-stock ${out||missingPrice?'empty':''}">${stock===null?'Inventario sin registrar':out?'Agotado':'Disponibles: '+stock}</span></div><label class="sale-card-quantity">Cantidad<input type="number" inputmode="numeric" data-sale-qty="${safe(id)}" min="1" ${stock!==null?'max="'+stock+'"':''} step="1" value="${qty}" ${selected?'':'disabled'}></label></article>`;}).join('')||'<p class="sale-empty">No se encontraron productos con estos filtros.</p>';
-    el.querySelectorAll('[data-sale-check]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleCheck;if(input.checked)saleSelections.set(id,1);else saleSelections.delete(id);populateSaleProducts();}));
+    el.querySelectorAll('[data-sale-check]').forEach(input=>input.addEventListener('change',()=>{const id=input.dataset.saleCheck;if(input.checked){saleSelections.set(id,1);saleManualPrices.set(id,String(saleUnitPrice(rows.find(p=>String(p.id)===id)).toFixed(2)));}else{saleSelections.delete(id);saleManualPrices.delete(id);}populateSaleProducts();}));
     el.querySelectorAll('[data-sale-qty]').forEach(input=>input.addEventListener('input',()=>{const id=input.dataset.saleQty;if(saleSelections.has(id)){saleSelections.set(id,input.value===''?0:Number(input.value));renderSaleSummary();}}));
     renderSaleSummary();
+  }
+  function updateSaleTotal(){
+    const total=$('saleTotal');if(!total)return;
+    let amount=0;
+    for(const [id,qty] of saleSelections){const v=saleManualPrices.get(id),price=Number(v);if(v!==undefined&&v!==''&&Number.isFinite(price)&&price>0&&/^\d+(?:\.\d{1,2})?$/.test(v))amount+=price*qty;}
+    for(const [id,selection] of saleComboSelections){const c=saleCombos.find(x=>String(x.id)===id);if(!c)continue;amount+=(c.items||[]).reduce((sum,pid)=>sum+Number(selection.prices?.[String(pid)]||0),0)*Number(selection.quantity||0);}
+    total.textContent='Total estimado: '+saleMoney(amount)+' · '+saleSelections.size+' producto(s) y '+saleComboSelections.size+' combo(s)';
   }
   function renderSaleSummary(){
     const summary=$('saleSelectedItems'),total=$('saleTotal');if(!summary||!total)return;
     const chosen=[...saleSelections].map(([id,qty])=>({p:rows.find(p=>String(p.id)===id),qty})).filter(x=>x.p);
     summary.replaceChildren();let amount=0;
-    for(const {p,qty} of chosen){const line=document.createElement('div');line.className='sale-summary-line';const unitPrice=saleUnitPrice(p);const name=document.createElement('span');name.textContent=p.name+' × '+qty;const price=document.createElement('b');price.textContent=unitPrice===null?'Sin precio mayorista':saleMoney(unitPrice*qty);line.append(name,price);summary.append(line);if(unitPrice!==null)amount+=unitPrice*qty;}
+    for(const {p,qty} of chosen){
+      const id=String(p.id),line=document.createElement('div');line.className='sale-summary-line';
+      const name=document.createElement('span');name.textContent=p.name+' × '+qty;
+      const priceWrap=document.createElement('label');priceWrap.className='sale-manual-price';
+      const label=document.createElement('span');label.textContent='Precio unitario $';
+      const input=document.createElement('input');input.type='number';input.inputMode='decimal';input.min='0.01';input.max='10000000';input.step='0.01';
+      input.value=saleManualPrices.has(id)?saleManualPrices.get(id):String(saleUnitPrice(p).toFixed(2));
+      input.setAttribute('aria-label','Precio de venta unitario de '+p.name);
+      const subtotal=document.createElement('b');subtotal.className='sale-line-subtotal';
+      const update=()=>{const v=input.value.trim(),number=Number(v),valid=v!==''&&Number.isFinite(number)&&number>0&&number<=10000000&&/^\d+(?:\.\d{1,2})?$/.test(v);
+        input.setCustomValidity(valid?'':'Ingresa un precio mayor a cero, con máximo dos decimales.');
+        subtotal.textContent=valid?saleMoney(number*qty):'Precio inválido';
+        subtotal.classList.toggle('invalid',!valid);
+      };
+      input.addEventListener('input',()=>{saleManualPrices.set(id,input.value);update();updateSaleTotal();});
+      priceWrap.append(label,input);line.append(name,priceWrap,subtotal);summary.append(line);
+      update();
+      const unitPrice=Number(input.value);if(input.validity.valid&&Number.isFinite(unitPrice))amount+=unitPrice*qty;
+    }
     for(const [id,selection] of saleComboSelections){const c=saleCombos.find(x=>String(x.id)===id);if(!c)continue;const parts=(c.items||[]).map(x=>rows.find(p=>String(p.id)===String(x))).filter(Boolean);const subtotal=parts.reduce((sum,p)=>sum+Number(selection.prices?.[String(p.id)]||0),0);const complete=parts.length===(c.items||[]).length&&parts.every(p=>Number(selection.prices?.[String(p.id)]||0)>0);const line=document.createElement('div');line.className='sale-summary-line';const name=document.createElement('span');name.textContent='Súper Combo: '+c.name+' × '+selection.quantity;const price=document.createElement('b');price.textContent=complete?saleMoney(subtotal*selection.quantity):'Completa precios';line.append(name,price);summary.append(line);amount+=subtotal*selection.quantity;}
     if(!chosen.length&&!saleComboSelections.size)summary.textContent='Selecciona productos o Súper Combos para registrar la compra.';
     total.textContent='Total estimado: '+saleMoney(amount)+' · '+chosen.length+' producto(s) y '+saleComboSelections.size+' combo(s)';
@@ -615,13 +641,13 @@
   $('saleProductSearch')?.addEventListener('input',populateSaleProducts);
   $('saleBrandFilter')?.addEventListener('change',populateSaleProducts);
   $('saleClearFilters')?.addEventListener('click',()=>{$('saleProductSearch').value='';$('saleBrandFilter').value='';populateSaleProducts();});
-  $('saleClearSelection')?.addEventListener('click',()=>{saleSelections.clear();saleComboSelections.clear();populateSaleProducts();renderSaleCombos();});
+  $('saleClearSelection')?.addEventListener('click',()=>{saleSelections.clear();saleManualPrices.clear();saleComboSelections.clear();populateSaleProducts();renderSaleCombos();});
   $('verifiedSaleForm')?.addEventListener('submit',async e=>{
     e.preventDefault();const out=$('saleResult');
-    const items=[...saleSelections].map(([product_id,quantity])=>({product_id,quantity}));
+    const items=[...saleSelections].map(([product_id,quantity])=>({product_id,quantity,unit_price:Number(saleManualPrices.get(product_id))}));
     const combos=[...saleComboSelections].map(([combo_id,v])=>({combo_id,quantity:v.quantity,items:Object.entries(v.prices||{}).map(([product_id,unit_price])=>({product_id,unit_price:Number(unit_price)}))}));
     const reference=$('saleReference').value.trim(),customer=$('saleCustomer').value.trim(),withCode=$('saleWithCode').checked;
-    if((!items.length&&!combos.length)||!reference||items.some(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return !p||saleUnitPrice(p)===null||!Number.isFinite(saleUnitPrice(p));})||combos.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||!x.items.length||x.items.some(i=>!Number.isFinite(i.unit_price)||i.unit_price<=0))||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona productos, ingresa un precio válido para cada componente de los Súper Combos y completa la referencia.';return;}
+    if((!items.length&&!combos.length)||!reference||items.some(x=>{const p=rows.find(p=>String(p.id)===String(x.product_id));return !p||!saleManualPrices.has(String(x.product_id))||saleManualPrices.get(String(x.product_id))===''||!Number.isFinite(x.unit_price)||x.unit_price<=0||x.unit_price>10000000||!/^\d+(?:\.\d{1,2})?$/.test(saleManualPrices.get(String(x.product_id)));})||combos.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||!x.items.length||x.items.some(i=>!Number.isFinite(i.unit_price)||i.unit_price<=0))||items.some(x=>!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>100000)){out.textContent='Selecciona productos, ingresa un precio válido (máximo dos decimales) para cada artículo y componente de los Súper Combos y completa la referencia.';return;}
     // Valida el inventario real, sumando artículos individuales y componentes de combos.
     const required=new Map();
     for(const x of items)required.set(x.product_id,(required.get(x.product_id)||0)+x.quantity);
@@ -654,7 +680,7 @@
       const thanksShare=document.createElement('a');thanksShare.className='button button-outline';thanksShare.target='_blank';thanksShare.rel='noopener noreferrer';thanksShare.textContent='1. Enviar agradecimiento y enlace ↗';thanksShare.href='https://wa.me/?text='+encodeURIComponent(thanksMsg);out.append(thanksShare);
       const codeShare=document.createElement('a');codeShare.className='button button-outline';codeShare.target='_blank';codeShare.rel='noopener noreferrer';codeShare.textContent='2. Enviar código de compra ↗';codeShare.href='https://wa.me/?text='+encodeURIComponent(codeMsg);out.append(codeShare);
     }
-    saleSelections.clear();saleComboSelections.clear();$('verifiedSaleForm').reset();await refresh();populateSaleProducts();renderSaleCombos();
+    saleSelections.clear();saleManualPrices.clear();saleComboSelections.clear();$('verifiedSaleForm').reset();await refresh();populateSaleProducts();renderSaleCombos();
   });
 
   $('reloadReviews').addEventListener('click',refreshReviews);
