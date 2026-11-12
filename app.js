@@ -100,6 +100,7 @@
     const list=uniqueProducts(products.filter(p=>!promotedProductIds.has(String(p.id))&&(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
     renderShowcaseProducts();
+    renderHeroCarouselProducts();
     if(!brand && !category && !q){
       grid.innerHTML='<div class="empty catalog-welcome"><strong>¿Qué estás buscando?</strong><p>Selecciona una marca o categoría para explorar nuestros productos.</p></div>';
       status.textContent=products.length?`${products.length} productos disponibles. Selecciona una marca o categoría.`:'Selecciona una marca o categoría para ver los productos.';
@@ -125,6 +126,22 @@
     for(const item of real){if(chosen.length>=4)break;if(!chosen.includes(item))chosen.push(item);}
     target.innerHTML=chosen.map(p=>`<a class="showcase-product" href="#productos" data-showcase-brand="${esc(p.brand||'')}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="eager" referrerpolicy="no-referrer"><span>${esc(p.name)}</span></a>`).join('');
     target.querySelectorAll('[data-showcase-brand]').forEach(link=>link.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(link.dataset.showcaseBrand))?.value||'';if(categoryFilter)categoryFilter.value='';search.value='';render();}));
+  }
+  // Carrusel principal: muestra productos reales del catálogo y abre su ficha individual.
+  function renderHeroCarouselProducts(){
+    const track=document.querySelector('.jp-showcase-track');
+    if(!track)return;
+    const real=uniqueProducts(products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)) && p.image_url && /^https?:\/\//i.test(p.image_url)));
+    if(!real.length){track.innerHTML='<p class="showcase-loading">Pronto verás nuestros productos destacados.</p>';return;}
+    const chosen=real.slice(0,12);
+    const card=p=>`<a class="jp-showcase-card" href="#productos" data-carousel-product="${esc(p.id)}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer"><span><b>${esc(p.name)}</b><small>${esc(p.brand||'JIMPORT')} · Ver producto</small></span></a>`;
+    track.innerHTML=chosen.map(card).join('')+chosen.map(p=>card(p).replace('class="jp-showcase-card"','class="jp-showcase-card" aria-hidden="true" tabindex="-1"')).join('');
+    track.querySelectorAll('[data-carousel-product]').forEach(link=>link.addEventListener('click',event=>{
+      event.preventDefault();
+      if(link.getAttribute('aria-hidden')==='true')return;
+      const product=real.find(item=>String(item.id)===link.dataset.carouselProduct);
+      if(product)openProductInfo(product);
+    }));
   }
   let teaserTimer=null, teaserPosition=0;
   function renderCatalogTeasers(){
