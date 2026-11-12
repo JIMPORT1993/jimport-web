@@ -1,0 +1,14 @@
+JIMPORT - VIDEO PRINCIPAL AUTOMÁTICO (12-11-2026)
+
+- Se retiró el logo grande y la imagen de productos del hero anterior.
+- Un solo video ocupa el área visual del hero y se funde con el fondo azul mediante bordes suaves.
+- Video automático, en bucle, sin sonido, sin controles ni botón de pausa.
+- Se muestra inicialmente un video de presentación UGREEN Nexode Power Bank enlazado desde manuals.plus; es un recurso externo y su disponibilidad depende del proveedor.
+- Desde admin.html > Video principal UGREEN / ANKER sube un MP4 a Supabase o introduce una URL HTTPS directa de un archivo MP4.
+- Si hay varios MP4 activos, se muestra el primero según Orden de aparición (número menor primero).
+- El resto del catálogo y el carrusel de opiniones se conservan.
+
+IMPORTANTE: Ejecuta CONFIGURAR_GALERIA_JIMPORT.sql en Supabase SQL Editor una sola vez si no se ha ejecutado.
+Para autoplay, los navegadores obligan normalmente a iniciar sin audio.
+No se descargó ni se incorporó al ZIP un archivo de video de terceros.
+Recomendación: usar video promocional propio o con permiso de marca y subirlo desde el administrador.
