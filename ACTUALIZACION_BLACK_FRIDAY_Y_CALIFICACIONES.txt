@@ -1,0 +1,9 @@
+IMPORTANTE: EJECUTAR ANTES DE USAR EL INTERRUPTOR
+
+En Supabase > SQL Editor, ejecutar el archivo ACTUALIZAR_BLACK_FRIDAY_Y_CALIFICACIONES.sql.
+
+El cambio añade black_friday_enabled a jimport_store_settings. No elimina productos, precios, ventas, códigos ni opiniones.
+
+El interruptor está en Administrador > Configuración general de precios de la tienda. Selecciona el precio público o mayorista y activa/desactiva Black Friday.
+
+Las opiniones ya no se muestran en la portada ni en la tienda pública. Los clientes siguen calificando en calificar.html mediante el código que reciben por WhatsApp. El administrador conserva la gestión de opiniones en su panel.

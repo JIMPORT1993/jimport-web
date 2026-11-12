@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#031b3b">
+  <title>Califica tu compra | JIMPORT</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="option4-cyan.css">
+  <link rel="stylesheet" href="boceto-aprobado.css">
+  <link rel="stylesheet" href="mobile-neon-2026.css">
+  <link rel="stylesheet" href="mobile-compact-one-logo.css">
+  <link rel="stylesheet" href="jimport-mobile-reference.css">
+  <link rel="stylesheet" href="jimport-manual-products.css">
+  <link rel="stylesheet" href="jimport-commerce.css">
+  <link rel="stylesheet" href="jimport-media.css?v=20261112b">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand brand-wordmark" href="index.html" aria-label="JIMPORT inicio"><img src="assets/logo-jimport.png" alt="JIMPORT" class="new-header-logo"><span> · TECNOLOGÍA</span></a>
+    <a class="button button-small" href="index.html">Volver a JIMPORT</a>
+  </header>
+  <main class="section" style="max-width:900px;margin:42px auto;padding:0 18px;">
+    <div class="section-heading"><div><p class="eyebrow">TU EXPERIENCIA NOS AYUDA A MEJORAR</p><h1>Califica tu compra</h1></div><p>Gracias por confiar en JIMPORT. Ingresa el código que recibiste por WhatsApp para verificar tu compra.</p></div>
+    <div class="reviews-layout" style="grid-template-columns:minmax(0,1fr);max-width:620px;margin:auto;">
+      <form id="reviewForm" class="review-form">
+        <h3>Comparte tu experiencia</h3>
+        <div class="review-name-grid"><div><label for="reviewName">Nombre</label><input id="reviewName" maxlength="35" autocomplete="given-name" required placeholder="Tu nombre"></div><div><label for="reviewLastName">Apellido</label><input id="reviewLastName" maxlength="35" autocomplete="family-name" required placeholder="Tu apellido"></div></div>
+        <label for="reviewCode">Código de compra verificada *</label><input id="reviewCode" required maxlength="80" placeholder="Código recibido por WhatsApp">
+        <label for="reviewRating">Tu calificación</label>
+        <div class="rating-picker" id="ratingPicker" role="group" aria-label="Seleccionar estrellas"><button type="button" data-rating="1" aria-label="1 estrella">★</button><button type="button" data-rating="2" aria-label="2 estrellas">★</button><button type="button" data-rating="3" aria-label="3 estrellas">★</button><button type="button" data-rating="4" aria-label="4 estrellas">★</button><button type="button" data-rating="5" aria-label="5 estrellas">★</button></div>
+        <select id="reviewRating" required><option value="">Selecciona una calificación</option><option value="5">★★★★★ · Excelente</option><option value="4">★★★★☆ · Muy buena</option><option value="3">★★★☆☆ · Buena</option><option value="2">★★☆☆☆ · Regular</option><option value="1">★☆☆☆☆ · Mala</option></select>
+        <label for="reviewComment">Tu comentario</label><textarea id="reviewComment" rows="4" maxlength="1000" minlength="10" required placeholder="Comparte tu experiencia (mínimo 10 caracteres)"></textarea>
+        <button class="button" type="submit" id="reviewSubmit">Enviar calificación</button><p id="reviewMessage" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+  <script src="config.js"></script><script src="calificar.js"></script>
+</body>
+</html>

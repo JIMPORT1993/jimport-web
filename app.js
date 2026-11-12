@@ -9,9 +9,21 @@
   const wa = (msg="Hola JIMPORT, quisiera información sobre sus productos.") => `https://wa.me/${(cfg.WHATSAPP_NUMBER||"").replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`;
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
-  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail";
+  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail", blackFridayEnabled = false;
   const displayPrice = p => displayPriceMode === "wholesale" ? Number(p.wholesale_price ?? p.price ?? 0) : Number(p.price || 0);
   const displayPriceText = p => money(displayPrice(p));
+  const retailPrice = p => Number(p?.price || 0);
+  const wholesalePrice = p => Number(p?.wholesale_price ?? p?.price ?? 0);
+  const blackFridayPrice = p => {
+    const retail = retailPrice(p), wholesale = wholesalePrice(p);
+    return wholesale > 0 && wholesale < retail ? wholesale : (retail || wholesale || 0);
+  };
+  const blackFridayDiscount = p => {
+    const retail = retailPrice(p), sale = blackFridayPrice(p);
+    if(!(retail > 0) || !(sale > 0) || sale >= retail) return 0;
+    return Math.max(1, Math.round((1 - sale / retail) * 100));
+  };
+  const blackFridayPriceText = p => money(blackFridayPrice(p));
   const knownBrands=[]; // Las marcas se obtienen de los productos reales, no de una lista fija.
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
@@ -23,8 +35,8 @@
   async function load() {
     if (!client) { products=[]; status.textContent="No se pudo conectar con el catálogo. Comprueba config.js."; render(); return; }
     try {
-      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode').eq('id','main').maybeSingle();
-      if(!settingsError)displayPriceMode=priceSettings?.display_price_mode||'retail';
+      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled').eq('id','main').maybeSingle();
+      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;}
       const all=[]; const batchSize=500;
       for(let offset=0;offset<50000;offset+=batchSize){
         const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false}).range(offset,offset+batchSize-1);
@@ -83,10 +95,16 @@
   function openProductInfo(p){
     let dlg=document.getElementById('jimportProductInfoDialog');
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
-    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Características del producto</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:''}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''}</p><p class="jimport-dialog-text">${esc(productInfo(p))}</p><strong class="jimport-dialog-price">${displayPriceText(p)}</strong><a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n💵 Precio mostrado: '+displayPriceText(p)+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
+    const regular=retailPrice(p), sale=blackFridayPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
+    const priceBlock=discount>0
+      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio regular <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">Ahorra ${discount}% con precio al por mayor</small></div>`
+      : `<strong class="jimport-dialog-price">${displayPriceText(p)}</strong>`;
+    const waPrice=discount>0?`Precio regular: ${money(regular)}\nPrecio Black Friday: ${money(sale)}\nDescuento: ${discount}%`:`Precio mostrado: ${displayPriceText(p)}`;
+    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Características del producto</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:''}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''}</p><p class="jimport-dialog-text">${esc(productInfo(p))}</p>${priceBlock}<a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();dlg.showModal();
   }
-  function render() {
+  
+function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
     // Sugerencias de búsqueda inteligentes construidas con el catálogo real.
     let smartList=document.getElementById("jimportSearchSuggestions");
@@ -192,20 +210,47 @@
     paint();autoplay();
   }
   function renderHero(){
-    const featured=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)));
-    const visual=document.getElementById("heroProductVisual"), name=document.getElementById("heroProductName"), brand=document.getElementById("heroProductBrand"), dots=document.getElementById("heroDots");
-    if(!visual||!name||!brand||!dots)return;
-    if(!featured.length){visual.innerHTML='<div class="device">✦</div>';name.textContent="Tecnología para tu día a día";brand.textContent="UGREEN · Anker";dots.innerHTML="";return;}
-    heroIndex=((heroIndex%featured.length)+featured.length)%featured.length;const p=featured[heroIndex];
-    visual.innerHTML=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=&quot;device&quot;>✦</div>'">`:'<div class="device">✦</div>';
-    name.textContent=p.name+(p.stock==="Agotado"?" · Agotado":"");brand.textContent=`${p.brand||"JIMPORT"} · ${displayPriceText(p)}`;
-    let infoBtn=document.getElementById('heroInfoButton');if(!infoBtn){infoBtn=document.createElement('button');infoBtn.type='button';infoBtn.id='heroInfoButton';infoBtn.className='teaser-info-button';infoBtn.textContent='Ver características ＋';dots.parentElement.insertBefore(infoBtn,dots);}infoBtn.onclick=()=>openProductInfo(p);
-    dots.innerHTML=featured.map((_,i)=>`<button type="button" class="hero-dot ${i===heroIndex?"active":""}" data-index="${i}" aria-label="Ver producto ${i+1}"></button>`).join("");
-    dots.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{heroIndex=Number(b.dataset.index);renderHero();restartHero();}));
+    const standard=document.getElementById('jpStandardHero');
+    const blackFriday=document.getElementById('jpBlackFridayHero');
+    if(standard)standard.hidden=blackFridayEnabled;
+    if(blackFriday)blackFriday.hidden=!blackFridayEnabled;
+    if(!blackFridayEnabled){
+      const featured=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)));
+      const visual=document.getElementById('heroProductVisual'), name=document.getElementById('heroProductName'), brand=document.getElementById('heroProductBrand'), dots=document.getElementById('heroDots');
+      if(visual&&name&&brand&&dots){
+        if(!featured.length){visual.innerHTML='<div class="device">✦</div>';name.textContent='Tecnología para tu día a día';brand.textContent='UGREEN · Anker';dots.innerHTML='';}
+        else{
+          heroIndex=((heroIndex%featured.length)+featured.length)%featured.length;const p=featured[heroIndex];
+          visual.innerHTML=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=&quot;device&quot;>✦</div>'">`:'<div class="device">✦</div>';
+          name.textContent=p.name+(p.stock==='Agotado'?' · Agotado':'');brand.textContent=`${p.brand||'JIMPORT'} · ${displayPriceText(p)}`;
+          dots.innerHTML=featured.map((_,i)=>`<button type="button" class="hero-dot ${i===heroIndex?'active':''}" data-index="${i}" aria-label="Ver producto ${i+1}"></button>`).join('');
+          dots.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{heroIndex=Number(b.dataset.index);renderHero();restartHero();}));
+        }
+      }
+      if(heroTimer){clearInterval(heroTimer);heroTimer=null;}
+      return;
+    }
+    const discounted=uniqueProducts(products.filter(p=>p.active!==false)).filter(p=>blackFridayDiscount(p)>0).sort((a,b)=>blackFridayDiscount(b)-blackFridayDiscount(a)||blackFridayPrice(a)-blackFridayPrice(b));
+    const topDiscount=document.getElementById('heroTopDiscount');
+    const dealCount=document.getElementById('heroDealCount');
+    const track=document.getElementById('heroBlackFridayTrack');
+    if(topDiscount) topDiscount.textContent=discounted.length?`Hasta ${Math.max(...discounted.map(blackFridayDiscount))}% OFF`:'Precios especiales';
+    if(dealCount) dealCount.textContent=`${discounted.length} ofertas con descuento`;
+    if(!track)return;
+    const featured=(discounted.length?discounted:uniqueProducts(products.filter(p=>p.active!==false))).slice(0,6);
+    if(!featured.length){track.innerHTML='<p class="showcase-loading">No hay productos publicados para mostrar.</p>';return;}
+    track.innerHTML=featured.map(p=>{
+      const discount=blackFridayDiscount(p), regular=retailPrice(p), sale=blackFridayPrice(p);
+      return `<article class="jp-bf-card" data-bf-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver oferta de ${esc(p.name)}">${discount?`<span class="jp-bf-card-badge">-${discount}%</span>`:''}<div class="jp-bf-card-media">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-bf-card-placeholder">✦</div>`}</div><div class="jp-bf-card-copy"><small>${esc(p.brand||'JIMPORT')}</small><h3>${esc(p.name)}</h3>${discount?`<p class="jp-bf-card-prices"><del>${money(regular)}</del><strong>${money(sale)}</strong></p><span class="jp-bf-card-save">-${discount}% con precio al por mayor</span>`:`<p class="jp-bf-card-prices"><strong>${displayPriceText(p)}</strong></p><span class="jp-bf-card-save">Sin descuento mayorista configurado</span>`}</div></article>`;
+    }).join('');
+    track.querySelectorAll('[data-bf-product]').forEach(card=>{
+      const open=()=>{const p=featured.find(x=>String(x.id)===card.dataset.bfProduct);if(p)openProductInfo(p);};
+      card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+    });
   }
-  function stepHero(dir){const featured=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)));if(!featured.length)return;heroIndex=(heroIndex+dir+featured.length)%featured.length;renderHero();restartHero();}
+  function stepHero(dir){}
   function restartHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=null;}
-  document.getElementById("heroPrev")?.addEventListener("click",()=>stepHero(-1));document.getElementById("heroNext")?.addEventListener("click",()=>stepHero(1));
+  document.getElementById('heroPrev')?.addEventListener('click',()=>stepHero(-1));document.getElementById('heroNext')?.addEventListener('click',()=>stepHero(1));
 
   let promotions = [], promoIndex = 0, promoTimer = null;
   async function loadPromotions(){
@@ -298,7 +343,7 @@
   function paintRating(){const value=Number(ratingSelect?.value||0);ratingPicker?.querySelectorAll('button').forEach(button=>{const selected=Number(button.dataset.rating)<=value;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(Number(button.dataset.rating)===value));});}
   ratingPicker?.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{ratingSelect.value=button.dataset.rating;paintRating();}));
   ratingSelect?.addEventListener('change',paintRating);reviewForm?.addEventListener('reset',()=>requestAnimationFrame(paintRating));paintRating();
-  loadReviews();
+  if(reviewsList) loadReviews();
   function clearFilters(){search.value="";brandFilter.value="";if(categoryFilter)categoryFilter.value="";render();}
   document.getElementById("clearFilters")?.addEventListener("click",clearFilters);
   const initialSearch=new URLSearchParams(location.search).get("buscar");

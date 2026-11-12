@@ -34,10 +34,10 @@
     </div>
   </div>
   <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">☰ <span>Menú</span></button>
-  <nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#opiniones">Opiniones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
+  <nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
   <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">Consultar por WhatsApp</a>
 </header>
-<section class="jp-hero" aria-label="Tecnología premium JIMPORT">
+<section class="jp-hero" id="jpStandardHero" aria-label="Tecnología premium JIMPORT">
   <div class="jp-hero-glow" aria-hidden="true"></div>
   <div class="jp-hero-inner">
     <div class="jp-hero-copy">
@@ -56,11 +56,47 @@
        <img class="jp-product jp-microphone" src="assets/premium-microphone.png" alt="Micrófono UGREEN"><img class="jp-product jp-cable" src="assets/premium-cable.png" alt="Cable UGREEN USB-C">
        <img class="jp-product jp-hub" src="assets/premium-hub.png" alt="Adaptador multipuerto UGREEN">
     </div>
-    <div class="jp-desktop-brand-pills" aria-label="Marcas destacadas">
-      <span class="jp-brand-pill jp-brand-pill-text">UGREEN</span>
-      <span class="jp-brand-amp">&amp;</span>
-      <span class="jp-brand-pill jp-brand-pill-text">ANKER</span>
+    <div class="jp-desktop-brand-pills" aria-label="Marcas destacadas"><span class="jp-brand-pill jp-brand-pill-text">UGREEN</span><span class="jp-brand-amp">&amp;</span><span class="jp-brand-pill jp-brand-pill-text">ANKER</span></div>
+  </div>
+</section>
+<section class="jp-hero jp-hero-blackfriday" id="jpBlackFridayHero" aria-label="Black Friday JIMPORT" hidden>
+  <div class="jp-hero-glow" aria-hidden="true"></div>
+  <div class="jp-hero-inner">
+    <div class="jp-hero-copy">
+      <span class="jp-kicker">JIMPORT · BLACK FRIDAY</span>
+      <div class="jp-bf-badge">BLACK <b>FRIDAY</b></div>
+      <h1><span class="jp-hero-brands">Tecnología con</span><span class="jp-hero-subhead">precios al por mayor</span><em>y descuentos reales</em></h1>
+      <p>Descubre ofertas Black Friday en UGREEN, ANKER y más. Usamos precio al por mayor para mostrarte el descuento frente al valor regular.</p>
+      <div class="jp-bf-stats" aria-label="Resumen de ofertas Black Friday">
+        <div class="jp-bf-stat"><small>DESCUENTO TOP</small><strong id="heroTopDiscount">Hasta 0% OFF</strong></div>
+        <div class="jp-bf-stat"><small>OFERTAS ACTIVAS</small><strong id="heroDealCount">0 ofertas</strong></div>
+      </div>
+      <div class="jp-hero-actions"><a href="#productos" class="jp-main-cta">🔥 Ver ofertas <span aria-hidden="true">→</span></a><a href="#promociones" class="jp-secondary-cta">٪ Promociones</a></div>
+      <div class="jp-brands jp-bf-brands" aria-label="Marcas UGREEN y ANKER"><strong>UGREEN</strong><span aria-hidden="true"></span><strong>ANKER</strong><span aria-hidden="true"></span><strong>DJI</strong></div>
+      <p class="jp-bf-note">* El porcentaje se calcula comparando el precio normal con el precio al por mayor cuando esté disponible.</p>
     </div>
+    <div class="jp-products" aria-label="Selección Black Friday de productos">
+       <div class="jp-orbit" aria-hidden="true"></div><div class="jp-stage" aria-hidden="true"></div>
+       <img class="jp-product jp-powerbank" src="assets/premium-powerbank.png" alt="Power bank UGREEN" fetchpriority="high">
+       <img class="jp-product jp-anker-white" src="assets/premium-anker-white.png" alt="Cargador ANKER blanco">
+       <img class="jp-product jp-anker-black" src="assets/premium-anker-orange.png" alt="Cargador ANKER naranja">
+       <img class="jp-product jp-robot-grey" src="assets/premium-robot-grey.png" alt="Cargador robótico UGREEN plateado">
+       <img class="jp-product jp-robot-lilac" src="assets/premium-robot-lilac.png" alt="Cargador robótico UGREEN lila">
+       <img class="jp-product jp-microphone" src="assets/premium-microphone.png" alt="Micrófono UGREEN"><img class="jp-product jp-cable" src="assets/premium-cable.png" alt="Cable UGREEN USB-C">
+       <img class="jp-product jp-hub" src="assets/premium-hub.png" alt="Adaptador multipuerto UGREEN">
+    </div>
+    <div class="jp-desktop-brand-pills" aria-label="Indicadores Black Friday">
+      <span class="jp-brand-pill jp-brand-pill-text">PRECIOS MAYORISTAS</span>
+      <span class="jp-brand-amp">•</span>
+      <span class="jp-brand-pill jp-brand-pill-text">DESCUENTO REAL</span>
+    </div>
+  </div>
+  <div class="jp-bf-deals">
+    <div class="jp-bf-deals-head">
+      <span>OFERTAS DESTACADAS</span>
+      <strong>Presiona una oferta para ver características, precio y WhatsApp</strong>
+    </div>
+    <div class="jp-bf-deals-grid" id="heroBlackFridayTrack"><p class="showcase-loading">Cargando ofertas de Black Friday…</p></div>
   </div>
 </section>
 <section class="jp-desktop-showcase" aria-label="Productos reales del catálogo">
@@ -103,7 +139,7 @@
   <section class="section jx-section" id="jxBenefits"><div class="section-heading"><div><p class="eyebrow">COMPRA CON CONFIANZA</p><h2>Información para tu compra</h2></div></div><div class="jx-info-grid"><article><h3>🛡️ Garantías y cambios</h3><p>Consulta la garantía específica de cada producto y las condiciones de cambio antes de comprar. Nuestro equipo te orientará por WhatsApp.</p></article><article><h3>📦 Entrega y envíos</h3><p>Consulta disponibilidad, cobertura y costo del envío. También puedes solicitar información para retirar tu compra en el local.</p></article><article><h3>💳 Formas de pago</h3><p>Solicita los medios de pago vigentes y confirma el total con JIMPORT antes de transferir.</p></article></div></section>
   <section class="brand-showcase" aria-label="Marcas disponibles"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"><span>Conectividad y carga</span></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="Anker"><span>Carga inteligente</span></a><a href="#productos" data-brand="DJI"><img src="assets/dji.svg" alt="DJI"><span>Tecnología creativa</span></a><a href="#productos" data-brand="Marvo"><img src="assets/marvo.svg" alt="Marvo"><span>Accesorios gaming</span></a></div></section>
   
-  <section class="reviews-section section" id="opiniones"><div class="section-heading"><div><p class="eyebrow">TU EXPERIENCIA IMPORTA</p><h2>Opiniones y calificaciones</h2></div><p>Cuéntanos cómo fue tu experiencia con JIMPORT.</p></div><div class="jm-op-public"><div id="reviewSummary" class="review-summary" aria-live="polite"></div><div id="reviewsList" aria-live="polite">Cargando opiniones…</div></div><div class="reviews-layout"><form id="reviewForm" class="review-form"><h3>Déjanos tu opinión</h3><div class="review-name-grid"><div><label for="reviewName">Nombre</label><input id="reviewName" maxlength="35" autocomplete="given-name" required placeholder="Tu nombre"></div><div><label for="reviewLastName">Apellido</label><input id="reviewLastName" maxlength="35" autocomplete="family-name" required placeholder="Tu apellido"></div></div><label for="reviewCode">Código de compra verificada *</label><input id="reviewCode" required maxlength="80" placeholder="Código recibido por WhatsApp"><label for="reviewRating">Tu calificación</label><div class="rating-picker" id="ratingPicker" role="group" aria-label="Seleccionar estrellas"><button type="button" data-rating="1" aria-label="1 estrella">★</button><button type="button" data-rating="2" aria-label="2 estrellas">★</button><button type="button" data-rating="3" aria-label="3 estrellas">★</button><button type="button" data-rating="4" aria-label="4 estrellas">★</button><button type="button" data-rating="5" aria-label="5 estrellas">★</button></div><select id="reviewRating" required><option value="">Selecciona una calificación</option><option value="5">★★★★★ · Excelente</option><option value="4">★★★★☆ · Muy buena</option><option value="3">★★★☆☆ · Buena</option><option value="2">★★☆☆☆ · Regular</option><option value="1">★☆☆☆☆ · Mala</option></select><label for="reviewComment">Tu comentario</label><textarea id="reviewComment" rows="4" maxlength="1000" minlength="10" required placeholder="Comparte tu experiencia (mínimo 10 caracteres)"></textarea><button class="button" type="submit" id="reviewSubmit">Enviar opinión</button><p id="reviewMessage" role="status" aria-live="polite"></p><small></small></form><div class="reviews-results"><h3>Lo que opinan nuestros clientes</h3><div class="google-reviews-card"><h4>Reseñas públicas en Google</h4><p>Consulta las experiencias compartidas en el perfil público de JIMPORT.</p><a class="button button-outline" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer">Ver JIMPORT en Google Maps ↗</a><small>Las reseñas se consultan directamente en Google. Comprueba que el enlace corresponde a tu ficha de empresa.</small></div></div></div></section>
+
   <section class="trust-row"><div><b>Marcas seleccionadas</b><span>UGREEN · Anker · DJI · Marvo</span></div><div><b>Atención directa</b><span>Resuelve tus dudas por WhatsApp</span></div><div><b>Catálogo actualizado</b><span>Consulta disponibilidad y precios</span></div></section>
 
 
@@ -112,7 +148,7 @@
   <div><span>✓</span><b>Disponibilidad confirmada</b><small>Consulta stock y precio antes de pagar.</small></div>
   <div><span>✓</span><b>Atención por WhatsApp</b><small>Recibe ayuda directa para completar tu pedido.</small></div>
 </section>
-<section class="faq-section" id="preguntas"><p class="eyebrow">RESOLVEMOS TUS DUDAS</p><h2>Preguntas frecuentes</h2><div class="faq-grid"><details><summary>¿Cómo puedo comprar?</summary><p>Pulsa la fotografía o tarjeta del producto para revisar sus características, precio y descripción. Desde su ficha podrás consultar por WhatsApp.</p></details><details><summary>¿Los productos están disponibles?</summary><p>La disponibilidad se indica en cada producto y puede cambiar. Confírmala por WhatsApp antes de realizar el pago.</p></details><details><summary>¿Cómo sé si un accesorio es compatible?</summary><p>Escríbenos el modelo de tu dispositivo y el producto que te interesa para ayudarte a revisar su compatibilidad.</p></details><details><summary>¿Puedo dejar una calificación?</summary><p>Sí. En la sección de opiniones puedes valorar tu experiencia de 1 a 5 estrellas. Los comentarios se publican tras su revisión.</p></details></div></section>
+<section class="faq-section" id="preguntas"><p class="eyebrow">RESOLVEMOS TUS DUDAS</p><h2>Preguntas frecuentes</h2><div class="faq-grid"><details><summary>¿Cómo puedo comprar?</summary><p>Pulsa la fotografía o tarjeta del producto para revisar sus características, precio y descripción. Desde su ficha podrás consultar por WhatsApp.</p></details><details><summary>¿Los productos están disponibles?</summary><p>La disponibilidad se indica en cada producto y puede cambiar. Confírmala por WhatsApp antes de realizar el pago.</p></details><details><summary>¿Cómo sé si un accesorio es compatible?</summary><p>Escríbenos el modelo de tu dispositivo y el producto que te interesa para ayudarte a revisar su compatibilidad.</p></details><details><summary>¿Puedo dejar una calificación?</summary><p>Sí. Después de tu compra recibirás por WhatsApp un enlace y un código único para calificar tu experiencia. Los comentarios se publican tras su revisión.</p></details></div></section>
   <section class="about" id="nosotros"><div><p class="eyebrow">SOMOS JIMPORT</p><h2>Soluciones prácticas para tu tecnología.</h2></div><p>Te ayudamos a encontrar accesorios, conectividad y productos tecnológicos de marcas reconocidas. Escríbenos para confirmar stock, compatibilidad y formas de entrega.</p></section>
   <section class="location-section section" id="ubicacion" aria-labelledby="locationTitle">
     <div class="location-panel">
