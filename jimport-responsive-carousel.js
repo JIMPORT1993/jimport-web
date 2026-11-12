@@ -4,8 +4,8 @@
   const track=win.querySelector('.jp-showcase-track');
   if(!track) return;
   let last=0,paused=false,resumeTimer=0,desktopOffset=0;
-  const desktopSpeed=9; // PC: lento y constante, independientemente de cuántos productos existan
-  const mobileSpeed=10;  // móvil: desplazamiento suave
+  const desktopSpeed=22; // velocidad normal y cómoda para PC
+  const mobileSpeed=22;  // velocidad normal y cómoda para móvil
   const isMobile=()=>window.matchMedia('(max-width: 800px)').matches;
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function frame(now){
