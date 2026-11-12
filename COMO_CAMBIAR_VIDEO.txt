@@ -1,0 +1,7 @@
+JIMPORT — PORTADA CON VIDEO
+
+El archivo de video se encuentra en assets/jimport-portada.mp4.
+Para colocar tu video comercial definitivo: prepara un MP4 horizontal (16:9), de preferencia 1920x1080, sin sonido o con sonido que no se reproduzca automáticamente; nómbralo jimport-portada.mp4 y reemplaza el archivo en assets/.
+El video se reproduce automáticamente en silencio, en bucle, tanto en computadora como en teléfonos compatibles. Hay imagen alternativa si el video no carga.
+La página mantiene app.js, la conexión a Supabase, carrito y panel admin. No se han eliminado datos.
+Diseño original de JIMPORT inspirado en patrones modernos de comercio electrónico, no copia literal del sitio de Novus.
