@@ -100,7 +100,6 @@
     const list=uniqueProducts(products.filter(p=>!promotedProductIds.has(String(p.id))&&(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
     renderShowcaseProducts();
-    renderHeroCarouselProducts();
     if(!brand && !category && !q){
       grid.innerHTML='<div class="empty catalog-welcome"><strong>¿Qué estás buscando?</strong><p>Selecciona una marca o categoría para explorar nuestros productos.</p></div>';
       status.textContent=products.length?`${products.length} productos disponibles. Selecciona una marca o categoría.`:'Selecciona una marca o categoría para ver los productos.';
@@ -127,35 +126,19 @@
     target.innerHTML=chosen.map(p=>`<a class="showcase-product" href="#productos" data-showcase-brand="${esc(p.brand||'')}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="eager" referrerpolicy="no-referrer"><span>${esc(p.name)}</span></a>`).join('');
     target.querySelectorAll('[data-showcase-brand]').forEach(link=>link.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(link.dataset.showcaseBrand))?.value||'';if(categoryFilter)categoryFilter.value='';search.value='';render();}));
   }
-  // Carrusel principal: muestra productos reales del catálogo y abre su ficha individual.
-  function renderHeroCarouselProducts(){
-    const track=document.querySelector('.jp-showcase-track');
-    if(!track)return;
-    const real=uniqueProducts(products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)) && p.image_url && /^https?:\/\//i.test(p.image_url)));
-    if(!real.length){track.innerHTML='<p class="showcase-loading">Pronto verás nuestros productos destacados.</p>';return;}
-    const chosen=real.slice(0,12);
-    const card=p=>`<a class="jp-showcase-card" href="#productos" data-carousel-product="${esc(p.id)}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer"><span><b>${esc(p.name)}</b><small>${esc(p.brand||'JIMPORT')} · Ver producto</small></span></a>`;
-    track.innerHTML=chosen.map(card).join('')+chosen.map(p=>card(p).replace('class="jp-showcase-card"','class="jp-showcase-card" aria-hidden="true" tabindex="-1"')).join('');
-    track.querySelectorAll('[data-carousel-product]').forEach(link=>link.addEventListener('click',event=>{
-      event.preventDefault();
-      if(link.getAttribute('aria-hidden')==='true')return;
-      const product=real.find(item=>String(item.id)===link.dataset.carouselProduct);
-      if(product)openProductInfo(product);
-    }));
-  }
   let teaserTimer=null, teaserPosition=0;
   function renderCatalogTeasers(){
     const el=document.getElementById("catalogTeasers"); if(!el)return;
-    const withImages=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)) && p.image_url && /^https?:\/\//i.test(p.image_url));
+    const withImages=products.filter(p=>p.active!==false);
     el.hidden=Boolean(brandFilter.value || categoryFilter?.value || search.value.trim());
     if(teaserTimer){clearInterval(teaserTimer);teaserTimer=null;}
-    if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Elige UGREEN, Anker, DJI o Marvo para descubrir nuestro catálogo.</p>';return;}
-    const ordered=uniqueProducts(withImages).sort((a,b)=>knownBrands.indexOf(a.brand)-knownBrands.indexOf(b.brand));
+    if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Todavía no hay productos publicados en el catálogo.</p>';return;}
+    const ordered=[...withImages].sort((a,b)=>norm(a.brand).localeCompare(norm(b.brand),'es') || norm(a.name).localeCompare(norm(b.name),'es'));
     teaserPosition=0;
-    el.innerHTML='<p class="catalog-teaser-title">Un vistazo a nuestros productos. Elige una marca o categoría para ver más.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>';
+    el.innerHTML=`<p class="catalog-teaser-title">Todos nuestros productos · ${ordered.length} artículos. Explora el carrusel y selecciona cualquiera para ver sus características.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>`;
     const row=el.querySelector('.catalog-teaser-row');
     function teaserStatus(p){const raw=String(p.stock||'').toLowerCase().trim();if(raw.includes('agot')||raw.includes('sin stock'))return ['Agotado','out'];if(raw.includes('lleg')||raw.includes('próxim')||raw.includes('proxim')||raw.includes('pedido'))return ['Llegando','coming'];if(raw.includes('stock')||raw.includes('disponib'))return ['En stock','available'];return ['Consultar','unknown'];}
-    function paint(){const count=Math.min(12,Math.max(0,ordered.length-teaserPosition));row.innerHTML=ordered.slice(teaserPosition,teaserPosition+count).map(p=>`<article class="catalog-teaser" aria-label="${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy"><span>${esc(p.name)}</span><small>${esc(p.brand)}</small><strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}<em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em><button type="button" class="teaser-info-button" data-teaser-info="${esc(p.id)}">Ver características ＋</button><a class="teaser-whatsapp-button" href="${wa(`Hola JIMPORT, quiero consultar por ${p.name}${p.model?` (modelo ${p.model})`:``}. ¿Está disponible?\n💵 Precio mostrado: ${displayPriceText(p)}${productPhoto(p)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp sobre ${esc(p.name)}">WhatsApp · Consultar ↗</a><button type="button" class="teaser-brand-button" data-teaser-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-info]').forEach(b=>b.addEventListener('click',()=>{const p=ordered.find(x=>String(x.id)===b.dataset.teaserInfo);if(p)openProductInfo(p);}));row.querySelectorAll('[data-teaser-cart]').forEach(b=>b.addEventListener('click',()=>{if(window.JIMPORT_CART_ADD){window.JIMPORT_CART_ADD(b.dataset.teaserCart);b.textContent='✓ Añadido al pedido';setTimeout(()=>b.textContent='＋ Añadir al pedido',1600);}else alert('El pedido todavía está cargando. Inténtalo nuevamente.');}));}
+    function paint(){const count=Math.min(12,Math.max(0,ordered.length-teaserPosition));row.innerHTML=ordered.slice(teaserPosition,teaserPosition+count).map(p=>`<article class="catalog-teaser" aria-label="${esc(p.name)}">${p.image_url && /^https?:\/\//i.test(p.image_url)?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}<span>${esc(p.name)}</span><small>${esc(p.brand)}</small><strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}<em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em><button type="button" class="teaser-info-button" data-teaser-info="${esc(p.id)}">Ver características ＋</button><a class="teaser-whatsapp-button" href="${wa(`Hola JIMPORT, quiero consultar por ${p.name}${p.model?` (modelo ${p.model})`:``}. ¿Está disponible?\n💵 Precio mostrado: ${displayPriceText(p)}${productPhoto(p)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp sobre ${esc(p.name)}">WhatsApp · Consultar ↗</a><button type="button" class="teaser-brand-button" data-teaser-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-info]').forEach(b=>b.addEventListener('click',()=>{const p=ordered.find(x=>String(x.id)===b.dataset.teaserInfo);if(p)openProductInfo(p);}));row.querySelectorAll('[data-teaser-cart]').forEach(b=>b.addEventListener('click',()=>{if(window.JIMPORT_CART_ADD){window.JIMPORT_CART_ADD(b.dataset.teaserCart);b.textContent='✓ Añadido al pedido';setTimeout(()=>b.textContent='＋ Añadir al pedido',1600);}else alert('El pedido todavía está cargando. Inténtalo nuevamente.');}));}
     let turning=false;
     const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
     function step(dir){
