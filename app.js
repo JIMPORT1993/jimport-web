@@ -24,6 +24,22 @@
     return Math.max(1, Math.round((1 - sale / retail) * 100));
   };
   const blackFridayPriceText = p => money(blackFridayPrice(p));
+  const blackFridayBadge = discount => discount>0 ? `<span class="bf-discount-badge">-${discount}%</span>` : '';
+  const blackFridayProductPrice = p => {
+    if(!blackFridayEnabled) return `<strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:''}`;
+    const d=blackFridayDiscount(p), regular=retailPrice(p), sale=blackFridayPrice(p);
+    return d>0 ? `${blackFridayBadge(d)}<del class="bf-regular-price">${money(regular)}</del><strong class="teaser-price bf-sale-price">${money(sale)}</strong>` : `<strong class="teaser-price">${money(sale)}</strong>`;
+  };
+  const blackFridayComboDiscount = c => {
+    const ps=(Array.isArray(c.items)?c.items:[]).map(id=>products.find(p=>String(p.id)===String(id))).filter(Boolean);
+    const regular=Number(c.regular_price ?? c.original_price ?? ps.reduce((sum,p)=>sum+retailPrice(p),0));
+    const sale=Number(c.combo_price||0);
+    return regular>0 && sale>0 && sale<regular ? Math.round((1-sale/regular)*100) : 0;
+  };
+  const blackFridayPromoDiscount = p => {
+    const regular=Number(p.regular_price||0), sale=Number(p.sale_price||0);
+    return regular>0 && sale>0 && sale<regular ? Math.round((1-sale/regular)*100) : 0;
+  };
   const knownBrands=[]; // Las marcas se obtienen de los productos reales, no de una lista fija.
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
@@ -36,7 +52,7 @@
     if (!client) { products=[]; status.textContent="No se pudo conectar con el catálogo. Comprueba config.js."; render(); return; }
     try {
       const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled').eq('id','main').maybeSingle();
-      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;}
+      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;document.body.classList.toggle('black-friday-active',blackFridayEnabled);}
       const all=[]; const batchSize=500;
       for(let offset=0;offset<50000;offset+=batchSize){
         const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false}).range(offset,offset+batchSize-1);
@@ -97,7 +113,7 @@
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
     const regular=retailPrice(p), sale=blackFridayPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
     const priceBlock=discount>0
-      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio regular <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">Ahorra ${discount}% con precio al por mayor</small></div>`
+      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio regular <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">-${discount}% BLACK FRIDAY</small></div>`
       : `<strong class="jimport-dialog-price">${displayPriceText(p)}</strong>`;
     const waPrice=discount>0?`Precio regular: ${money(regular)}\nPrecio Black Friday: ${money(sale)}\nDescuento: ${discount}%`:`Precio mostrado: ${displayPriceText(p)}`;
     dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Características del producto</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:''}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''}</p><p class="jimport-dialog-text">${esc(productInfo(p))}</p>${priceBlock}<a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
@@ -131,7 +147,7 @@ function render() {
     }
     grid.classList.add("catalog-same-design");
     function filteredStatus(p){const raw=String(p.stock||"").toLowerCase().trim();if(raw.includes("agot")||raw.includes("sin stock"))return ["Agotado","out"];if(raw.includes("lleg")||raw.includes("próxim")||raw.includes("proxim")||raw.includes("pedido"))return ["Llegando","coming"];if(raw.includes("stock")||raw.includes("disponib"))return ["En stock","available"];return ["Consultar","unknown"];}
-    grid.innerHTML=list.map(p=>`<article class="catalog-teaser catalog-teaser-clickable" data-catalog-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver descripción de ${esc(p.name)}">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}<span>${esc(p.name)}</span><small>${esc(p.brand)}</small><strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}<em class="teaser-stock teaser-stock--${filteredStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${filteredStatus(p)[0]}</span></em><button type="button" class="teaser-brand-button" data-product-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join("");
+    grid.innerHTML=list.map(p=>`<article class="catalog-teaser catalog-teaser-clickable" data-catalog-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver descripción de ${esc(p.name)}">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}<span>${esc(p.name)}</span><small>${esc(p.brand)}</small>${blackFridayProductPrice(p)}<em class="teaser-stock teaser-stock--${filteredStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${filteredStatus(p)[0]}</span></em><button type="button" class="teaser-brand-button" data-product-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join("");
     grid.querySelectorAll("[data-catalog-product]").forEach(card=>{
       const open=()=>{const p=list.find(x=>String(x.id)===card.dataset.catalogProduct);if(p)openProductInfo(p);};
       card.addEventListener("click",e=>{if(e.target.closest("[data-product-cart]"))return;open();});
@@ -158,7 +174,7 @@ function render() {
       const img=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-showcase-image-placeholder" aria-hidden="true">✦</div>`;
       return `<article class="jp-showcase-card jp-showcase-product-card" data-showcase-product="${esc(p.id)}" ${hidden?'aria-hidden="true"':''}>
         <div class="jp-showcase-visual">${img}</div>
-        <div class="jp-showcase-copy"><span class="jp-showcase-brand">${esc(p.brand||'JIMPORT')}</span><b>${esc(p.name)}</b><small>${esc(p.model||state)}</small></div>
+        <div class="jp-showcase-copy"><span class="jp-showcase-brand">${esc(p.brand||'JIMPORT')}</span><b>${esc(p.name)}</b><small>${esc(p.model||state)}</small>${blackFridayEnabled&&blackFridayDiscount(p)>0?`<span class="bf-discount-badge">-${blackFridayDiscount(p)}% BLACK FRIDAY</span>`:''}</div>
       </article>`;
     };
     const duplicated=ordered.concat(ordered);
@@ -186,7 +202,7 @@ function render() {
     el.innerHTML=`<p class="catalog-teaser-title">Todos nuestros productos · ${ordered.length} artículos. Explora el carrusel y selecciona cualquiera para ver sus características.</p><div class="teaser-carousel"><button class="teaser-arrow" type="button" data-teaser-dir="-1" aria-label="Productos anteriores">&#10094;</button><div class="catalog-teaser-row" aria-live="off"></div><button class="teaser-arrow" type="button" data-teaser-dir="1" aria-label="Productos siguientes">&#10095;</button></div><div class="teaser-progress" aria-hidden="true"><span></span></div>`;
     const row=el.querySelector('.catalog-teaser-row');
     function teaserStatus(p){const raw=String(p.stock||'').toLowerCase().trim();if(raw.includes('agot')||raw.includes('sin stock'))return ['Agotado','out'];if(raw.includes('lleg')||raw.includes('próxim')||raw.includes('proxim')||raw.includes('pedido'))return ['Llegando','coming'];if(raw.includes('stock')||raw.includes('disponib'))return ['En stock','available'];return ['Consultar','unknown'];}
-    function paint(){const count=Math.min(12,Math.max(0,ordered.length-teaserPosition));row.innerHTML=ordered.slice(teaserPosition,teaserPosition+count).map(p=>`<article class="catalog-teaser catalog-teaser-clickable" data-teaser-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver descripción de ${esc(p.name)}">${p.image_url && /^https?:\/\//i.test(p.image_url)?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}<span>${esc(p.name)}</span><small>${esc(p.brand)}</small><strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:""}<em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em><button type="button" class="teaser-brand-button" data-teaser-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-product]').forEach(card=>{const open=()=>{const p=ordered.find(x=>String(x.id)===card.dataset.teaserProduct);if(p)openProductInfo(p);};card.addEventListener('click',e=>{if(e.target.closest('[data-teaser-cart]'))return;open();});card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('[data-teaser-cart]')){e.preventDefault();open();}});});row.querySelectorAll('[data-teaser-cart]').forEach(b=>b.addEventListener('click',()=>{if(window.JIMPORT_CART_ADD){window.JIMPORT_CART_ADD(b.dataset.teaserCart);b.textContent='✓ Añadido al pedido';setTimeout(()=>b.textContent='＋ Añadir al pedido',1600);}else alert('El pedido todavía está cargando. Inténtalo nuevamente.');}));}
+    function paint(){const count=Math.min(12,Math.max(0,ordered.length-teaserPosition));row.innerHTML=ordered.slice(teaserPosition,teaserPosition+count).map(p=>`<article class="catalog-teaser catalog-teaser-clickable" data-teaser-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver descripción de ${esc(p.name)}">${p.image_url && /^https?:\/\//i.test(p.image_url)?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="catalog-teaser-image"><span class="placeholder-icon">✳</span></div>`}<span>${esc(p.name)}</span><small>${esc(p.brand)}</small>${blackFridayProductPrice(p)}<em class="teaser-stock teaser-stock--${teaserStatus(p)[1]}"><i class="teaser-stock-dot" aria-hidden="true"></i><span>${teaserStatus(p)[0]}</span></em><button type="button" class="teaser-brand-button" data-teaser-cart="${esc(p.id)}">＋ Añadir al pedido</button></article>`).join('');el.querySelector('.teaser-progress span').style.width=`${Math.max(8,100*(teaserPosition+1)/ordered.length)}%`;row.querySelectorAll('[data-teaser-product]').forEach(card=>{const open=()=>{const p=ordered.find(x=>String(x.id)===card.dataset.teaserProduct);if(p)openProductInfo(p);};card.addEventListener('click',e=>{if(e.target.closest('[data-teaser-cart]'))return;open();});card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('[data-teaser-cart]')){e.preventDefault();open();}});});row.querySelectorAll('[data-teaser-cart]').forEach(b=>b.addEventListener('click',()=>{if(window.JIMPORT_CART_ADD){window.JIMPORT_CART_ADD(b.dataset.teaserCart);b.textContent='✓ Añadido al pedido';setTimeout(()=>b.textContent='＋ Añadir al pedido',1600);}else alert('El pedido todavía está cargando. Inténtalo nuevamente.');}));}
     let turning=false;
     const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
     function step(dir){
@@ -241,7 +257,7 @@ function render() {
     if(!featured.length){track.innerHTML='<p class="showcase-loading">No hay productos publicados para mostrar.</p>';return;}
     track.innerHTML=featured.map(p=>{
       const discount=blackFridayDiscount(p), regular=retailPrice(p), sale=blackFridayPrice(p);
-      return `<article class="jp-bf-card" data-bf-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver oferta de ${esc(p.name)}">${discount?`<span class="jp-bf-card-badge">-${discount}%</span>`:''}<div class="jp-bf-card-media">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-bf-card-placeholder">✦</div>`}</div><div class="jp-bf-card-copy"><small>${esc(p.brand||'JIMPORT')}</small><h3>${esc(p.name)}</h3>${discount?`<p class="jp-bf-card-prices"><del>${money(regular)}</del><strong>${money(sale)}</strong></p><span class="jp-bf-card-save">-${discount}% con precio al por mayor</span>`:`<p class="jp-bf-card-prices"><strong>${displayPriceText(p)}</strong></p><span class="jp-bf-card-save">Sin descuento mayorista configurado</span>`}</div></article>`;
+      return `<article class="jp-bf-card" data-bf-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver oferta de ${esc(p.name)}">${discount?`<span class="jp-bf-card-badge">-${discount}%</span>`:''}<div class="jp-bf-card-media">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-bf-card-placeholder">✦</div>`}</div><div class="jp-bf-card-copy"><small>${esc(p.brand||'JIMPORT')}</small><h3>${esc(p.name)}</h3>${discount?`<p class="jp-bf-card-prices"><del>${money(regular)}</del><strong>${money(sale)}</strong></p><span class="jp-bf-card-save">BLACK FRIDAY</span>`:`<p class="jp-bf-card-prices"><strong>${displayPriceText(p)}</strong></p><span class="jp-bf-card-save">Precio especial</span>`}</div></article>`;
     }).join('');
     track.querySelectorAll('[data-bf-product]').forEach(card=>{
       const open=()=>{const p=featured.find(x=>String(x.id)===card.dataset.bfProduct);if(p)openProductInfo(p);};
@@ -263,7 +279,8 @@ function render() {
   function showPromotionInfo(p){
     let dlg=document.getElementById('jimportPromotionInfoDialog');
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportPromotionInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
-    const price=p.sale_price!=null?`<strong class="jimport-dialog-price">${moneyPromo(p.sale_price)}</strong>`:'';
+    const promoDiscount=blackFridayEnabled?blackFridayPromoDiscount(p):0;
+    const price=p.sale_price!=null?`${promoDiscount?`<span class="bf-discount-badge">-${promoDiscount}% BLACK FRIDAY</span>`:''}<strong class="jimport-dialog-price">${moneyPromo(p.sale_price)}</strong>`:'';
     const old=p.regular_price!=null?`<p class="jimport-dialog-model"><del>${moneyPromo(p.regular_price)}</del></p>`:'';
     dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción de la promoción</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.title)}" style="width:100%;max-height:230px;object-fit:contain">`:''}<h3>${esc(p.title)}</h3><p class="jimport-dialog-text">${esc(p.description||'Consulta los detalles de esta promoción con nuestro equipo.')}</p>${old}${price}<a class="button" target="_blank" rel="noopener noreferrer" href="${wa(`Hola JIMPORT, deseo información sobre la promoción ${p.title}${p.sale_price!=null?'\nPrecio: '+moneyPromo(p.sale_price):''}`)}">Consultar por WhatsApp ↗</a>`;
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();
@@ -279,7 +296,7 @@ function render() {
     promoIndex=((promoIndex%promotions.length)+promotions.length)%promotions.length;
     const p=promotions[promoIndex];
     const whatsappHref=wa(`Hola JIMPORT, vi la promoción "${p.title}" en su página web.${p.sale_price!=null?`\n💵 Precio de promoción: ${moneyPromo(p.sale_price)}`:""} ¿Podrían darme más información y confirmar disponibilidad?`);
-    slide.innerHTML=`<div class="promo-art"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'"><div class="promo-orbit"></div></div><div class="promo-copy"><span class="promo-kicker">JIMPORT · OFERTA ESPECIAL</span><h3>${esc(p.title)}</h3><p class="promo-hint">Pulsa la promoción para ver su descripción y detalles</p>${p.sale_price!=null?`<p class="promo-price"><del>${p.regular_price!=null?esc(moneyPromo(p.regular_price)):""}</del> <strong>${esc(moneyPromo(p.sale_price))}</strong></p>`:""}</div>`;
+    slide.innerHTML=`<div class="promo-art"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'"><div class="promo-orbit"></div></div><div class="promo-copy"><span class="promo-kicker">JIMPORT · OFERTA ESPECIAL</span><h3>${esc(p.title)}</h3><p class="promo-hint">Pulsa la promoción para ver su descripción y detalles</p>${p.sale_price!=null?`<p class="promo-price">${blackFridayEnabled&&blackFridayPromoDiscount(p)>0?`<span class="bf-discount-badge">-${blackFridayPromoDiscount(p)}% BLACK FRIDAY</span>`:""}<del>${p.regular_price!=null?esc(moneyPromo(p.regular_price)):""}</del> <strong>${esc(moneyPromo(p.sale_price))}</strong></p>`:""}</div>`;
     slide.style.cursor='pointer';
     slide.onclick=()=>showPromotionInfo(p);
     slide.setAttribute('role','button');slide.setAttribute('tabindex','0');

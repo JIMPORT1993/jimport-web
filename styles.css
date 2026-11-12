@@ -645,3 +645,13 @@ body{background:#f7f7f9}
 
 /* Respeta el interruptor de portada normal / Black Friday */
 .jp-hero-blackfriday[hidden],#jpStandardHero[hidden]{display:none!important}
+
+/* Descuentos globales visibles únicamente cuando el modo Black Friday está activo */
+.bf-discount-badge{display:inline-flex;align-items:center;justify-content:center;width:max-content;padding:5px 9px;border-radius:999px;background:linear-gradient(135deg,#ffcf24,#ff6a00);color:#241000;font-size:11px;font-weight:950;letter-spacing:.04em;line-height:1.1;box-shadow:0 5px 14px rgba(255,119,0,.18)}
+.bf-regular-price{display:block;color:#a9b2c4;font-size:.82em;text-decoration:line-through;margin-top:3px}
+.bf-sale-price{color:#ff6b25!important;font-weight:900}
+body.black-friday-active .catalog-teaser{position:relative}
+body.black-friday-active .catalog-teaser .bf-discount-badge{margin:3px 0}
+body.black-friday-active .jx-combo .bf-discount-badge{margin:0 0 6px}
+body.black-friday-active .promo-price{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.jimport-dialog-bf .jimport-dialog-save{font-weight:800;color:#bd4d00}
