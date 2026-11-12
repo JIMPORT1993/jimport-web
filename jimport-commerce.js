@@ -32,9 +32,15 @@ function drawCombos(){
   const details=[c.description?`<p>${esc(c.description)}</p>`:'',`<ul>${ps.map(p=>`<li>${esc(p.name)}</li>`).join('')}</ul>`].join('');
   const images=ps.slice(0,4).map(p=>p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<span class="jx-combo-placeholder" aria-label="Sin fotografía">📦</span>`).join('');
   const query='Hola JIMPORT, quiero consultar el Súper Combo '+c.name+' por '+money(c.combo_price)+'\n'+ps.map(p=>p.name+photo(p)).join('\n');
-  return `<article class="jx-combo jx-combo-compact"><div class="jx-combo-images jx-combo-photo-grid">${images}</div><div class="jx-combo-content"><span class="jx-combo-tag">🔥 SÚPER COMBO</span><h3 title="${esc(c.name)}">${esc(c.name)}</h3><div class="jx-price"><strong>${money(c.combo_price)}</strong></div><button type="button" class="jx-combo-info-button teaser-info-button" data-combo-info="${esc(c.id)}">Ver descripción ＋</button><button type="button" class="button jx-combo-add" data-combo="${esc(c.id)}">Añadir al pedido</button><a class="jx-quick" target="_blank" rel="noopener noreferrer" href="${wa(query)}">Consultar por WhatsApp</a></div></article>`;
+  return `<article class="jx-combo jx-combo-compact"><div class="jx-combo-images jx-combo-photo-grid">${images}</div><div class="jx-combo-content"><span class="jx-combo-tag">🔥 SÚPER COMBO</span><h3 title="${esc(c.name)}">${esc(c.name)}</h3><div class="jx-price"><strong>${money(c.combo_price)}</strong></div><button type="button" class="button jx-combo-add" data-combo="${esc(c.id)}">Añadir al pedido</button></div></article>`;
  }).join('');
- el.querySelectorAll('[data-combo-info]').forEach(b=>b.onclick=()=>{const c=combos.find(x=>String(x.id)===b.dataset.comboInfo);if(c)showComboInfo(c);});
+ el.querySelectorAll('.jx-combo').forEach(card=>{
+  card.style.cursor='pointer';
+  const open=()=>{const c=combos.find(x=>String(x.id)===card.querySelector('[data-combo]')?.dataset.combo);if(c)showComboInfo(c);};
+  card.addEventListener('click',e=>{if(e.target.closest('[data-combo]'))return;open();});
+  card.setAttribute('tabindex','0');card.setAttribute('role','button');
+  card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('[data-combo]')){e.preventDefault();open();}});
+ });
  el.querySelectorAll('[data-combo]').forEach(b=>b.onclick=()=>{const c=combos.find(x=>String(x.id)===b.dataset.combo);if(c)comboAdd(c);});
 }
 
