@@ -66,3 +66,8 @@
  .jp-showcase-window:hover .jp-showcase-track,.jp-showcase-window:focus-within .jp-showcase-track{animation-play-state:paused!important}
  .jp-showcase-info{display:none!important}
 }
+
+@media(max-width:800px){
+ .jp-showcase-track{animation:none!important;will-change:transform}
+ .jp-showcase-price,.jp-showcase-wa,.jp-showcase-actions{display:none!important}
+}

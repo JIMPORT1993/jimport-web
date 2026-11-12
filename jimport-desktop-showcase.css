@@ -65,3 +65,8 @@
 }
 
 @media(min-width:801px){.jp-showcase-track{animation-duration:85s!important}}
+
+@media(min-width:801px){
+ .jp-showcase-track{animation:none!important;will-change:transform}
+ .jp-showcase-price,.jp-showcase-wa,.jp-showcase-actions{display:none!important}
+}
