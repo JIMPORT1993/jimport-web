@@ -33,3 +33,29 @@
  .jp-showcase-card:active{transform:scale(.985);border-color:#83efff}
 }
 .jp-showcase-card,.jp-extra-grid a{cursor:pointer}
+
+
+@media (max-width:800px){
+ .jp-brand-pill.jp-brand-pill-text{min-width:auto;height:auto;padding:7px 12px;color:#fff;font-size:13px;font-weight:900;letter-spacing:.06em}
+ .jp-showcase-card.jp-showcase-product-card{flex:0 0 82vw;width:82vw;max-width:320px;height:auto;min-height:230px;display:flex;flex-direction:column;align-items:stretch;gap:9px;padding:12px}
+ .jp-showcase-visual{display:flex;align-items:center;justify-content:center;height:98px;border-radius:14px;background:radial-gradient(circle at 50% 30%,rgba(57,129,255,.18),rgba(7,17,48,.12) 60%,transparent 76%)}
+ .jp-showcase-card img{width:100%;height:90px;object-fit:contain}
+ .jp-showcase-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+ .jp-showcase-brand{font-size:9px;letter-spacing:.14em;color:#83efff;font-weight:900}
+ .jp-showcase-card b{font-size:13px;line-height:1.18;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .jp-showcase-card small{font-size:10px;line-height:1.22;color:#b9d7f8;min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .jp-showcase-price{font-size:15px;color:#fff;font-weight:900}
+ .jp-showcase-actions{display:flex;gap:7px;margin-top:auto}
+ .jp-showcase-info,.jp-showcase-wa{flex:1;display:inline-flex;align-items:center;justify-content:center;height:33px;border-radius:10px;font-size:10px;font-weight:800;text-decoration:none}
+ .jp-showcase-info{border:1px solid rgba(112,242,255,.45);background:rgba(10,24,63,.85);color:#fff}
+ .jp-showcase-wa{background:linear-gradient(135deg,#18c86a,#109d52);color:#fff}
+ .jp-showcase-image-placeholder{display:flex;align-items:center;justify-content:center;width:100%;height:82px;border-radius:12px;background:rgba(255,255,255,.05);font-size:24px;color:#86ebff}
+}
+
+/* Mantener exactamente el mismo orden de secciones en PC y celular. */
+@media (max-width:800px){
+  .jp-desktop-showcase{display:block!important}
+  #productos{display:block!important}
+  #super-combos{display:block!important}
+  #promociones{display:block!important}
+}

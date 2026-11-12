@@ -117,16 +117,41 @@
   }
   // La portada usa exclusivamente las fotografías registradas en Supabase.
   function renderShowcaseProducts(){
-    const target=document.getElementById('showcaseProducts'); if(!target)return;
-    const real=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)) && p.image_url && /^https?:\/\//i.test(p.image_url));
-    if(!real.length){target.innerHTML='<p class="showcase-loading">Explora nuestros productos en el catálogo</p>';return;}
-    const chosen=[];
-    for(const brand of knownBrands){const found=real.find(p=>norm(p.brand)===norm(brand));if(found && !chosen.includes(found))chosen.push(found);}
-    for(const item of real){if(chosen.length>=4)break;if(!chosen.includes(item))chosen.push(item);}
-    target.innerHTML=chosen.map(p=>`<a class="showcase-product" href="#productos" data-showcase-brand="${esc(p.brand||'')}" title="Ver ${esc(p.name)}"><img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="eager" referrerpolicy="no-referrer"><span>${esc(p.name)}</span></a>`).join('');
-    target.querySelectorAll('[data-showcase-brand]').forEach(link=>link.addEventListener('click',()=>{brandFilter.value=[...brandFilter.options].find(o=>norm(o.value)===norm(link.dataset.showcaseBrand))?.value||'';if(categoryFilter)categoryFilter.value='';search.value='';render();}));
+    const target=document.getElementById('jpShowcaseTrack');
+    if(!target) return;
+    const allProducts=uniqueProducts(products.filter(p=>p.active!==false));
+    if(!allProducts.length){
+      target.innerHTML='<p class="showcase-loading">Explora nuestros productos en el catálogo</p>';
+      return;
+    }
+    const ordered=allProducts.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+    const renderCard=(p, hidden=false)=>{
+      const state=String(p.stock||'').toLowerCase().includes('agot')?'Agotado':(String(p.stock||'').toLowerCase().includes('lleg')||String(p.stock||'').toLowerCase().includes('pedido')?'Llegando':'Disponible');
+      const img=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-showcase-image-placeholder" aria-hidden="true">✦</div>`;
+      return `<article class="jp-showcase-card jp-showcase-product-card" data-showcase-product="${esc(p.id)}" ${hidden?'aria-hidden="true"':''}>
+        <div class="jp-showcase-visual">${img}</div>
+        <div class="jp-showcase-copy"><span class="jp-showcase-brand">${esc(p.brand||'JIMPORT')}</span><b>${esc(p.name)}</b><small>${esc(p.model||state)}</small><strong class="jp-showcase-price">${displayPriceText(p)}</strong></div>
+        <div class="jp-showcase-actions"><button type="button" class="jp-showcase-info" data-showcase-info="${esc(p.id)}">Características</button><a class="jp-showcase-wa" href="${wa(`Hola JIMPORT, quiero consultar por ${p.name}${p.model?` (modelo ${p.model})`:``}. ¿Está disponible?
+💵 Precio mostrado: ${displayPriceText(p)}${productPhoto(p)}`)}" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
+      </article>`;
+    };
+    const duplicated=ordered.concat(ordered);
+    target.innerHTML=duplicated.map((p,i)=>renderCard(p,i>=ordered.length)).join('');
+    const attachInfo=(selector)=>target.querySelectorAll(selector).forEach(el=>el.addEventListener('click',ev=>{
+      ev.preventDefault(); ev.stopPropagation();
+      const p=ordered.find(x=>String(x.id)===String(el.dataset.showcaseInfo||el.dataset.showcaseProduct));
+      if(p)openProductInfo(p);
+    }));
+    attachInfo('[data-showcase-info]');
+    attachInfo('[data-showcase-product]');
+    target.querySelectorAll('.jp-showcase-wa').forEach(a=>a.addEventListener('click',ev=>ev.stopPropagation()));
+    target.querySelectorAll('.jp-showcase-card').forEach(card=>card.addEventListener('keydown',ev=>{
+      if(ev.key==='Enter' || ev.key===' '){ev.preventDefault(); const p=ordered.find(x=>String(x.id)===String(card.dataset.showcaseProduct)); if(p)openProductInfo(p);}
+    }));
+    target.querySelectorAll('.jp-showcase-card').forEach(card=>card.setAttribute('tabindex','0'));
   }
   let teaserTimer=null, teaserPosition=0;
+
   function renderCatalogTeasers(){
     const el=document.getElementById("catalogTeasers"); if(!el)return;
     const withImages=products.filter(p=>p.active!==false);
