@@ -1,0 +1,15 @@
+JIMPORT - MODO PRECIO LIVE
+
+1. En Supabase SQL Editor ejecuta ACTUALIZAR_PRECIO_LIVE.sql.
+2. Sube todos los archivos del ZIP a GitHub, conservando carpetas y nombres.
+3. En Administrador > Configuración general de precios, selecciona Precio LIVE.
+4. Marca o desmarca 'Mostrar porcentaje de ahorro en Precio LIVE'.
+5. Pulsa Guardar configuración.
+
+Cálculo por producto:
+Precio LIVE = floor((precio público + precio mayorista) / 2).
+Ejemplos: 62 y 58 -> 60; 30 y 27 -> 28.
+El porcentaje visible, si está habilitado, se calcula contra el precio público y se redondea al entero más cercano.
+Si el precio mayorista está vacío, el modo LIVE usa el precio público y no muestra ahorro.
+
+Black Friday mantiene prioridad cuando su casilla está activada. Para usar Precio LIVE, desactiva Black Friday y selecciona Precio LIVE. Los precios de combos y promociones que tienen precios manuales propios no se recalculan porque no disponen de pareja público/mayorista por producto.

@@ -9,10 +9,13 @@
   const wa = (msg="Hola JIMPORT, quisiera información sobre sus productos.") => `https://wa.me/${(cfg.WHATSAPP_NUMBER||"").replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`;
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
-  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail", blackFridayEnabled = false, blackFridayPercent = 6;
-  const displayPrice = p => displayPriceMode === "wholesale" ? Number(p.wholesale_price ?? p.price ?? 0) : Number(p.price || 0);
+  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail", blackFridayEnabled = false, blackFridayPercent = 6, liveShowDiscount = true;
+  const displayPrice = p => displayPriceMode === "wholesale" ? Number(p.wholesale_price ?? p.price ?? 0) : displayPriceMode === "live" ? livePrice(p) : Number(p.price || 0);
   const displayPriceText = p => money(displayPrice(p));
   const retailPrice = p => Number(p?.price || 0);
+  const livePrice = p => { const r=retailPrice(p), w=Number(p?.wholesale_price ?? p?.price ?? 0); return r>0 && w>0 ? Math.floor((r+w)/2) : (r||w||0); };
+  const liveDiscount = p => { const r=retailPrice(p), l=livePrice(p); return r>0 && l<r ? Math.round((r-l)/r*100) : 0; };
+  const livePriceMarkup = p => { const l=livePrice(p), d=liveDiscount(p); return `<strong class="teaser-price jp-live-price">${money(l)}</strong>${liveShowDiscount&&d>0?`<span class="jp-live-discount">-${d}% LIVE</span>`:""}`; };
   const wholesalePrice = p => Number(p?.wholesale_price ?? p?.price ?? 0);
   const blackFridayPrice = p => wholesalePrice(p) > 0 ? wholesalePrice(p) : retailPrice(p);
   const blackFridayRegularPrice = p => Math.ceil(blackFridayPrice(p) * (1 + blackFridayPercent / 100) - 1e-9);
@@ -20,7 +23,7 @@
   const blackFridayPriceText = p => money(blackFridayPrice(p));
   const blackFridayBadge = discount => discount>0 ? `<span class="bf-discount-badge">-${discount}%</span>` : '';
   const blackFridayProductPrice = p => {
-    if(!blackFridayEnabled) return `<strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:''}`;
+    if(!blackFridayEnabled) return displayPriceMode==='live' ? livePriceMarkup(p) : `<strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:''}`;
     const d=blackFridayDiscount(p), regular=blackFridayRegularPrice(p), sale=blackFridayPrice(p);
     return d>0 ? `${blackFridayBadge(d)}<del class="bf-regular-price">${money(regular)}</del><strong class="teaser-price bf-sale-price">${money(sale)}</strong>` : `<strong class="teaser-price">${money(sale)}</strong>`;
   };
@@ -41,8 +44,8 @@
   async function load() {
     if (!client) { products=[]; status.textContent="No se pudo conectar con el catálogo. Comprueba config.js."; render(); return; }
     try {
-      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent').eq('id','main').maybeSingle();
-      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;blackFridayPercent=Number(priceSettings?.black_friday_percent??6);document.body.classList.toggle('black-friday-active',blackFridayEnabled);}
+      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent,live_show_discount').eq('id','main').maybeSingle();
+      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;blackFridayPercent=Number(priceSettings?.black_friday_percent??6);liveShowDiscount=priceSettings?.live_show_discount!==false;document.body.classList.toggle('black-friday-active',blackFridayEnabled);document.body.classList.toggle('live-price-active',displayPriceMode==='live'&&!blackFridayEnabled);}
       const all=[]; const batchSize=500;
       for(let offset=0;offset<50000;offset+=batchSize){
         const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false}).range(offset,offset+batchSize-1);
@@ -102,10 +105,12 @@
     let dlg=document.getElementById('jimportProductInfoDialog');
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
     const sale=blackFridayPrice(p), regular=blackFridayRegularPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
-    const priceBlock=discount>0
-      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio regular <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">-${discount}% BLACK FRIDAY</small></div>`
+    const live=livePrice(p), livePct=liveDiscount(p);
+    const priceBlock=blackFridayEnabled&&discount>0
+      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio anterior <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">-${discount}% BLACK FRIDAY</small></div>`
+      : displayPriceMode==='live' ? `<div class="jimport-dialog-live"><span>PRECIO LIVE</span><strong class="jimport-dialog-price">${money(live)}</strong>${liveShowDiscount&&livePct>0?`<small>Ahorras ${livePct}% frente al precio público</small>`:''}</div>`
       : `<strong class="jimport-dialog-price">${displayPriceText(p)}</strong>`;
-    const waPrice=discount>0?`Precio regular: ${money(regular)}\nPrecio Black Friday: ${money(sale)}\nDescuento: ${discount}%`:`Precio mostrado: ${displayPriceText(p)}`;
+    const waPrice=blackFridayEnabled&&discount>0?`Precio anterior: ${money(regular)}\nPrecio Black Friday: ${money(sale)}\nDescuento: ${discount}%`:displayPriceMode==='live'?`Precio público: ${money(retailPrice(p))}\nPrecio LIVE: ${money(live)}${liveShowDiscount&&livePct>0?`\nAhorro: ${livePct}%`:''}`:`Precio mostrado: ${displayPriceText(p)}`;
     dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Características del producto</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:''}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''}</p><p class="jimport-dialog-text">${esc(productInfo(p))}</p>${priceBlock}<a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();dlg.showModal();
   }
@@ -164,7 +169,7 @@ function render() {
       const img=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-showcase-image-placeholder" aria-hidden="true">✦</div>`;
       return `<article class="jp-showcase-card jp-showcase-product-card" data-showcase-product="${esc(p.id)}" ${hidden?'aria-hidden="true"':''}>
         <div class="jp-showcase-visual">${img}</div>
-        <div class="jp-showcase-copy"><span class="jp-showcase-brand">${esc(p.brand||'JIMPORT')}</span><b>${esc(p.name)}</b><small>${esc(p.model||state)}</small>${blackFridayEnabled&&blackFridayDiscount(p)>0?`<span class="bf-discount-badge">-${blackFridayDiscount(p)}% BLACK FRIDAY</span>`:''}</div>
+        <div class="jp-showcase-copy"><span class="jp-showcase-brand">${esc(p.brand||'JIMPORT')}</span><b>${esc(p.name)}</b><small>${esc(p.model||state)}</small>${blackFridayEnabled&&blackFridayDiscount(p)>0?`<span class="bf-discount-badge">-${blackFridayDiscount(p)}% BLACK FRIDAY</span>`:(!blackFridayEnabled&&displayPriceMode==='live'&&liveShowDiscount&&liveDiscount(p)>0?`<span class="jp-live-discount">-${liveDiscount(p)}% LIVE</span>`:'')}</div>
       </article>`;
     };
     const duplicated=ordered.concat(ordered);
@@ -218,8 +223,12 @@ function render() {
   function renderHero(){
     const standard=document.getElementById('jpStandardHero');
     const blackFriday=document.getElementById('jpBlackFridayHero');
-    if(standard)standard.hidden=blackFridayEnabled;
+    const liveHero=document.getElementById('jpLiveHero');
+    const liveActive=displayPriceMode==='live'&&!blackFridayEnabled;
+    if(standard)standard.hidden=blackFridayEnabled||liveActive;
     if(blackFriday)blackFriday.hidden=!blackFridayEnabled;
+    if(liveHero)liveHero.hidden=!liveActive;
+    if(liveActive){renderLiveHero();if(heroTimer){clearInterval(heroTimer);heroTimer=null;}return;}
     if(!blackFridayEnabled){
       const featured=products.filter(p=>p.active!==false && !promotedProductIds.has(String(p.id)));
       const visual=document.getElementById('heroProductVisual'), name=document.getElementById('heroProductName'), brand=document.getElementById('heroProductBrand'), dots=document.getElementById('heroDots');
@@ -253,6 +262,16 @@ function render() {
       const open=()=>{const p=featured.find(x=>String(x.id)===card.dataset.bfProduct);if(p)openProductInfo(p);};
       card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
     });
+  }
+  function renderLiveHero(){
+    const active=uniqueProducts(products.filter(p=>p.active!==false));
+    const count=document.getElementById('heroLiveCount'),track=document.getElementById('heroLiveTrack');
+    if(count)count.textContent=`${active.length} disponibles`;
+    if(!track)return;
+    const featured=active.filter(p=>livePrice(p)>0).slice(0,6);
+    if(!featured.length){track.innerHTML='<p class="showcase-loading">No hay productos con precios disponibles.</p>';return;}
+    track.innerHTML=featured.map(p=>{const d=liveDiscount(p),price=livePrice(p);return `<article class="jp-bf-card jp-live-card" data-live-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver ${esc(p.name)} con precio LIVE">${liveShowDiscount&&d>0?`<span class="jp-bf-card-badge">-${d}%</span>`:''}<div class="jp-bf-card-media">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'<div class="jp-bf-card-placeholder">✦</div>'}</div><div class="jp-bf-card-copy"><small>${esc(p.brand||'JIMPORT')}</small><h3>${esc(p.name)}</h3><p class="jp-bf-card-prices">${liveShowDiscount&&d>0?`<del>${money(retailPrice(p))}</del>`:''}<strong>${money(price)}</strong></p><span class="jp-bf-card-save">PRECIO LIVE</span></div></article>`;}).join('');
+    track.querySelectorAll('[data-live-product]').forEach(card=>{const open=()=>{const p=featured.find(x=>String(x.id)===card.dataset.liveProduct);if(p)openProductInfo(p);};card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});});
   }
   function stepHero(dir){}
   function restartHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=null;}

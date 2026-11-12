@@ -655,3 +655,18 @@ body.black-friday-active .catalog-teaser .bf-discount-badge{margin:3px 0}
 body.black-friday-active .jx-combo .bf-discount-badge{margin:0 0 6px}
 body.black-friday-active .promo-price{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .jimport-dialog-bf .jimport-dialog-save{font-weight:800;color:#bd4d00}
+
+/* Precio LIVE: modo comercial independiente */
+.jp-hero-live{position:relative;overflow:hidden;background:radial-gradient(circle at 18% 16%,rgba(0,220,190,.22),transparent 25%),radial-gradient(circle at 82% 18%,rgba(39,125,255,.24),transparent 30%),linear-gradient(135deg,#04131b 0%,#062a43 48%,#07152c 100%);border-top:1px solid rgba(0,230,205,.35);padding-bottom:34px}
+.jp-hero-live .jp-hero-glow{background:radial-gradient(circle at center,rgba(0,220,190,.18),rgba(30,120,255,.1) 40%,transparent 70%)}
+.jp-live-badge{display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:999px;background:linear-gradient(135deg,#00d5a5,#1689ff);color:#032b35;font-weight:900;letter-spacing:.1em;box-shadow:0 12px 30px rgba(0,220,190,.25);margin-bottom:14px}
+.jp-live-badge span{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(255,255,255,.2)}
+.jp-hero-live .jp-hero-subhead{color:#38e6d0}.jp-hero-live .jp-hero-copy p{color:#d6f3ff}
+.jp-hero-live .jp-main-cta{background:linear-gradient(135deg,#00d5a5,#1689ff)!important;color:#031b2c!important;box-shadow:0 15px 34px rgba(0,210,190,.24)}
+.jp-hero-live .jp-secondary-cta{color:#e8ffff;border-color:rgba(91,230,220,.4);background:rgba(255,255,255,.05)}
+.jp-hero-live .jp-stage{background:linear-gradient(180deg,rgba(12,91,130,.92),rgba(4,30,66,.96));box-shadow:0 0 0 2px rgba(0,230,205,.22),0 26px 50px rgba(0,0,0,.3),inset 0 0 30px rgba(0,220,200,.13)}
+.jp-hero-live .jp-orbit{border-color:rgba(0,230,205,.65)}
+.jp-live-discount{display:inline-flex;width:max-content;padding:5px 9px;border-radius:999px;background:linear-gradient(135deg,#00d5a5,#1689ff);color:#032333;font-size:11px;font-weight:900;letter-spacing:.04em;margin:4px 0}
+.jp-live-price{color:#007c72!important}.jimport-dialog-live{display:grid;gap:7px;margin:10px 0;padding:14px 16px;border:1px solid rgba(0,180,160,.28);border-radius:16px;background:linear-gradient(135deg,#eafffa,#edf7ff)}.jimport-dialog-live>span{font-size:11px;font-weight:900;letter-spacing:.14em;color:#007c72}.jimport-dialog-live strong{font-size:28px;color:#063c4b}.jimport-dialog-live small{color:#087b70;font-weight:700}
+.jp-live-card{border-color:rgba(0,220,190,.22)}.jp-live-card .jp-bf-card-copy small{color:#55e5d0}.jp-live-card .jp-bf-card-save{color:#65ead8}
+@media(max-width:700px){.jp-hero-live{padding-bottom:22px}.jp-live-badge{font-size:12px;padding:8px 13px}.jp-live-stats .jp-bf-stat{flex:1 1 140px}}
