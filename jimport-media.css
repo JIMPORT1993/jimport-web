@@ -11,3 +11,25 @@
 .option4-hero .jm-hero-video.jm-video-unavailable{opacity:0}
 .option4-hero .jm-video-showcase:has(.jm-video-unavailable){background:center / contain no-repeat url('assets/ugreen-portada-original.png')!important}
 @media(max-width:800px){.option4-hero .jm-video-showcase{height:290px!important;min-height:290px!important;width:100%!important}.option4-hero .jm-video-soft-edge{background:linear-gradient(0deg,#041634 0%,transparent 18%,transparent 80%,#052453 100%)}}
+
+/* Opiniones estilo referencia: dos filas compactas, tarjetas ovaladas, avance continuo */
+.jm-op-public{width:100%;max-width:100%;margin:24px auto 28px;min-width:0}
+.jm-op-public .review-summary{text-align:center;margin:2px auto 18px;font-weight:600;color:#4d637d}
+#reviewsList:has(.jm-op-marquee){width:100%;max-width:100%;padding:0;overflow:hidden;mask-image:none}
+.jm-op-marquee{display:flex;flex-direction:column;gap:15px;overflow:hidden;width:100%;padding:8px 0 14px;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.jm-op-viewport{overflow:hidden;width:100%}
+.jm-op-track{display:flex;gap:16px;width:max-content;align-items:center;will-change:transform;animation:jm-op-move 48s linear infinite}
+.jm-op-track-2{animation-duration:57s;animation-delay:-14s}
+.jm-op-set{display:flex;align-items:center;gap:16px;flex:none}
+.jm-op-card{box-sizing:border-box;width:315px;flex:none;min-height:71px;padding:11px 16px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #eef2f6;border-radius:999px;box-shadow:0 5px 18px rgba(28,55,90,.07);color:#182b43;overflow:hidden}
+.jm-op-avatar{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#d6eafb,#537bad);font-size:14px;font-weight:800;color:#163758;letter-spacing:.3px}
+.jm-op-content{min-width:0;flex:1}
+.jm-op-top{display:flex;align-items:center;gap:4px;white-space:nowrap;line-height:1.2}
+.jm-op-top strong{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;max-width:108px}
+.jm-op-check{display:inline-grid;place-items:center;border-radius:50%;width:13px;height:13px;font-size:10px;color:#fff;background:#3287d0;flex:none}
+.jm-op-stars{color:#ffad12;font-size:15px;letter-spacing:-1px;margin-left:1px;white-space:nowrap}
+.jm-op-content p{font-size:11px!important;line-height:1.35;color:#596878!important;margin:4px 0 0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:215px}
+@keyframes jm-op-move{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.jm-op-marquee:hover .jm-op-track,.jm-op-marquee:focus-within .jm-op-track{animation-play-state:paused}
+@media(max-width:680px){.jm-op-card{width:280px;min-height:65px;padding:9px 12px}.jm-op-avatar{width:38px;height:38px;flex-basis:38px}.jm-op-marquee{gap:11px}.jm-op-top strong{max-width:90px}.jm-op-content p{max-width:185px}}
+@media(prefers-reduced-motion:reduce){.jm-op-track{animation:none!important}.jm-op-viewport{overflow-x:auto;scrollbar-width:thin}.jm-op-marquee{mask-image:none}}

@@ -219,7 +219,26 @@
     if(!client){reviewsList.textContent='Las opiniones estarán disponibles cuando se conecte la base de datos.';return;}
     const {data,error}=await client.from('reviews').select('name,rating,comment,created_at,verified_purchase').eq('approved',true).order('created_at',{ascending:false}).limit(30);
     if(error){reviewsList.textContent='Las opiniones estarán disponibles cuando se configure la tabla de reseñas.';return;}
-    const summary=document.getElementById('reviewSummary'); if(summary){const avg=data.length?data.reduce((a,r)=>a+Number(r.rating),0)/data.length:0;summary.textContent=data.length?`★ ${avg.toFixed(1)} / 5 · ${data.length} opiniones publicadas (últimas 30)`:'Sé la primera persona en compartir tu experiencia';} reviewsList.innerHTML=data.length?'<div class="jm-review-track">'+[...data,...data,...data].map((r,i)=>`<article class="review-card" ${i>=data.length?'aria-hidden="true"':''}><article class="review-card"><strong>${esc(r.name)}</strong>${r.verified_purchase?'<span class="verified-badge">✓ Compra verificada</span>':''}<span class="review-stars" aria-label="${r.rating} de 5 estrellas">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${esc(r.comment)}</p><small>${new Date(r.created_at).toLocaleDateString('es-EC')}</small></article>`).join('')+'</div>':'Todavía no hay opiniones publicadas. ¡Sé el primero en compartir tu experiencia!';
+    const summary=document.getElementById('reviewSummary');
+    const ratings=(data||[]).map(r=>Math.max(1,Math.min(5,Number(r.rating)||1)));
+    const avg=ratings.length?ratings.reduce((a,b)=>a+b,0)/ratings.length:0;
+    if(summary)summary.textContent=data.length?`${avg.toFixed(1)} de 5 estrellas · ${data.length} opiniones publicadas (últimas 30)`:'Sé la primera persona en compartir tu experiencia';
+    if(!data.length){reviewsList.textContent='Todavía no hay opiniones publicadas. ¡Sé la primera persona en compartir tu experiencia!';return;}
+    const getInitials=name=>String(name||'Cliente').trim().split(/\s+/).slice(0,2).map(w=>w.charAt(0).toUpperCase()).join('');
+    const card=r=>{
+      const rating=Math.max(1,Math.min(5,Number(r.rating)||1));
+      return `<article class="jm-op-card" aria-label="Opinión de ${esc(r.name)}, ${rating} de 5 estrellas">
+        <span class="jm-op-avatar" aria-hidden="true">${esc(getInitials(r.name))}</span>
+        <div class="jm-op-content"><div class="jm-op-top"><strong>${esc(r.name)}</strong>${r.verified_purchase?'<span class="jm-op-check" title="Compra verificada" aria-label="Compra verificada">✓</span>':''}<span class="jm-op-stars" aria-label="${rating} de 5 estrellas">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</span></div><p title="${esc(r.comment)}">${esc(r.comment)}</p></div>
+      </article>`;
+    };
+    const rows=[data.filter((_,i)=>i%2===0),data.filter((_,i)=>i%2===1)];
+    if(!rows[1].length)rows[1]=[...rows[0]];
+    reviewsList.innerHTML=`<div class="jm-op-marquee" aria-label="Opiniones verificadas publicadas por clientes de JIMPORT">${rows.map((row,i)=>{
+      const normalized=row.length===1?Array(4).fill(row[0]):row.length===2?[...row,...row]:row;
+      const items=normalized.map(card).join('');
+      return `<div class="jm-op-viewport"><div class="jm-op-track jm-op-track-${i+1}"><div class="jm-op-set">${items}</div><div class="jm-op-set" aria-hidden="true">${items}</div></div></div>`;
+    }).join('')}</div>`;
   }
   reviewForm?.addEventListener('submit',async e=>{
     e.preventDefault(); const msg=document.getElementById('reviewMessage'), btn=document.getElementById('reviewSubmit');
