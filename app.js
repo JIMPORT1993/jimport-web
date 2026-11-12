@@ -131,19 +131,17 @@
       return `<article class="jp-showcase-card jp-showcase-product-card" data-showcase-product="${esc(p.id)}" ${hidden?'aria-hidden="true"':''}>
         <div class="jp-showcase-visual">${img}</div>
         <div class="jp-showcase-copy"><span class="jp-showcase-brand">${esc(p.brand||'JIMPORT')}</span><b>${esc(p.name)}</b><small>${esc(p.model||state)}</small><strong class="jp-showcase-price">${displayPriceText(p)}</strong></div>
-        <div class="jp-showcase-actions"><button type="button" class="jp-showcase-info" data-showcase-info="${esc(p.id)}">Características</button><a class="jp-showcase-wa" href="${wa(`Hola JIMPORT, quiero consultar por ${p.name}${p.model?` (modelo ${p.model})`:``}. ¿Está disponible?
+        <div class="jp-showcase-actions"><a class="jp-showcase-wa" href="${wa(`Hola JIMPORT, quiero consultar por ${p.name}${p.model?` (modelo ${p.model})`:``}. ¿Está disponible?
 💵 Precio mostrado: ${displayPriceText(p)}${productPhoto(p)}`)}" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
       </article>`;
     };
     const duplicated=ordered.concat(ordered);
     target.innerHTML=duplicated.map((p,i)=>renderCard(p,i>=ordered.length)).join('');
-    const attachInfo=(selector)=>target.querySelectorAll(selector).forEach(el=>el.addEventListener('click',ev=>{
-      ev.preventDefault(); ev.stopPropagation();
-      const p=ordered.find(x=>String(x.id)===String(el.dataset.showcaseInfo||el.dataset.showcaseProduct));
+    target.querySelectorAll('[data-showcase-product]').forEach(card=>card.addEventListener('click',ev=>{
+      if(ev.target.closest('a')) return;
+      const p=ordered.find(x=>String(x.id)===String(card.dataset.showcaseProduct));
       if(p)openProductInfo(p);
     }));
-    attachInfo('[data-showcase-info]');
-    attachInfo('[data-showcase-product]');
     target.querySelectorAll('.jp-showcase-wa').forEach(a=>a.addEventListener('click',ev=>ev.stopPropagation()));
     target.querySelectorAll('.jp-showcase-card').forEach(card=>card.addEventListener('keydown',ev=>{
       if(ev.key==='Enter' || ev.key===' '){ev.preventDefault(); const p=ordered.find(x=>String(x.id)===String(card.dataset.showcaseProduct)); if(p)openProductInfo(p);}

@@ -59,3 +59,10 @@
   #super-combos{display:block!important}
   #promociones{display:block!important}
 }
+
+/* Carrusel más pausado en móvil, con desplazamiento continuo y tarjetas completas. */
+@media(max-width:800px){
+ .jp-showcase-track{animation:jpShowcaseScroll 85s linear infinite!important;will-change:transform}
+ .jp-showcase-window:hover .jp-showcase-track,.jp-showcase-window:focus-within .jp-showcase-track{animation-play-state:paused!important}
+ .jp-showcase-info{display:none!important}
+}
