@@ -23,3 +23,13 @@
  .jp-showcase-card img{width:76px;height:72px;object-fit:contain;filter:drop-shadow(0 7px 8px rgba(0,0,0,.4))}.jp-showcase-card span{display:flex;flex-direction:column;gap:5px;min-width:0}.jp-showcase-card b{font-size:13px;line-height:1.15;color:#fff}.jp-showcase-card small{font-size:10px;line-height:1.2;color:#b9d7f8}
  .jp-extra-desktop{display:none!important}
 }
+
+/* Navegación directa desde cada tarjeta y movimiento móvil continuo, sin saltos por tarjeta. */
+@media(max-width:800px){
+ .jp-showcase-window{scroll-snap-type:none!important;scroll-behavior:auto!important;touch-action:pan-x pan-y;cursor:grab}
+ .jp-showcase-window:active{cursor:grabbing}
+ .jp-showcase-track{will-change:transform;animation:none!important}
+ .jp-showcase-card{scroll-snap-align:none!important;flex-basis:76vw;max-width:310px;transition:transform .2s,border-color .2s;}
+ .jp-showcase-card:active{transform:scale(.985);border-color:#83efff}
+}
+.jp-showcase-card,.jp-extra-grid a{cursor:pointer}
