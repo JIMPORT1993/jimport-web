@@ -555,3 +555,47 @@ body{background:#f7f7f9}
 .jimport-premium-assurance b{font-size:14px}
 .jimport-premium-assurance small{font-size:12px;color:#bfd4f5}
 @media(max-width:760px){.jimport-premium-assurance{grid-template-columns:1fr;gap:9px;margin:18px auto}.jimport-premium-assurance>div{padding:12px 14px}}
+
+/* Ajuste de proporciones: panel de opiniones y formulario con la misma altura */
+@media (min-width: 701px){
+  .reviews-layout{
+    grid-template-columns:minmax(340px, .88fr) minmax(0, 1.12fr);
+    align-items:stretch;
+    gap:28px;
+  }
+  .reviews-layout > .review-form,
+  .reviews-layout > .reviews-results{
+    box-sizing:border-box;
+    min-width:0;
+    height:100%;
+    min-height:100%;
+  }
+  .reviews-results{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .reviews-results > h3{margin:0 0 2px}
+  .google-reviews-card{
+    box-sizing:border-box;
+    width:100%;
+    padding:22px;
+    border:1px solid #dce6f1;
+    border-radius:16px;
+    background:linear-gradient(145deg,#f8fbff,#edf4fc);
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .google-reviews-card h4,
+  .google-reviews-card p{margin:0;line-height:1.55}
+  .google-reviews-card .button{margin-top:4px}
+  .google-reviews-card small{display:block;line-height:1.55;color:#52647a}
+}
+@media (max-width:700px){
+  .reviews-layout{grid-template-columns:minmax(0,1fr);align-items:stretch}
+  .reviews-layout > .review-form,
+  .reviews-layout > .reviews-results{height:auto;min-height:0}
+  .google-reviews-card{padding:16px;border-radius:14px}
+}

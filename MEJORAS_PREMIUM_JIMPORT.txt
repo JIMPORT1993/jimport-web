@@ -1,0 +1,9 @@
+MEJORAS PREMIUM INCLUIDAS
+
+- Buscador con sugerencias basadas en nombres, marcas, modelos y categorías reales del catálogo.
+- Datos estructurados OnlineStore y metadatos para compartir la página.
+- Bloque de confianza: asesoría de compatibilidad, disponibilidad confirmada y atención por WhatsApp.
+- Pregunta frecuente actualizada para explicar que se pulsa la tarjeta/fotografía para abrir la ficha.
+- Se conserva el comparador, carrito, combos, promociones, opiniones, administrador y funciones existentes.
+
+No se agregaron tablas ni cambios de base de datos. No ejecutar SQL.
