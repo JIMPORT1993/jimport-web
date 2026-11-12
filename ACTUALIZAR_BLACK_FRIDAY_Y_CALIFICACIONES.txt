@@ -1,0 +1,7 @@
+ACTUALIZACIÓN BLACK FRIDAY JIMPORT
+
+Ejecuta una sola vez en Supabase SQL Editor el archivo ACTUALIZAR_BLACK_FRIDAY_Y_CALIFICACIONES.sql para crear el porcentaje configurable.
+
+En Administrador > Configuración general de precios de la tienda: activa Black Friday y escribe el porcentaje. El precio especial será el precio al por mayor (si no está definido, usa el precio público); el precio anterior se calcula como precio especial × (1 + porcentaje/100) y se redondea al siguiente dólar entero. Ejemplo: $27 con 6% = $28,62, se muestra $29 antes y $27 ahora.
+
+El porcentaje se aplica a productos, Súper Combos y promociones mientras Black Friday esté activo. Al desactivarlo se restauran los precios y el diseño habituales.

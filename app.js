@@ -9,20 +9,14 @@
   const wa = (msg="Hola JIMPORT, quisiera información sobre sus productos.") => `https://wa.me/${(cfg.WHATSAPP_NUMBER||"").replace(/\D/g,"")}?text=${encodeURIComponent(msg)}`;
   ["headerWhatsapp","contactWhatsapp","floatWhatsapp"].forEach(id => { const el=document.getElementById(id); el.href=wa(); });
   document.getElementById("year").textContent = new Date().getFullYear();
-  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail", blackFridayEnabled = false;
+  let products = [], heroIndex = 0, heroTimer = null, promotedProductIds = new Set(), displayPriceMode = "retail", blackFridayEnabled = false, blackFridayPercent = 6;
   const displayPrice = p => displayPriceMode === "wholesale" ? Number(p.wholesale_price ?? p.price ?? 0) : Number(p.price || 0);
   const displayPriceText = p => money(displayPrice(p));
   const retailPrice = p => Number(p?.price || 0);
   const wholesalePrice = p => Number(p?.wholesale_price ?? p?.price ?? 0);
-  const blackFridayPrice = p => {
-    const retail = retailPrice(p), wholesale = wholesalePrice(p);
-    return wholesale > 0 && wholesale < retail ? wholesale : (retail || wholesale || 0);
-  };
-  const blackFridayDiscount = p => {
-    const retail = retailPrice(p), sale = blackFridayPrice(p);
-    if(!(retail > 0) || !(sale > 0) || sale >= retail) return 0;
-    return Math.max(1, Math.round((1 - sale / retail) * 100));
-  };
+  const blackFridayPrice = p => wholesalePrice(p) > 0 ? wholesalePrice(p) : retailPrice(p);
+  const blackFridayRegularPrice = p => Math.ceil(blackFridayPrice(p) * (1 + blackFridayPercent / 100) - 1e-9);
+  const blackFridayDiscount = p => blackFridayPrice(p) > 0 ? blackFridayPercent : 0;
   const blackFridayPriceText = p => money(blackFridayPrice(p));
   const blackFridayBadge = discount => discount>0 ? `<span class="bf-discount-badge">-${discount}%</span>` : '';
   const blackFridayProductPrice = p => {
@@ -30,16 +24,12 @@
     const d=blackFridayDiscount(p), regular=retailPrice(p), sale=blackFridayPrice(p);
     return d>0 ? `${blackFridayBadge(d)}<del class="bf-regular-price">${money(regular)}</del><strong class="teaser-price bf-sale-price">${money(sale)}</strong>` : `<strong class="teaser-price">${money(sale)}</strong>`;
   };
-  const blackFridayComboDiscount = c => {
-    const ps=(Array.isArray(c.items)?c.items:[]).map(id=>products.find(p=>String(p.id)===String(id))).filter(Boolean);
-    const regular=Number(c.regular_price ?? c.original_price ?? ps.reduce((sum,p)=>sum+retailPrice(p),0));
-    const sale=Number(c.combo_price||0);
-    return regular>0 && sale>0 && sale<regular ? Math.round((1-sale/regular)*100) : 0;
-  };
-  const blackFridayPromoDiscount = p => {
-    const regular=Number(p.regular_price||0), sale=Number(p.sale_price||0);
-    return regular>0 && sale>0 && sale<regular ? Math.round((1-sale/regular)*100) : 0;
-  };
+  const blackFridayComboSale = c => Number(c.combo_price||0);
+  const blackFridayComboRegular = c => Math.ceil(blackFridayComboSale(c) * (1 + blackFridayPercent / 100) - 1e-9);
+  const blackFridayComboDiscount = c => blackFridayEnabled && blackFridayComboSale(c)>0 ? blackFridayPercent : 0;
+  const blackFridayPromoSale = p => Number(p.sale_price||0);
+  const blackFridayPromoRegular = p => Math.ceil(blackFridayPromoSale(p) * (1 + blackFridayPercent / 100) - 1e-9);
+  const blackFridayPromoDiscount = p => blackFridayEnabled && blackFridayPromoSale(p)>0 ? blackFridayPercent : 0;
   const knownBrands=[]; // Las marcas se obtienen de los productos reales, no de una lista fija.
   const demo = [
     {id:"demo1",name:"Hub USB-C 6 en 1",brand:"UGREEN",model:"Ejemplo",price:29.90,old_price:null,stock:"En stock",image_url:"",description:"Conecta tus dispositivos con una sola solución.",demo:true},
@@ -51,8 +41,8 @@
   async function load() {
     if (!client) { products=[]; status.textContent="No se pudo conectar con el catálogo. Comprueba config.js."; render(); return; }
     try {
-      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled').eq('id','main').maybeSingle();
-      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;document.body.classList.toggle('black-friday-active',blackFridayEnabled);}
+      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent').eq('id','main').maybeSingle();
+      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;blackFridayPercent=Number(priceSettings?.black_friday_percent??6);document.body.classList.toggle('black-friday-active',blackFridayEnabled);}
       const all=[]; const batchSize=500;
       for(let offset=0;offset<50000;offset+=batchSize){
         const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false}).range(offset,offset+batchSize-1);
@@ -111,7 +101,7 @@
   function openProductInfo(p){
     let dlg=document.getElementById('jimportProductInfoDialog');
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
-    const regular=retailPrice(p), sale=blackFridayPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
+    const sale=blackFridayPrice(p), regular=blackFridayRegularPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
     const priceBlock=discount>0
       ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio regular <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">-${discount}% BLACK FRIDAY</small></div>`
       : `<strong class="jimport-dialog-price">${displayPriceText(p)}</strong>`;
@@ -246,7 +236,7 @@ function render() {
       if(heroTimer){clearInterval(heroTimer);heroTimer=null;}
       return;
     }
-    const discounted=uniqueProducts(products.filter(p=>p.active!==false)).filter(p=>blackFridayDiscount(p)>0).sort((a,b)=>blackFridayDiscount(b)-blackFridayDiscount(a)||blackFridayPrice(a)-blackFridayPrice(b));
+    const discounted=uniqueProducts(products.filter(p=>p.active!==false)).filter(p=>blackFridayPrice(p)>0).sort((a,b)=>blackFridayPrice(a)-blackFridayPrice(b));
     const topDiscount=document.getElementById('heroTopDiscount');
     const dealCount=document.getElementById('heroDealCount');
     const track=document.getElementById('heroBlackFridayTrack');
@@ -256,7 +246,7 @@ function render() {
     const featured=(discounted.length?discounted:uniqueProducts(products.filter(p=>p.active!==false))).slice(0,6);
     if(!featured.length){track.innerHTML='<p class="showcase-loading">No hay productos publicados para mostrar.</p>';return;}
     track.innerHTML=featured.map(p=>{
-      const discount=blackFridayDiscount(p), regular=retailPrice(p), sale=blackFridayPrice(p);
+      const discount=blackFridayDiscount(p), regular=blackFridayRegularPrice(p), sale=blackFridayPrice(p);
       return `<article class="jp-bf-card" data-bf-product="${esc(p.id)}" tabindex="0" role="button" aria-label="Ver oferta de ${esc(p.name)}">${discount?`<span class="jp-bf-card-badge">-${discount}%</span>`:''}<div class="jp-bf-card-media">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="jp-bf-card-placeholder">✦</div>`}</div><div class="jp-bf-card-copy"><small>${esc(p.brand||'JIMPORT')}</small><h3>${esc(p.name)}</h3>${discount?`<p class="jp-bf-card-prices"><del>${money(regular)}</del><strong>${money(sale)}</strong></p><span class="jp-bf-card-save">BLACK FRIDAY</span>`:`<p class="jp-bf-card-prices"><strong>${displayPriceText(p)}</strong></p><span class="jp-bf-card-save">Precio especial</span>`}</div></article>`;
     }).join('');
     track.querySelectorAll('[data-bf-product]').forEach(card=>{
@@ -281,7 +271,7 @@ function render() {
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportPromotionInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
     const promoDiscount=blackFridayEnabled?blackFridayPromoDiscount(p):0;
     const price=p.sale_price!=null?`${promoDiscount?`<span class="bf-discount-badge">-${promoDiscount}% BLACK FRIDAY</span>`:''}<strong class="jimport-dialog-price">${moneyPromo(p.sale_price)}</strong>`:'';
-    const old=p.regular_price!=null?`<p class="jimport-dialog-model"><del>${moneyPromo(p.regular_price)}</del></p>`:'';
+    const old=p.sale_price!=null?`<p class="jimport-dialog-model"><del>${moneyPromo(blackFridayEnabled?blackFridayPromoRegular(p):(p.regular_price??p.sale_price))}</del></p>`:'';
     dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción de la promoción</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.title)}" style="width:100%;max-height:230px;object-fit:contain">`:''}<h3>${esc(p.title)}</h3><p class="jimport-dialog-text">${esc(p.description||'Consulta los detalles de esta promoción con nuestro equipo.')}</p>${old}${price}<a class="button" target="_blank" rel="noopener noreferrer" href="${wa(`Hola JIMPORT, deseo información sobre la promoción ${p.title}${p.sale_price!=null?'\nPrecio: '+moneyPromo(p.sale_price):''}`)}">Consultar por WhatsApp ↗</a>`;
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();
     dlg.showModal();
