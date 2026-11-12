@@ -1,0 +1,45 @@
+/* JIMPORT: ampliación exclusiva para pantallas de escritorio. En móvil no altera el diseño aprobado. */
+.jp-desktop-brand-pills,.jp-desktop-showcase{display:none}
+@media (min-width: 801px){
+  .jp-hero{min-height:510px!important}
+  .jp-hero-inner{min-height:480px!important;grid-template-columns:35% 65%!important;padding-top:28px!important;padding-bottom:24px!important}
+  .jp-products{height:445px!important;transform:scale(1.035);transform-origin:center center}
+  .jp-hero-copy{max-width:540px!important}
+  .jp-desktop-brand-pills{display:flex;position:absolute;right:5.2%;top:18px;z-index:12;align-items:center;gap:14px;padding:9px 16px;border:1px solid rgba(67,225,255,.45);border-radius:18px;background:linear-gradient(110deg,rgba(4,23,59,.82),rgba(21,35,94,.7));box-shadow:0 0 25px rgba(0,190,255,.2),inset 0 0 18px rgba(87,116,255,.12);backdrop-filter:blur(8px)}
+  .jp-brand-pill{display:flex;align-items:center;justify-content:center;min-width:112px;height:40px;padding:7px 13px;border-radius:11px;background:rgba(0,10,35,.55)}
+  .jp-brand-pill img{display:block;max-width:100%;width:100px;height:25px;object-fit:contain;filter:brightness(0) invert(1)}
+  .jp-brand-ugreen{border:1px solid #00e5a0;box-shadow:0 0 16px rgba(0,229,160,.18)}
+  .jp-brand-anker{border:1px solid #20b9ff;box-shadow:0 0 16px rgba(32,185,255,.18)}
+  .jp-brand-amp{font-size:19px;font-weight:900;color:#e9f7ff}
+  .jp-products:after{content:"";position:absolute;inset:10% 4% 12%;pointer-events:none;border-radius:50%;background:radial-gradient(ellipse,rgba(0,196,255,.13),transparent 66%);z-index:-1}
+  .jp-product{filter:drop-shadow(0 17px 16px rgba(0,0,0,.48)) drop-shadow(0 0 12px rgba(0,205,255,.12))}
+  .jp-robot-grey{height:75%!important;left:31%!important;bottom:9%!important;z-index:6!important}
+  .jp-robot-lilac{height:48%!important;left:57%!important;bottom:12%!important;z-index:5!important}
+  .jp-powerbank{height:56%!important;left:6%!important;bottom:14%!important;z-index:4!important}
+  .jp-anker-white{height:38%!important;left:12%!important;top:5%!important;z-index:4!important}
+  .jp-anker-black{height:43%!important;right:8%!important;top:6%!important;z-index:4!important}
+  .jp-microphone{height:39%!important;right:0!important;bottom:17%!important;z-index:5!important}
+  .jp-cable{height:29%!important;right:18%!important;bottom:7%!important;z-index:7!important}
+  .jp-hub{height:26%!important;left:1%!important;bottom:6%!important;z-index:7!important}
+  .jp-desktop-showcase{display:block;position:relative;overflow:hidden;padding:17px 4.2% 20px;background:linear-gradient(180deg,#061a3d,#030e27);border-top:1px solid rgba(34,198,255,.28);border-bottom:1px solid rgba(34,198,255,.2)}
+  .jp-showcase-heading{display:flex;align-items:baseline;justify-content:space-between;gap:18px;max-width:1600px;margin:0 auto 12px}
+  .jp-showcase-heading span{font-size:10px;letter-spacing:.2em;font-weight:900;color:#7feaff}
+  .jp-showcase-heading strong{font-size:15px;color:#f4f8ff}
+  .jp-showcase-window{overflow:hidden;max-width:1600px;margin:auto;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+  .jp-showcase-track{display:flex;gap:14px;width:max-content;animation:jpShowcaseScroll 38s linear infinite}
+  .jp-showcase-window:hover .jp-showcase-track{animation-play-state:paused}
+  .jp-showcase-card{width:220px;height:92px;display:flex;align-items:center;gap:12px;padding:9px 14px;border-radius:17px;text-decoration:none;color:#fff;background:linear-gradient(125deg,rgba(14,48,103,.92),rgba(20,25,75,.92));border:1px solid rgba(65,207,255,.38);box-shadow:0 9px 25px rgba(0,0,0,.24),inset 0 0 18px rgba(69,130,255,.1);transition:transform .2s,border-color .2s}
+  .jp-showcase-card:hover{transform:translateY(-4px);border-color:#70f2ff}
+  .jp-showcase-card img{width:72px;height:70px;object-fit:contain;filter:drop-shadow(0 7px 8px rgba(0,0,0,.4))}
+  .jp-showcase-card span{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .jp-showcase-card b{font-size:13px;line-height:1.15;color:#fff}
+  .jp-showcase-card small{font-size:10px;line-height:1.2;color:#b9d7f8}
+  @keyframes jpShowcaseScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+}
+@media (min-width:801px) and (max-width:1120px){
+  .jp-hero-inner{grid-template-columns:41% 59%!important}
+  .jp-desktop-brand-pills{right:3%;transform:scale(.88);transform-origin:top right}
+  .jp-showcase-card{width:190px}
+}
+@media (max-width:800px){.jp-desktop-brand-pills,.jp-desktop-showcase{display:none!important}}
+@media (prefers-reduced-motion:reduce){.jp-showcase-track{animation:none!important}}
