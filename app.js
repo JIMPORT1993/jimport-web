@@ -21,7 +21,7 @@
   const blackFridayBadge = discount => discount>0 ? `<span class="bf-discount-badge">-${discount}%</span>` : '';
   const blackFridayProductPrice = p => {
     if(!blackFridayEnabled) return `<strong class="teaser-price">${displayPriceText(p)}</strong>${p.old_price?`<del class="teaser-old-price">${money(p.old_price)}</del>`:''}`;
-    const d=blackFridayDiscount(p), regular=retailPrice(p), sale=blackFridayPrice(p);
+    const d=blackFridayDiscount(p), regular=blackFridayRegularPrice(p), sale=blackFridayPrice(p);
     return d>0 ? `${blackFridayBadge(d)}<del class="bf-regular-price">${money(regular)}</del><strong class="teaser-price bf-sale-price">${money(sale)}</strong>` : `<strong class="teaser-price">${money(sale)}</strong>`;
   };
   const blackFridayComboSale = c => Number(c.combo_price||0);
