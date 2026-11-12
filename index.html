@@ -1,66 +1,286 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Descubre accesorios y tecnología UGREEN, Anker y más en JIMPORT. Compara productos, consulta disponibilidad y recibe asesoría por WhatsApp.">
-  <meta name="theme-color" content="#031b3b"><meta property="og:type" content="website"><meta property="og:title" content="JIMPORT | Tecnología que conecta"><meta property="og:description" content="Explora accesorios UGREEN, Anker y más. Atención personalizada por WhatsApp.">
-  <title>JIMPORT | Tecnología y accesorios</title>
-  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="option4-cyan.css"><link rel="stylesheet" href="boceto-aprobado.css"><link rel="stylesheet" href="mobile-neon-2026.css"><link rel="stylesheet" href="mobile-compact-one-logo.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="JIMPORT - tienda online de tecnología, accesorios, cargadores, power banks, audio y más.">
+  <meta name="theme-color" content="#0b5cff">
+  <title>JIMPORT | Accesorios premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="blue-redesign.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="jimport-mobile-reference.css"><link rel="stylesheet" href="jimport-manual-products.css"><link rel="stylesheet" href="jimport-commerce.css"><link rel="stylesheet" href="catalog-layout-pricing.css"><link rel="stylesheet" href="jimport-combos-mobile-fix.css"><link rel="stylesheet" href="jimport-carrusel-combos-uniforme.css"><link rel="stylesheet" href="jimport-nuevo-premium.css?v=2"></head>
+  <script defer src="config.js"></script>
+  <script defer src="blue-redesign.js"></script>
+</head>
 <body>
-<a class="skip-link" href="#productos">Ir al catálogo</a>
-<div class="jv-topline">🚚 Envíos a todo Ecuador <span>│</span> Accesorios originales y asesoría personalizada <span>│</span> Compra por WhatsApp</div>
-<header class="topbar jv-header">
- <a class="brand brand-wordmark" href="#inicio" aria-label="JIMPORT inicio"><img src="assets/logo-jimport.png" alt="Logo JIMPORT" class="new-header-logo"></a>
- <div class="jv-headsearch"><label class="sr-only" for="jvSearch">Buscar en JIMPORT</label><input id="jvSearch" type="search" placeholder="Buscar productos, modelos o marcas…" autocomplete="off"><button id="jvSearchButton" aria-label="Buscar productos" type="button">⌕</button></div>
- <div class="jv-header-actions"><a href="#productos" aria-label="Explorar catálogo">⌗ <span>Catálogo</span></a><a href="#super-combos" aria-label="Ver combos">♧ <span>Combos</span></a><a href="admin.html" aria-label="Acceder al administrador">♙ <span>Administrar</span></a><a class="jv-cart-link" href="#jxCartBar" id="jvCartLink" aria-label="Ver pedido">🛒 <span>Mi pedido</span></a></div>
- <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">☰</button>
- <nav id="mainNav"><a href="#inicio">Inicio</a><a href="#categorias">Categorías</a><a href="#productos">Catálogo</a><a href="#promociones">Promociones</a><a href="#super-combos">Super Combos</a><a href="#opiniones">Opiniones</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
- <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">WhatsApp</a>
-</header>
-<section class="jv-hero" id="inicio" aria-label="JIMPORT tecnología y accesorios">
- <div class="jv-hero-content"><span class="jv-eyebrow">JIMPORT · ACCESORIOS PREMIUM</span><h1>Tecnología <em>que te acompaña</em></h1><p>Descubre accesorios UGREEN, ANKER y mucho más. Conectividad, energía y soluciones para tu día a día.</p><div class="jv-hero-actions"><a href="#productos" class="jv-primary">Ver catálogo <span>↗</span></a><a href="#promociones" class="jv-secondary">Descubrir ofertas →</a></div><div class="jv-hero-proof">✦ Catálogo actualizado &nbsp; ✦ Atención directa</div></div>
- <div class="jv-hero-art"><span class="jv-orbit"></span><img src="assets/ugreen-portada-original.png" alt="Accesorios tecnológicos UGREEN disponibles en JIMPORT" loading="eager"></div>
- </section>
- <section class="jv-benefits" aria-label="Beneficios"><div>🚚 <span><b>Envíos a todo el país</b><small>Consulta cobertura y entrega</small></span></div><div>🛡️ <span><b>Compra con confianza</b><small>Asesoría antes de comprar</small></span></div><div>💳 <span><b>Medios de pago</b><small>Consulta opciones disponibles</small></span></div><div>💬 <span><b>Atención por WhatsApp</b><small>Comunicación personalizada</small></span></div></section>
-<main><section class="jv-category-section" id="categorias"><div class="jv-section-title"><div><span class="jv-kicker">ENCUENTRA LO QUE BUSCAS</span><h2>Explora por categorías</h2></div><a href="#productos">Ver catálogo completo →</a></div><div class="jv-categories"><button type="button" class="jv-category" data-jv-category="CARGADORES"><span class="jv-category-photo"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0qP8BUYkSweS7JUCOa2hcQS29t0ItoEzjwBojxViiPY0Td7I6obpxF6s&amp;s=10" loading="lazy" alt="Cargadores" onerror="this.style.display='none'"></span><b>Cargadores</b><small>⚡ Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="POWER BANKS"><span class="jv-category-photo"><img src="https://ae-pic-a1.aliexpress-media.com/kf/S7ed24abb98d04cc0bb147942029df60fU.jpg" loading="lazy" alt="Power Banks" onerror="this.style.display='none'"></span><b>Power Banks</b><small>🔋 Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="AUDIO"><span class="jv-category-photo"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm45Z-qIa9GHVddtfOcjlcHoMbr44BTFnXcn71-eEPARO3-q1mccUlrGIi&amp;s=10" loading="lazy" alt="Audio" onerror="this.style.display='none'"></span><b>Audio</b><small>🎧 Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="ACCESORIOS PARA CELULARES"><span class="jv-category-photo"><img src="https://static.wixstatic.com/media/ebc592_1af3f1da82f4441f9a7b3895c3692fe7~mv2.png/v1/fill/w_560,h_560,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/ebc592_1af3f1da82f4441f9a7b3895c3692fe7~mv2.png" loading="lazy" alt="Accesorios móviles" onerror="this.style.display='none'"></span><b>Accesorios móviles</b><small>📱 Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="CABLES"><span class="jv-category-photo"><img src="https://tecnomarket.ec/cdn/shop/files/Clipboard_25_05df4d9a-22f4-41fc-acd5-3ccb3bf73aff.jpg?v=1781909312&amp;width=1214" loading="lazy" alt="Cables" onerror="this.style.display='none'"></span><b>Cables</b><small>🔌 Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="HUBS"><span class="jv-category-photo"><img src="https://http2.mlstatic.com/D_NQ_NP_747442-MLA93543600968_102025-O.webp" loading="lazy" alt="Hubs USB-C" onerror="this.style.display='none'"></span><b>Hubs USB-C</b><small>⌘ Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="PERIFÉRICOS"><span class="jv-category-photo"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQedRV2N0YnarBCObBQsw2fcs9NMm2M-zUXGUMO-kobkXJbXA7iHS2ep2k&amp;s=10" loading="lazy" alt="Periféricos" onerror="this.style.display='none'"></span><b>Periféricos</b><small>🖱️ Ver productos ↗</small></button><button type="button" class="jv-category" data-jv-category="TECLADOS MECÁNICOS"><span class="jv-category-photo"><img src="https://pinsoft.ec/getimage/products/8-1(2).jpg" loading="lazy" alt="Teclados" onerror="this.style.display='none'"></span><b>Teclados</b><small>⌨️ Ver productos ↗</small></button></div></section>
-<div class="sale-ticker" aria-label="Descubre las promociones de JIMPORT"><div>✦ OFERTAS ESPECIALES &nbsp; ✦ NOVEDADES TECNOLÓGICAS &nbsp; ✦ ACCESORIOS UGREEN Y ANKER &nbsp; ✦ COMPRA POR WHATSAPP &nbsp; ✦ OFERTAS ESPECIALES &nbsp; ✦ NOVEDADES TECNOLÓGICAS</div></div>
-  <div class="premium-benefits" aria-label="Ventajas de JIMPORT"><span>✦ Tecnología seleccionada</span><span>◈ Asesoría personalizada</span><span>✓ Compra con atención directa</span></div>
-  <section class="promotions-section" id="promociones" aria-label="Promociones JIMPORT">
-    <div class="promo-heading"><p class="eyebrow">OFERTAS ESPECIALES</p><h2>Ofertas que no querrás perderte</h2><p>Revisa las promociones disponibles y consulta sus condiciones antes de comprar.</p></div>
-    <div class="promo-carousel" id="promoCarousel" aria-live="polite">
-      <div class="promo-slide" id="promoSlide">
-        <div class="promo-art"><div class="promo-orbit"></div><span class="promo-spark">✦</span></div>
-        <div class="promo-copy"><span class="promo-kicker">JIMPORT · PROMOCIONES</span><h3>Ofertas especiales te esperan</h3><details class="promo-details"><summary>Ver descripción y características <span aria-hidden="true">＋</span></summary><p>Vuelve pronto para descubrir nuestras promociones.</p></details></div>
+  <a class="skip-link" href="#catalogo">Ir al catálogo</a>
+
+  <div class="utility-bar">
+    <div class="container utility-inner">
+      <div class="utility-items">
+        <span>📍 Latacunga, Ecuador</span>
+        <span>🚚 Envíos a todo el país</span>
+        <span>🔒 Compras seguras</span>
+        <span>💬 Soporte por WhatsApp</span>
       </div>
-      <div class="promo-controls"><button type="button" id="promoPrev" aria-label="Promoción anterior">‹</button><div id="promoDots" class="promo-dots"></div><button type="button" id="promoNext" aria-label="Siguiente promoción">›</button></div>
+      <div class="utility-social">
+        <a href="#marcas">Marcas</a>
+        <a href="#opiniones">Opiniones</a>
+        <a href="admin.html">Administrador</a>
+      </div>
     </div>
-  </section>
-  <section class="section" id="productos">
-    <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Productos destacados</h2></div><p>Explora los accesorios disponibles y encuentra tu próximo favorito.</p></div>
-    <div class="filters"><label class="sr-only" for="search">Buscar productos</label><input id="search" type="search" placeholder="Buscar por nombre, modelo o característica (ej. 100W)…" aria-label="Buscar productos"><select id="brandFilter" aria-label="Filtrar por marca"><option value="">Todas las marcas</option></select><select id="categoryFilter" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select><button type="button" class="clear-filters" id="clearFilters">Cambiar selección</button></div>
-    <div id="catalogTeasers" class="catalog-teasers" aria-label="Doce productos destacados de nuestro catálogo"></div>
-    <div id="status" class="status">Cargando catálogo…</div><div id="productGrid" class="product-grid"></div>
-  </section>
-  <section class="section jx-section" id="super-combos"><div class="section-heading"><div><p class="eyebrow">AHORRA COMPRANDO EN CONJUNTO</p><h2>🔥 Súper Combos</h2></div><p>Combina tus accesorios favoritos con precios especiales.</p></div><div id="jxCombos" class="jx-combos"><p>Consultando combos disponibles…</p></div></section>
-  <section class="section jx-section" id="jxBenefits"><div class="section-heading"><div><p class="eyebrow">COMPRA CON CONFIANZA</p><h2>Información para tu compra</h2></div></div><div class="jx-info-grid"><article><h3>🛡️ Garantías y cambios</h3><p>Consulta la garantía específica de cada producto y las condiciones de cambio antes de comprar. Nuestro equipo te orientará por WhatsApp.</p></article><article><h3>📦 Entrega y envíos</h3><p>Consulta disponibilidad, cobertura y costo del envío. También puedes solicitar información para retirar tu compra en el local.</p></article><article><h3>💳 Formas de pago</h3><p>Solicita los medios de pago vigentes y confirma el total con JIMPORT antes de transferir.</p></article></div></section>
-  <section class="brand-showcase" aria-label="Marcas disponibles"><p class="eyebrow">MARCAS QUE ENCUENTRAS EN JIMPORT</p><div class="brand-logos"><a href="#productos" data-brand="UGREEN"><img src="assets/ugreen.svg" alt="UGREEN"><span>Conectividad y carga</span></a><a href="#productos" data-brand="Anker"><img src="assets/anker.svg" alt="Anker"><span>Carga inteligente</span></a><a href="#productos" data-brand="DJI"><img src="assets/dji.svg" alt="DJI"><span>Tecnología creativa</span></a><a href="#productos" data-brand="Marvo"><img src="assets/marvo.svg" alt="Marvo"><span>Accesorios gaming</span></a></div></section>
+  </div>
 
-  <section class="trust-row"><div><b>Marcas seleccionadas</b><span>UGREEN · Anker · DJI · Marvo</span></div><div><b>Atención directa</b><span>Resuelve tus dudas por WhatsApp</span></div><div><b>Catálogo actualizado</b><span>Consulta disponibilidad y precios</span></div></section>
-
-  <section class="reviews-section section" id="opiniones"><div class="section-heading"><div><p class="eyebrow">TU EXPERIENCIA IMPORTA</p><h2>Opiniones y calificaciones</h2></div><p>Cuéntanos cómo fue tu experiencia con JIMPORT.</p></div><div class="reviews-layout"><form id="reviewForm" class="review-form"><h3>Déjanos tu opinión</h3><div class="review-name-grid"><div><label for="reviewName">Nombre</label><input id="reviewName" maxlength="35" autocomplete="given-name" required placeholder="Tu nombre"></div><div><label for="reviewLastName">Apellido</label><input id="reviewLastName" maxlength="35" autocomplete="family-name" required placeholder="Tu apellido"></div></div><label for="reviewCode">Código de compra verificada *</label><input id="reviewCode" required maxlength="80" placeholder="Código recibido por WhatsApp"><label for="reviewRating">Tu calificación</label><div class="rating-picker" id="ratingPicker" role="group" aria-label="Seleccionar estrellas"><button type="button" data-rating="1" aria-label="1 estrella">★</button><button type="button" data-rating="2" aria-label="2 estrellas">★</button><button type="button" data-rating="3" aria-label="3 estrellas">★</button><button type="button" data-rating="4" aria-label="4 estrellas">★</button><button type="button" data-rating="5" aria-label="5 estrellas">★</button></div><select id="reviewRating" required><option value="">Selecciona una calificación</option><option value="5">★★★★★ · Excelente</option><option value="4">★★★★☆ · Muy buena</option><option value="3">★★★☆☆ · Buena</option><option value="2">★★☆☆☆ · Regular</option><option value="1">★☆☆☆☆ · Mala</option></select><label for="reviewComment">Tu comentario</label><textarea id="reviewComment" rows="4" maxlength="1000" minlength="10" required placeholder="Comparte tu experiencia (mínimo 10 caracteres)"></textarea><button class="button" type="submit" id="reviewSubmit">Enviar opinión</button><p id="reviewMessage" role="status" aria-live="polite"></p><small></small></form><div class="reviews-results"><h3>Lo que opinan nuestros clientes</h3><div class="google-reviews-card"><h4>Reseñas públicas en Google</h4><p>Consulta las experiencias compartidas en el perfil público de JIMPORT.</p><a class="button button-outline" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer">Ver JIMPORT en Google Maps ↗</a><small>Las reseñas se consultan directamente en Google. Comprueba que el enlace corresponde a tu ficha de empresa.</small></div><div id="reviewSummary" class="review-summary" aria-live="polite"></div><div id="reviewsList" aria-live="polite">Cargando opiniones…</div></div></div></section>
-  <section class="faq-section" id="preguntas"><p class="eyebrow">RESOLVEMOS TUS DUDAS</p><h2>Preguntas frecuentes</h2><div class="faq-grid"><details><summary>¿Cómo puedo comprar?</summary><p>Selecciona el producto y presiona «Consultar por WhatsApp». Te ayudaremos a confirmar disponibilidad y completar tu compra.</p></details><details><summary>¿Los productos están disponibles?</summary><p>La disponibilidad se indica en cada producto y puede cambiar. Confírmala por WhatsApp antes de realizar el pago.</p></details><details><summary>¿Cómo sé si un accesorio es compatible?</summary><p>Escríbenos el modelo de tu dispositivo y el producto que te interesa para ayudarte a revisar su compatibilidad.</p></details><details><summary>¿Puedo dejar una calificación?</summary><p>Sí. En la sección de opiniones puedes valorar tu experiencia de 1 a 5 estrellas. Los comentarios se publican tras su revisión.</p></details></div></section>
-  <section class="about" id="nosotros"><div><p class="eyebrow">SOMOS JIMPORT</p><h2>Soluciones prácticas para tu tecnología.</h2></div><p>Te ayudamos a encontrar accesorios, conectividad y productos tecnológicos de marcas reconocidas. Escríbenos para confirmar stock, compatibilidad y formas de entrega.</p></section>
-  <section class="location-section section" id="ubicacion" aria-labelledby="locationTitle">
-    <div class="location-panel">
-      <div class="location-copy"><p class="eyebrow">VISÍTANOS EN PERSONA</p><h2 id="locationTitle">¿Cómo llegar a nuestro local?</h2><p>¡Te esperamos en JIMPORT! Encuentra nuestra ubicación exacta y llega fácilmente desde tu celular con Google Maps.</p><a class="button location-button" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer" aria-label="Abrir ubicación de JIMPORT en Google Maps">📍 Cómo llegar con Google Maps ↗</a><small>El enlace abre Google Maps para consultar la ubicación y obtener indicaciones.</small></div>
-      <a class="location-visual" href="https://maps.app.goo.gl/1tzps447Mh9Lgpmz9" target="_blank" rel="noopener noreferrer" aria-label="Ver ubicación de JIMPORT en Google Maps"><span class="location-pin" aria-hidden="true">📍</span><strong>JIMPORT</strong><span>Encuéntranos en Google Maps</span><span class="location-map-cta">Ver ubicación ↗</span></a>
+  <header class="site-header">
+    <div class="container header-main">
+      <a href="#inicio" class="logo-link" aria-label="JIMPORT inicio">
+        <img src="assets/logo-jimport.svg" alt="JIMPORT" class="logo-main">
+      </a>
+      <form class="header-search" id="topSearchForm">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas o categorías..." aria-label="Buscar productos">
+        <button type="submit">Buscar</button>
+      </form>
+      <nav class="header-actions" aria-label="Acciones rápidas">
+        <a href="#opiniones">Opiniones</a>
+        <a href="#contacto">Contacto</a>
+        <a id="waHeader" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-controls="mainMenu" aria-expanded="false">☰</button>
     </div>
-  </section>
-  <section class="contact" id="contacto"><div><p class="eyebrow">¿NECESITAS AYUDA?</p><h2>Hablemos por WhatsApp.</h2><p>Consulta precios, disponibilidad o solicita una recomendación.</p></div><a class="button button-light" id="contactWhatsapp" target="_blank" rel="noopener">Escribir a JIMPORT ↗</a></section>
-</main>
-<footer><a class="brand footer-brand" href="#"><img class="brand-logo footer-logo" src="assets/logo-jimport.png" alt="Logo JIMPORT"></a><span>© <span id="year"></span> JIMPORT. Todos los derechos reservados.</span><a href="#preguntas">Preguntas frecuentes</a></footer>
-<a class="whatsapp-float" id="floatWhatsapp" target="_blank" rel="noopener" aria-label="Escribir a JIMPORT por WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a12.7 12.7 0 0 0-10.9 19.2L3.5 29l7-1.8A12.8 12.8 0 1 0 16 3Zm0 23.2a10.4 10.4 0 0 1-5.3-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4A10.4 10.4 0 1 1 16 26.2Zm5.7-7.8c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.5 8.5 0 0 1-2.5-1.5 9.2 9.2 0 0 1-1.7-2.1c-.2-.3 0-.5.2-.7l.5-.6c.2-.2.2-.4.3-.6s0-.4 0-.6-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4 2.4 3.7 5.9 5.1c.8.3 1.4.5 1.9.6.8.3 1.5.2 2.1.1.7-.1 1.8-.7 2-1.4s.3-1.3.2-1.4-.3-.3-.6-.4Z"/></svg></a>
-<div id="jxCartBar" class="jx-cart-bar" hidden></div><script src="mobile-premium.js"></script><script src="config.js"></script><script src="app.js"></script><script src="jimport-commerce.js" defer></script><script src="visits.js" defer></script><script src="jimport-nuevo-premium.js" defer></script>
-</body></html>
+    <div class="container nav-row" id="mainMenu">
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#categorias">Categorías</a>
+        <a href="#promociones">Promociones</a>
+        <a href="#combos">Super Combos</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#marcas">Marcas</a>
+        <a href="#nosotros">Nosotros</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">JIMPORT · TECNOLOGÍA • ACCESORIOS • INNOVACIÓN</span>
+          <h1>Accesorios <span>premium</span> para tu día a día.</h1>
+          <p>Encuentra cargadores, power banks, cables, audio, seguridad y mucho más. Trabajamos con marcas como UGREEN, ANKER y otras opciones confiables para tu compra.</p>
+          <div class="hero-cta">
+            <a href="#catalogo" class="btn btn-primary">Ver catálogo</a>
+            <a id="waHero" href="#" class="btn btn-secondary" target="_blank" rel="noopener">Comprar por WhatsApp</a>
+          </div>
+          <div class="hero-stats">
+            <article><strong id="statProducts">0</strong><span>Productos</span></article>
+            <article><strong id="statCategories">0</strong><span>Categorías</span></article>
+            <article><strong id="statBrands">0</strong><span>Marcas</span></article>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card glass">
+            <img src="assets/hero-azul-productos.webp" alt="Accesorios premium JIMPORT">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="highlights">
+      <div class="container highlight-grid">
+        <article><strong>Envíos a todo el país</strong><span>Recibe tus productos en Ecuador.</span></article>
+        <article><strong>Compra segura</strong><span>Atención confiable y asesoría personalizada.</span></article>
+        <article><strong>Métodos de pago</strong><span>Transferencia, depósito y más opciones.</span></article>
+        <article><strong>Atención rápida</strong><span>Confirma stock y compatibilidad por WhatsApp.</span></article>
+      </div>
+    </section>
+
+    <section class="section" id="categorias">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">EXPLORA</span>
+            <h2>Categorías destacadas</h2>
+          </div>
+          <p>Selecciona una categoría para filtrar rápidamente el catálogo.</p>
+        </div>
+        <div class="category-grid" id="categoryGrid"></div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="promociones">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">OFERTAS</span>
+            <h2>Promociones especiales</h2>
+          </div>
+          <p>Aprovecha precios especiales en productos seleccionados.</p>
+        </div>
+        <div class="promo-grid" id="promoGrid">
+          <article class="empty-card">Cargando promociones…</article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="combos">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">AHORRA MÁS</span>
+            <h2>Super Combos JIMPORT</h2>
+          </div>
+          <p>Combos listos para que compres varios productos con mejor precio.</p>
+        </div>
+        <div class="combo-grid" id="comboGrid">
+          <article class="empty-card">Cargando combos…</article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="destacados">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">TOP PRODUCTOS</span>
+            <h2>Productos destacados</h2>
+          </div>
+          <p>Una selección rápida de productos con alta demanda.</p>
+        </div>
+        <div class="product-grid featured-grid" id="featuredGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="catalogo">
+      <div class="container">
+        <div class="section-head catalog-head">
+          <div>
+            <span class="eyebrow">CATÁLOGO COMPLETO</span>
+            <h2>Todos los productos</h2>
+          </div>
+          <p id="statusText">Cargando productos…</p>
+        </div>
+        <div class="catalog-filters">
+          <select id="brandSelect" aria-label="Filtrar por marca">
+            <option value="">Todas las marcas</option>
+          </select>
+          <select id="categorySelect" aria-label="Filtrar por categoría">
+            <option value="">Todas las categorías</option>
+          </select>
+          <select id="sortSelect" aria-label="Ordenar productos">
+            <option value="recent">Más recientes</option>
+            <option value="price-asc">Precio: menor a mayor</option>
+            <option value="price-desc">Precio: mayor a menor</option>
+            <option value="name">Nombre A-Z</option>
+          </select>
+          <button class="btn btn-secondary" id="clearFilters" type="button">Limpiar filtros</button>
+        </div>
+        <div class="catalog-summary"><strong id="productsCount">0</strong> resultado(s)</div>
+        <div class="product-grid" id="productGrid"></div>
+        <div class="catalog-actions">
+          <button class="btn btn-secondary" id="loadMoreBtn" type="button">Cargar más productos</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="marcas">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">TRABAJAMOS CON</span>
+            <h2>Nuestras marcas</h2>
+          </div>
+          <p>Marcas disponibles en el catálogo de JIMPORT.</p>
+        </div>
+        <div class="brand-strip" id="brandStrip"></div>
+      </div>
+    </section>
+
+    <section class="section" id="opiniones">
+      <div class="container review-layout">
+        <div>
+          <div class="section-head left-only">
+            <div>
+              <span class="eyebrow">CONFIANZA REAL</span>
+              <h2>Opiniones verificadas</h2>
+            </div>
+          </div>
+          <div class="review-summary-box" id="reviewSummary">Cargando opiniones…</div>
+          <div class="reviews-grid" id="reviewsGrid"></div>
+        </div>
+        <form class="review-form" id="reviewForm">
+          <h3>Deja tu opinión</h3>
+          <p>Si ya compraste con JIMPORT, envíanos tu comentario con el código de compra verificada.</p>
+          <div class="review-two">
+            <input id="reviewName" type="text" placeholder="Nombre" required maxlength="35">
+            <input id="reviewLastName" type="text" placeholder="Apellido" required maxlength="35">
+          </div>
+          <input id="reviewCode" type="text" placeholder="Código de compra verificada" required maxlength="80">
+          <select id="reviewRating" required>
+            <option value="">Selecciona tu calificación</option>
+            <option value="5">★★★★★ Excelente</option>
+            <option value="4">★★★★☆ Muy buena</option>
+            <option value="3">★★★☆☆ Buena</option>
+            <option value="2">★★☆☆☆ Regular</option>
+            <option value="1">★☆☆☆☆ Mala</option>
+          </select>
+          <textarea id="reviewComment" rows="4" placeholder="Cuéntanos tu experiencia" required minlength="10" maxlength="1000"></textarea>
+          <button class="btn btn-primary" id="reviewSubmit" type="submit">Enviar opinión</button>
+          <p id="reviewMessage" class="form-message" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="nosotros">
+      <div class="container about-grid">
+        <article class="about-card">
+          <span class="eyebrow">SOBRE JIMPORT</span>
+          <h2>Tecnología práctica para clientes exigentes.</h2>
+          <p>JIMPORT es una tienda enfocada en accesorios tecnológicos, soluciones de carga, conectividad y productos seleccionados para el día a día. Nuestra prioridad es ofrecer variedad, atención personalizada y una experiencia de compra clara.</p>
+        </article>
+        <article class="about-card small-card">
+          <h3>¿Qué ofrecemos?</h3>
+          <ul>
+            <li>Accesorios originales y seleccionados.</li>
+            <li>Atención por WhatsApp antes y después de la compra.</li>
+            <li>Catálogo con precios actualizados.</li>
+            <li>Promociones, combos y compras verificadas.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contacto">
+    <div class="container footer-grid">
+      <div>
+        <img src="assets/logo-jimport.svg" alt="JIMPORT" class="footer-logo">
+        <p>Tienda online de accesorios tecnológicos, conectividad, carga y soluciones prácticas para tus dispositivos.</p>
+      </div>
+      <div>
+        <h3>Enlaces</h3>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#promociones">Promociones</a>
+        <a href="#combos">Super Combos</a>
+        <a href="admin.html">Administrador</a>
+      </div>
+      <div>
+        <h3>Ayuda</h3>
+        <a href="#opiniones">Opiniones</a>
+        <a href="#nosotros">Nosotros</a>
+        <a id="waContact" href="#" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="mailto:jimportec@gmail.com">jimportec@gmail.com</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="year"></span> JIMPORT. Todos los derechos reservados.</span>
+      <span>Diseño azul premium</span>
+    </div>
+  </footer>
+
+  <a id="waFloating" class="floating-wa" href="#" target="_blank" rel="noopener" aria-label="Comprar por WhatsApp">💬</a>
+
+  <dialog id="productDialog" class="product-dialog"></dialog>
+</body>
+</html>

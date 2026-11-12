@@ -1,0 +1,13 @@
+JIMPORT · Rediseño azul premium
+
+Archivos principales:
+- index.html = tienda pública rediseñada
+- blue-redesign.css = estilos de la tienda
+- blue-redesign.js = lógica de tienda, catálogo, promociones, opiniones
+- admin.html = panel administrador
+- config.js = conexión a Supabase y WhatsApp
+
+Notas:
+- La tienda pública fue rediseñada desde cero con estilo azul y blanco.
+- El administrador se conserva funcional para productos, promociones, combos, ventas y opiniones.
+- Antes de publicar, verifica en Vercel que la conexión a Supabase responda correctamente.
