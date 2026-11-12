@@ -88,6 +88,12 @@
   }
   function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
+    // Sugerencias de búsqueda inteligentes construidas con el catálogo real.
+    let smartList=document.getElementById("jimportSearchSuggestions");
+    if(!smartList){smartList=document.createElement("datalist");smartList.id="jimportSearchSuggestions";search.setAttribute("list",smartList.id);search.insertAdjacentElement("afterend",smartList);}
+    const suggestions=new Set();
+    products.forEach(p=>[p.name,p.brand,p.model,p.category].forEach(v=>{const s=String(v||"").trim();if(s.length>1)suggestions.add(s);}));
+    smartList.innerHTML=[...suggestions].slice(0,500).map(v=>`<option value="${esc(v)}"></option>`).join("");
     const brands=[...new Map(products.map(p=>String(p.brand||"").trim()).filter(Boolean).map(b=>[norm(b),b.toLocaleUpperCase("es")])).values()].sort((a,b)=>a.localeCompare(b,"es"));
     brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("");
     brandFilter.value=brands.find(b=>norm(b)===norm(currentBrand))||"";
