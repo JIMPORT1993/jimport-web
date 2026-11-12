@@ -1,13 +1,26 @@
-JIMPORT · Rediseño azul premium
+JIMPORT - DISEÑO ELEGIDO CONECTADO A SUPABASE
 
-Archivos principales:
-- index.html = tienda pública rediseñada
-- blue-redesign.css = estilos de la tienda
-- blue-redesign.js = lógica de tienda, catálogo, promociones, opiniones
-- admin.html = panel administrador
-- config.js = conexión a Supabase y WhatsApp
+Contenido
+- index.html: tienda pública basada en el diseño aprobado JIMPORT_Nuevo_Diseno_Demo(1).html
+- demo-style.css: estilos del diseño elegido, adaptados al catálogo real
+- demo-live.js: productos, promociones, super combos, opiniones, carrito WhatsApp
+- admin.html: administrador original con autenticación Supabase
+- config.js: configuración existente del proyecto (clave pública de cliente)
+- assets/: logo e imágenes locales
 
-Notas:
-- La tienda pública fue rediseñada desde cero con estilo azul y blanco.
-- El administrador se conserva funcional para productos, promociones, combos, ventas y opiniones.
-- Antes de publicar, verifica en Vercel que la conexión a Supabase responda correctamente.
+INSTALACIÓN EN GITHUB
+1. Descarga el ZIP y extráelo.
+2. Cambia al branch PAGINA-NUEVA-AZUL.
+3. Sube TODOS los archivos de la carpeta descomprimida a la raíz del branch,
+   manteniendo la carpeta assets y api. No subas la carpeta contenedora.
+4. Haz Commit. La solicitud de extracción abierta se actualizará.
+5. En Vercel revisa Preview; no fusiones con main hasta comprobarlo.
+
+IMPORTANTE
+- El catálogo se lee en tiempo real de Supabase; NO hay productos inventados ni
+  inventario copiado en localStorage.
+- Los cambios administrativos siguen realizándose en admin.html y Supabase.
+- Las promociones, super combos y opiniones necesitan sus tablas y permisos de lectura.
+- No se ha modificado la base de datos ni publicado en main.
+- El modo público/mayorista se controla desde el administrador, no desde clientes.
+- Valida especialmente autenticación, edición, combos, ventas e inventario antes de publicar.
