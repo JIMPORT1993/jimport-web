@@ -1,0 +1,14 @@
+
+/* Carrusel de opiniones reales publicado en la portada */
+.jm-reviews-home{box-sizing:border-box;width:100%;max-width:100%;padding:34px max(20px,5vw) 30px!important;background:linear-gradient(125deg,#04122e,#082450);color:#f5f9ff;overflow:hidden}
+.jm-reviews-header{text-align:center;max-width:760px;margin:auto}
+.jm-reviews-header .eyebrow{color:#6fd8ff;letter-spacing:.15em;font-weight:800}
+.jm-reviews-header h2{font:800 clamp(25px,3.4vw,40px)/1.15 Manrope,Arial,sans-serif;margin:12px auto;color:white}
+.jm-reviews-header>p:last-child{color:#c6d9ef;line-height:1.5;margin:0 auto}
+.jm-reviews-home .jm-op-public{margin:12px auto 8px}
+.jm-reviews-home .review-summary{color:#ffdc83!important;margin:12px auto 8px!important}
+.jm-reviews-bottom{display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;text-align:center;margin:14px auto 0;font-size:13px;color:#c6d9ef}
+.jm-reviews-bottom a{color:#91e4ff;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.jm-reviews-home #reviewsList{color:#e2eefe;text-align:center;min-height:76px}
+.jm-reviews-home #reviewsList:has(.jm-op-marquee){min-height:0}
+@media(max-width:650px){.jm-reviews-home{padding:26px 10px!important}.jm-reviews-header{padding:0 10px}.jm-reviews-bottom{gap:8px;flex-direction:column}.jm-op-marquee{mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}}

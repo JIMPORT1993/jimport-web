@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="option4-cyan.css"><link rel="stylesheet" href="boceto-aprobado.css"><link rel="stylesheet" href="mobile-neon-2026.css"><link rel="stylesheet" href="mobile-compact-one-logo.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="jimport-mobile-reference.css"><link rel="stylesheet" href="jimport-manual-products.css"><link rel="stylesheet" href="jimport-commerce.css"><link rel="stylesheet" href="catalog-layout-pricing.css"><link rel="stylesheet" href="jimport-combos-mobile-fix.css"><link rel="stylesheet" href="jimport-carrusel-combos-uniforme.css"><link rel="stylesheet" href="jimport-media.css?v=20261112b"><link rel="stylesheet" href="jimport-premium-home.css?v=2"><link rel="stylesheet" href="jimport-vista-completa.css?v=20261112"><link rel="stylesheet" href="jimport-desktop-showcase.css?v=3">
-<link rel="stylesheet" href="jimport-responsive-carousel.css?v=2">
+<link rel="stylesheet" href="jimport-responsive-carousel.css?v=2"><link rel="stylesheet" href="jimport-opiniones-portada.css?v=1">
 <meta name="description" content="JIMPORT: tecnología y accesorios UGREEN, ANKER y más. Explora cargadores, power banks, cables, hubs y accesorios. Consulta disponibilidad y compra por WhatsApp.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JIMPORT | Tecnología y accesorios">
@@ -34,7 +34,7 @@
     </div>
   </div>
   <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">☰ <span>Menú</span></button>
-  <nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
+  <nav id="mainNav"><a href="#productos">Productos</a><a href="#promociones">Promociones</a><a href="#opiniones">Opiniones</a><a href="#nosotros">Nosotros</a><a href="#ubicacion">Cómo llegar</a><a href="#contacto">Contacto</a></nav>
   <a class="button button-small" id="headerWhatsapp" target="_blank" rel="noopener">Consultar por WhatsApp</a>
 </header>
 <section class="jp-hero" id="jpStandardHero" aria-label="Tecnología premium JIMPORT">
@@ -123,6 +123,18 @@
   <div class="jp-showcase-window"><div class="jp-showcase-track" id="jpShowcaseTrack"><p class="showcase-loading">Cargando productos del catálogo…</p></div></div>
 </section>
 <main>
+<section class="reviews-section jm-reviews-home" id="opiniones" aria-labelledby="homeReviewsTitle">
+  <div class="jm-reviews-header">
+    <p class="eyebrow">EXPERIENCIAS REALES EN JIMPORT</p>
+    <h2 id="homeReviewsTitle">Lo que opinan nuestros clientes</h2>
+    <p>Conoce las experiencias compartidas por quienes han comprado en nuestra tienda.</p>
+  </div>
+  <div class="jm-op-public">
+    <p id="reviewSummary" class="review-summary" aria-live="polite">Consultando calificaciones publicadas…</p>
+    <div id="reviewsList" aria-live="polite" aria-label="Carrusel de opiniones de clientes">Cargando opiniones…</div>
+  </div>
+  <div class="jm-reviews-bottom"><span>Las opiniones se publican después de ser aprobadas por JIMPORT.</span><a href="calificar.html">¿Ya compraste? Califica tu experiencia →</a></div>
+</section>
 <section class="section" id="productos">
     <div class="section-heading"><div><p class="eyebrow">NUESTRO CATÁLOGO</p><h2>Descubre tus próximos favoritos</h2></div><p>Selecciona una categoría para que veas nuestros productos.</p></div>
     <div class="filters"><label class="sr-only" for="search">Buscar productos</label><input id="search" type="search" placeholder="Buscar por nombre, modelo o característica (ej. 100W)…" aria-label="Buscar productos"><select id="brandFilter" aria-label="Filtrar por marca"><option value="">Todas las marcas</option></select><select id="categoryFilter" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select><button type="button" class="clear-filters" id="clearFilters">Cambiar selección</button></div>
