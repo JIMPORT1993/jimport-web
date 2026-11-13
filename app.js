@@ -120,36 +120,29 @@
     return {intro,description:details||'JIMPORT todavía no ha registrado una descripción técnica detallada para este producto.',benefit:benefits[key]||'Accesorio seleccionado por JIMPORT. Consulta las especificaciones registradas y confirma la compatibilidad con tu equipo antes de realizar la compra.',hasDetails:!!details};
   }
 
-  // IA generativa real mediante Gemini API (la clave permanece en Vercel, nunca en el navegador).
-  // Cada navegador conserva el resultado para evitar repetir consultas y consumir cuota.
-  async function generateProductDescriptionWithAI(p,dlg,smart){
-    const button=dlg.querySelector('#jpAiGenerate'), target=dlg.querySelector('#jpAiGenerated');
-    if(!button||!target)return;
-    const source={name:p.name||'',brand:p.brand||'',model:p.model||'',category:p.category||'',description:p.description||'',specifications:p.specifications||'',features:p.features||'',sku:p.sku||''};
-    const cacheKey='jimport-ai-v1-'+String(p.id)+'-'+btoa(unescape(encodeURIComponent(JSON.stringify(source)))).slice(0,80);
-    try{
-      const cached=localStorage.getItem(cacheKey);
-      if(cached){renderGeneratedProductAI(target,JSON.parse(cached));button.textContent='✓ Descripción IA guardada';return;}
-    }catch(_){ }
-    button.disabled=true;button.textContent='✨ La IA está analizando el producto…';
-    target.innerHTML='<p class="jp-ai-loading">Preparando una descripción técnica y comercial…</p>';
-    try{
-      const response=await fetch('/api/product-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:source})});
-      const payload=await response.json().catch(()=>({}));
-      if(!response.ok)throw new Error(payload.error||'La IA no está disponible temporalmente.');
-      const result=payload.result;
-      if(!result||!result.description)throw new Error('La IA devolvió una respuesta incompleta.');
-      try{localStorage.setItem(cacheKey,JSON.stringify(result));}catch(_){ }
-      renderGeneratedProductAI(target,result);button.textContent='✓ Descripción generada';
-    }catch(error){
-      target.innerHTML=`<p class="jp-ai-note">${esc(error.message||'No se pudo conectar con la IA.')} Se mantiene disponible la ficha inteligente básica.</p>`;
-      button.textContent='↻ Intentar nuevamente';
-    }finally{button.disabled=false;}
-  }
-  function renderGeneratedProductAI(target,data){
-    const list=(v)=>Array.isArray(v)?v.filter(Boolean):[];
+  // IA generativa compartida: cachea respuestas para no consumir cuota repetidamente.
+  window.JIMPORT_AI_GENERATE = async function(source, cacheId){
+    const key='jimport-ai-v2-'+String(cacheId||source.name||'item')+'-'+btoa(unescape(encodeURIComponent(JSON.stringify(source)))).slice(0,48);
+    try{const cached=localStorage.getItem(key);if(cached)return JSON.parse(cached);}catch(_){ }
+    const response=await fetch('/api/product-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:source})});
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(payload.error||'La IA no está disponible temporalmente.');
+    const result=payload.result;
+    if(!result||!result.description)throw new Error('La IA devolvió una respuesta incompleta.');
+    try{localStorage.setItem(key,JSON.stringify(result));}catch(_){ }
+    return result;
+  };
+  window.JIMPORT_AI_RENDER = function(target,data){
+    const list=v=>Array.isArray(v)?v.filter(Boolean):[];
     const section=(title,items)=>items.length?`<h4>${title}</h4><ul>${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
     target.innerHTML=`<div class="jp-ai-generated"><span class="jp-ai-generated-label">✦ CONTENIDO GENERADO CON IA</span><p>${esc(data.description)}</p>${section('Características principales',list(data.features))}${section('Compatibilidad',list(data.compatibility))}${section('Usos recomendados',list(data.use_cases))}${data.caution?`<p class="jp-ai-note">${esc(data.caution)}</p>`:''}</div>`;
+  };
+  async function generateProductDescriptionWithAI(p,dlg){
+    const target=dlg.querySelector('#jpAiGenerated');if(!target)return;
+    const source={name:p.name||'',brand:p.brand||'',model:p.model||'',category:p.category||'',description:p.description||'',specifications:p.specifications||'',features:p.features||'',sku:p.sku||''};
+    target.innerHTML='<p class="jp-ai-loading"><span class="jp-ai-spinner"></span> La IA está preparando la ficha completa…</p>';
+    try{const result=await window.JIMPORT_AI_GENERATE(source,'product-'+p.id);if(!dlg.isConnected||!target.isConnected)return;window.JIMPORT_AI_RENDER(target,result);}
+    catch(error){if(target.isConnected)target.innerHTML=`<p class="jp-ai-note">${esc(error.message||'La IA no está disponible en este momento.')} Se muestra la ficha inteligente de respaldo.</p>`;}
   }
 
   function productGallery(p){
@@ -169,10 +162,10 @@
     const waPrice=blackFridayEnabled&&discount>0?`Precio anterior: ${money(regular)}\nPrecio Black Friday: ${money(sale)}\nDescuento: ${discount}%`:displayPriceMode==='live'?`Precio público: ${money(retailPrice(p))}\nPrecio LIVE: ${money(live)}${liveShowDiscount&&livePct>0?`\nAhorro: ${livePct}%`:''}`:`Precio mostrado: ${displayPriceText(p)}`;
     const smart=smartProductCopy(p), gallery=productGallery(p);
     const galleryHtml=gallery.length?`<div class="jp-ai-gallery" aria-label="Fotografías del producto">${gallery.map((url,i)=>`<button type="button" class="jp-ai-photo ${i===0?'is-active':''}" data-gallery-index="${i}" aria-label="Ver fotografía ${i+1}"><img src="${esc(url)}" alt="${esc(p.name)} fotografía ${i+1}" loading="lazy"></button>`).join('')}</div>`:'<p class="jp-ai-no-photos">No hay fotografías adicionales registradas todavía.</p>';
-    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>✨ Ficha inteligente JIMPORT</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div><div class="jp-ai-main-photo">${gallery[0]?`<img id="jpAiMainPhoto" src="${esc(gallery[0])}" alt="${esc(p.name)}">`:'<div class="jp-ai-photo-empty">📦 Fotografía no disponible</div>'}</div>${galleryHtml}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''} ${p.category?'· '+esc(p.category):''}</p><section class="jp-ai-section"><h4>Descripción del producto</h4><p>${esc(smart.intro)}</p><p class="jimport-dialog-text">${esc(smart.description)}</p><p class="jp-ai-note">La IA generativa puede ampliar esta información usando únicamente los datos técnicos registrados.</p><button type="button" class="jp-ai-generate-button" id="jpAiGenerate">✨ Generar descripción con IA</button><div id="jpAiGenerated" aria-live="polite"></div></section><section class="jp-ai-section"><h4>Características y beneficios</h4><p>${esc(smart.benefit)}</p>${p.specifications?`<p class="jimport-dialog-text"><b>Especificaciones:</b> ${esc(typeof p.specifications==='string'?p.specifications:JSON.stringify(p.specifications))}</p>`:''}${p.features?`<p class="jimport-dialog-text"><b>Funciones:</b> ${esc(typeof p.features==='string'?p.features:JSON.stringify(p.features))}</p>`:''}</section>${priceBlock}<a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
+    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>✨ Ficha inteligente JIMPORT</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div><div class="jp-ai-main-photo">${gallery[0]?`<img id="jpAiMainPhoto" src="${esc(gallery[0])}" alt="${esc(p.name)}">`:'<div class="jp-ai-photo-empty">📦 Fotografía no disponible</div>'}</div>${galleryHtml}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''} ${p.category?'· '+esc(p.category):''}</p><section class="jp-ai-section"><h4>Descripción del producto</h4><p>${esc(smart.intro)}</p><p class="jimport-dialog-text">${esc(smart.description)}</p><div id="jpAiGenerated" aria-live="polite"><p class="jp-ai-loading">Preparando la ficha inteligente…</p></div></section><section class="jp-ai-section"><h4>Características y beneficios</h4><p>${esc(smart.benefit)}</p>${p.specifications?`<p class="jimport-dialog-text"><b>Especificaciones:</b> ${esc(typeof p.specifications==='string'?p.specifications:JSON.stringify(p.specifications))}</p>`:''}${p.features?`<p class="jimport-dialog-text"><b>Funciones:</b> ${esc(typeof p.features==='string'?p.features:JSON.stringify(p.features))}</p>`:''}</section>${priceBlock}<a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
     dlg.querySelectorAll('[data-gallery-index]').forEach(btn=>btn.addEventListener('click',()=>{const url=gallery[Number(btn.dataset.galleryIndex)];const main=dlg.querySelector('#jpAiMainPhoto');if(main&&url)main.src=url;dlg.querySelectorAll('.jp-ai-photo').forEach(x=>x.classList.toggle('is-active',x===btn));}));
-    dlg.querySelector('#jpAiGenerate').addEventListener('click',()=>generateProductDescriptionWithAI(p,dlg,smart));
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();dlg.showModal();
+    generateProductDescriptionWithAI(p,dlg);
   }
   
 function render() {
@@ -351,9 +344,12 @@ function render() {
     const promoDiscount=blackFridayEnabled?blackFridayPromoDiscount(p):0;
     const price=p.sale_price!=null?`${promoDiscount?`<span class="bf-discount-badge">-${promoDiscount}% BLACK FRIDAY</span>`:''}<strong class="jimport-dialog-price">${moneyPromo(p.sale_price)}</strong>`:'';
     const old=p.sale_price!=null?`<p class="jimport-dialog-model"><del>${moneyPromo(blackFridayEnabled?blackFridayPromoRegular(p):(p.regular_price??p.sale_price))}</del></p>`:'';
-    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción de la promoción</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.title)}" style="width:100%;max-height:230px;object-fit:contain">`:''}<h3>${esc(p.title)}</h3><p class="jimport-dialog-text">${esc(p.description||'Consulta los detalles de esta promoción con nuestro equipo.')}</p>${old}${price}<a class="button" target="_blank" rel="noopener noreferrer" href="${wa(`Hola JIMPORT, deseo información sobre la promoción ${p.title}${p.sale_price!=null?'\nPrecio: '+moneyPromo(p.sale_price):''}`)}">Consultar por WhatsApp ↗</a>`;
+    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción de la promoción</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div>${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.title)}" style="width:100%;max-height:230px;object-fit:contain">`:''}<h3>${esc(p.title)}</h3><p class="jimport-dialog-text">${esc(p.description||'Consulta los detalles de esta promoción con nuestro equipo.')}</p><section class="jp-ai-section"><h4>Detalles inteligentes de la promoción</h4><div id="jpPromoAIContent" aria-live="polite"><p class="jp-ai-loading">Preparando información…</p></div></section>${old}${price}<a class="button" target="_blank" rel="noopener noreferrer" href="${wa(`Hola JIMPORT, deseo información sobre la promoción ${p.title}${p.sale_price!=null?'\nPrecio: '+moneyPromo(p.sale_price):''}`)}">Consultar por WhatsApp ↗</a>`;
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();
     dlg.showModal();
+    const target=dlg.querySelector('#jpPromoAIContent');
+    const source={name:p.title||'Promoción JIMPORT',brand:'JIMPORT',category:'Promoción',description:p.description||'',specifications:'',features:'Oferta promocional. Precio y condiciones se muestran en la ficha.'};
+    window.JIMPORT_AI_GENERATE(source,'promotion-'+(p.id||p.title)).then(result=>{if(target?.isConnected)window.JIMPORT_AI_RENDER(target,result);}).catch(error=>{if(target?.isConnected)target.innerHTML=`<p class="jp-ai-note">${esc(error.message||'IA no disponible. Se mantiene la información registrada de la promoción.')}</p>`;});
   }
   function renderPromotion(){
     const slide=document.getElementById("promoSlide"), dots=document.getElementById("promoDots");

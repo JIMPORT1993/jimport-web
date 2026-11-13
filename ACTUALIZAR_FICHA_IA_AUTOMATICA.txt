@@ -1,0 +1,22 @@
+ACTUALIZACION JIMPORT - FICHA IA AUTOMATICA
+
+Esta actualizacion elimina el boton "Generar descripcion con IA".
+Ahora la ficha solicita la descripcion generativa automaticamente al abrir:
+- cualquier producto del catalogo o carrusel
+- cualquier Super Combo
+- cualquier promocion
+
+La primera informacion registrada se muestra de inmediato. La IA la completa cuando responde.
+Si Gemini no responde o se alcanza el limite gratuito, se conserva la informacion de respaldo.
+Las respuestas exitosas se guardan en el navegador para evitar consultas repetidas.
+
+ARCHIVOS A REEMPLAZAR EN LA RAIZ DEL REPOSITORIO GITHUB:
+1. app.js
+2. jimport-commerce.js
+3. jimport-manual-products.css
+4. api/product-ai.js (conservar la carpeta api)
+
+No borrar otros archivos. No subir este ZIP como archivo comprimido: descomprimirlo y subir los cuatro archivos manteniendo la ruta api/product-ai.js.
+
+REQUISITO VERCEL:
+Debe existir la variable de entorno GEMINI_API_KEY con una clave de Google AI Studio. Tras guardar los cambios, esperar el despliegue automatico o hacer Redeploy.
