@@ -257,7 +257,7 @@
     finally{button.disabled=false;}
   });
   $('filterLowStock').addEventListener('click',()=>{onlyLowStock=!onlyLowStock;$('filterLowStock').textContent=onlyLowStock?'Mostrar todos los productos':'🔴 Ver solo stock bajo';$('filterLowStock').setAttribute('aria-pressed',String(onlyLowStock));draw();});
-  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pWholesalePrice").value=p?.wholesale_price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";updateCategoryChoices();form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+  function openForm(p=null){$("formTitle").textContent=p?"Editar producto":"Nuevo producto";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pBrand").value=p?.brand||"";$("pModel").value=p?.model||"";$("pPrice").value=p?.price??"";$("pWholesalePrice").value=p?.wholesale_price??"";$("pStock").value=p?.stock||"En stock";$("pQuantity").value=privateInventory[p?.id]?.quantity??0;$("pMinimum").value=privateInventory[p?.id]?.min_quantity??1;$("pCost").value=privateInventory[p?.id]?.landed_cost??0;$("pCategory").value=p?.category||"VARIOS";$("pImage").value=p?.image_url||"";$("pGalleryImages").value=(Array.isArray(p?.gallery_images)?p.gallery_images:[]).join("\n");$("pDescription").value=p?.description||"";updateCategoryChoices();form.hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
   let autosaving=false;
   const autoStatus=$('autosaveStatus');
   const diagnosticPanel=$('saveDiagnostic');
@@ -310,6 +310,7 @@
       stock:$("pStock").value,
       category:$("pCategory").value,
       image_url:$("pImage").value.trim()||null,
+      gallery_images:$("pGalleryImages").value.split(/\r?\n/).map(v=>v.trim()).filter(v=>/^https:\/\//i.test(v)).slice(0,12),
       description:$("pDescription").value.trim()||null,
       active:id?(rows.find(p=>String(p.id)===String(id))?.active!==false):true
     };

@@ -1,0 +1,35 @@
+JIMPORT — ACTIVAR IA GENERATIVA GRATUITA
+
+IMPORTANTE
+La integración usa Gemini 3.5 Flash-Lite. Google ofrece un nivel gratuito sujeto a cuotas, disponibilidad y condiciones que pueden cambiar. No existe garantía de generación ilimitada gratuita. Cuando se alcance el límite, JIMPORT conserva su ficha inteligente básica y la tienda continúa operativa.
+
+PASO 1 — Crear clave
+1. Abre https://aistudio.google.com/app/apikey
+2. Inicia sesión con tu cuenta de Google.
+3. Crea una API key.
+4. Copia la clave y mantenla privada.
+
+PASO 2 — Guardar clave en Vercel
+1. Abre https://vercel.com/dashboard
+2. Entra al proyecto conectado a jimport-web.vercel.app.
+3. Abre Settings > Environment Variables.
+4. En Key escribe: GEMINI_API_KEY
+5. En Value pega la clave de Google AI Studio.
+6. Selecciona Production, Preview y Development si aparecen.
+7. Guarda.
+8. Ve a Deployments y ejecuta Redeploy del último despliegue (o sube el ZIP a GitHub y espera el despliegue automático).
+
+PASO 3 — Probar
+1. Abre la web publicada.
+2. Busca y abre un producto.
+3. Presiona “Generar descripción con IA”.
+4. Comprueba que aparezcan descripción, características y compatibilidad si esos datos están registrados.
+
+FOTOGRAFÍAS
+La IA no debe fabricar fotografías de productos electrónicos reales porque podría mostrar puertos, accesorios o modelos incorrectos. Para mostrar más fotografías reales, entra al Administrador, edita el producto y pega URLs HTTPS en “Fotografías adicionales”, una por línea. La galería las mostrará al cliente.
+
+PRIVACIDAD Y SEGURIDAD
+La clave se lee únicamente desde process.env.GEMINI_API_KEY en la función api/product-ai.js. Nunca la pegues en config.js, app.js, HTML ni en un mensaje público. Solo se envían al proveedor los datos descriptivos del producto necesarios para redactar la ficha; no se envían datos de clientes ni pedidos.
+
+FUNCIONAMIENTO CUANDO SE AGOTE LA CUOTA
+La ficha local, los datos del catálogo, los precios, las fotografías y WhatsApp siguen funcionando. La generación nueva de IA se pausa hasta que el nivel gratuito vuelva a permitir solicitudes. Las descripciones generadas se conservan en el almacenamiento local de ese navegador.

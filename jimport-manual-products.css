@@ -18,3 +18,14 @@
 .catalog-teaser .teaser-whatsapp-button{display:flex;align-items:center;justify-content:center;min-height:40px;width:100%;box-sizing:border-box;margin-top:6px;padding:9px 6px;border-radius:10px;background:#128c54;color:#fff!important;font-size:12px;font-weight:750;text-align:center;text-decoration:none;line-height:1.2}
 .catalog-teaser .teaser-whatsapp-button:hover,.catalog-teaser .teaser-whatsapp-button:focus-visible{background:#086d3f;color:#fff!important;outline-offset:2px}
 @media(max-width:600px){.catalog-teaser .teaser-whatsapp-button{font-size:11px;padding:8px 3px;min-height:38px}}
+
+/* Ficha inteligente gratuita y galería de producto */
+.jp-ai-main-photo{display:flex;align-items:center;justify-content:center;min-height:190px;background:#f4f8f7;border-radius:14px;overflow:hidden}
+.jp-ai-main-photo img{display:block;width:100%;height:230px;object-fit:contain}
+.jp-ai-photo-empty{padding:50px;color:#64766e}.jp-ai-gallery{display:flex;gap:9px;overflow-x:auto;padding:10px 1px 14px}
+.jp-ai-photo{flex:0 0 66px;width:66px;height:66px;padding:3px;border:1px solid #d9e5e0;border-radius:10px;background:#fff;cursor:pointer}
+.jp-ai-photo.is-active{border:2px solid #07835a}.jp-ai-photo img{width:100%;height:100%;object-fit:contain}
+.jp-ai-section{padding:12px 14px;margin:12px 0;border:1px solid #e0ebe6;border-radius:13px;background:#fbfdfc}
+.jp-ai-section h4{margin:0 0 8px;color:#08734f;font-size:14px}.jp-ai-section p{margin:6px 0;line-height:1.55}
+.jp-ai-note,.jp-ai-no-photos{font-size:12px;color:#65756e;background:#f3f6f5;padding:9px 11px;border-radius:9px}
+.jp-ai-generate-button{display:inline-flex;align-items:center;justify-content:center;width:100%;margin:12px 0 4px;padding:13px 16px;border:0;border-radius:12px;background:linear-gradient(110deg,#1267e8,#08a6a6);color:#fff;font-weight:850;cursor:pointer;box-shadow:0 8px 22px #1267e833}.jp-ai-generate-button:disabled{opacity:.65;cursor:wait}.jp-ai-loading{padding:12px;border-radius:10px;background:#eef6ff;color:#28527c}.jp-ai-generated{margin-top:12px;padding:14px;border-radius:13px;background:#f3f9ff;border:1px solid #d5e9fa}.jp-ai-generated-label{display:inline-block;margin-bottom:8px;color:#0873b9;font-size:11px;font-weight:900;letter-spacing:.07em}.jp-ai-generated p{line-height:1.6}.jp-ai-generated h4{margin:13px 0 6px;color:#08734f}.jp-ai-generated ul{padding-left:20px;margin:6px 0}.jp-ai-generated li{margin:5px 0;line-height:1.45}

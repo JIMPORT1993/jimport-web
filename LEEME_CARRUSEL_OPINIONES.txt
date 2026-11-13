@@ -1,0 +1,11 @@
+JIMPORT - CARRUSEL DE OPINIONES EN PORTADA
+
+1. Sube todos los archivos de este ZIP a tu repositorio de GitHub.
+2. Despliega la actualización en Vercel.
+3. La sección "Lo que opinan nuestros clientes" se muestra antes del catálogo.
+4. El carrusel muestra exclusivamente opiniones con approved = true en la tabla reviews de Supabase.
+5. Si todavía no hay opiniones aprobadas, verás el aviso correspondiente.
+6. Para publicar opiniones, entra en Administrador > Opiniones de clientes y pulsa Aprobar.
+7. El enlace Califica tu experiencia usa la página calificar.html y el código de compra.
+8. No hace falta ejecutar ningún SQL adicional para recuperar el carrusel si la tabla reviews ya funciona.
+9. No se han modificado los modos de precios ni el inventario.
