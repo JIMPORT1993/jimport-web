@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   };
   const prompt = `Eres el asesor técnico y comercial de JIMPORT, una tienda ecuatoriana de accesorios electrónicos premium. Redacta en español ecuatoriano claro, profesional y atractivo. Usa SOLO la información suministrada. No inventes potencia, puertos, compatibilidades, certificaciones, materiales, medidas, autonomía ni funciones. Si un dato no consta, no lo afirmes. Distingue claramente características confirmadas de recomendaciones generales. Evita exageraciones y no menciones precios. Devuelve únicamente JSON válido con las claves: description (párrafo de 80 a 140 palabras), features (lista de hasta 6 características confirmadas), compatibility (lista de compatibilidades solo si están indicadas; si no, lista vacía), use_cases (hasta 4 usos razonables sin atribuir especificaciones no confirmadas), caution (una nota breve para confirmar compatibilidad si faltan datos, o cadena vacía). Producto: ${JSON.stringify(product)}`;
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + encodeURIComponent(apiKey), {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=' + encodeURIComponent(apiKey), {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.35, responseMimeType: 'application/json', maxOutputTokens: 900 } })
     });
