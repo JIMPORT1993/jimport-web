@@ -1,0 +1,115 @@
+/* Presentación renovada para la portada Black Friday de JIMPORT */
+.jp-hero-blackfriday {
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 78% 46%, rgba(16, 100, 190, .34), transparent 42%),
+    radial-gradient(ellipse at 12% 18%, rgba(255, 75, 20, .20), transparent 30%),
+    radial-gradient(ellipse at 88% 8%, rgba(220, 20, 82, .16), transparent 28%),
+    linear-gradient(118deg, #050b1c 0%, #071a3b 52%, #100d29 100%);
+  border-top: 1px solid rgba(255, 91, 47, .55);
+  padding-top: clamp(42px, 5vw, 72px);
+}
+.jp-hero-blackfriday::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .22;
+  background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(90deg, transparent, #000 45%, #000);
+}
+.jp-hero-blackfriday .jp-hero-copy { max-width: 570px; }
+.jp-hero-blackfriday .jp-kicker {
+  color: #76eaff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .19em;
+  text-transform: uppercase;
+}
+.jp-hero-blackfriday .jp-bf-badge {
+  padding: 11px 21px;
+  margin: 17px 0 18px;
+  border: 1px solid rgba(255,255,255,.28);
+  background: linear-gradient(105deg, #ff6a00 0%, #ff344e 58%, #df176d 100%);
+  box-shadow: 0 12px 36px rgba(255, 61, 48, .28), inset 0 1px 0 rgba(255,255,255,.24);
+  font-size: 15px;
+}
+.jp-hero-blackfriday .jp-hero-copy h1 { line-height: .99; letter-spacing: -.045em; }
+.jp-hero-blackfriday .jp-hero-brands {
+  display: block;
+  color: #fff;
+  font-size: clamp(40px, 5vw, 66px);
+  font-weight: 950;
+  text-shadow: 0 5px 28px rgba(0,0,0,.24);
+}
+.jp-hero-blackfriday .jp-hero-subhead {
+  display: block;
+  margin-top: 9px;
+  color: #fff;
+  font-size: clamp(25px, 3vw, 39px);
+  font-weight: 850;
+  letter-spacing: -.035em;
+}
+.jp-hero-blackfriday .jp-hero-copy h1 em {
+  display: block;
+  margin-top: 5px;
+  color: #22d9f3;
+  font-size: clamp(27px, 3.1vw, 42px);
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+.jp-hero-blackfriday .jp-hero-copy > p:not(.jp-bf-note) {
+  max-width: 510px;
+  margin-top: 19px;
+  color: #dceaff;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.65;
+}
+.jp-hero-blackfriday .jp-bf-stat {
+  min-width: 190px;
+  border-color: rgba(112, 211, 255, .24);
+  background: linear-gradient(145deg, rgba(23, 49, 91, .78), rgba(8, 22, 49, .72));
+  box-shadow: 0 12px 30px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.jp-hero-blackfriday .jp-bf-stat small { color: #7ceaff; }
+.jp-hero-blackfriday .jp-main-cta {
+  border: 1px solid rgba(255,255,255,.28);
+  background: linear-gradient(105deg, #ff6a00, #ff3158) !important;
+  box-shadow: 0 12px 30px rgba(255, 68, 40, .3);
+}
+.jp-hero-blackfriday .jp-secondary-cta {
+  border-color: rgba(123, 218, 255, .4);
+  background: rgba(10, 31, 67, .68);
+}
+.jp-hero-blackfriday .jp-stage {
+  border: 1px solid rgba(44, 220, 255, .8);
+  background: radial-gradient(ellipse at 50% 15%, rgba(43, 113, 199, .72), rgba(8, 26, 75, .96) 68%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 0 36px rgba(0, 210, 255, .22), 0 30px 65px rgba(0,0,0,.38), inset 0 0 34px rgba(49, 211, 255, .14);
+}
+.jp-hero-blackfriday .jp-orbit { border-color: rgba(40, 216, 255, .55); }
+.jp-hero-blackfriday .jp-desktop-brand-pills {
+  border-color: rgba(74, 222, 255, .52);
+  background: linear-gradient(110deg, rgba(7, 24, 58, .94), rgba(20, 42, 91, .9));
+  box-shadow: 0 10px 32px rgba(0,0,0,.22), 0 0 24px rgba(0, 190, 255, .16);
+}
+.jp-hero-blackfriday .jp-brand-pill-text { color: #f5fbff; }
+.jp-hero-blackfriday .jp-brand-amp { color: #48e5ff; }
+.jp-hero-blackfriday .jp-bf-note { color: rgba(215, 231, 255, .7); font-size: 11px; }
+.jp-hero-blackfriday .jp-bf-deals { margin-top: 30px; }
+@media (max-width: 800px) {
+  .jp-hero-blackfriday { padding-top: 32px; }
+  .jp-hero-blackfriday .jp-hero-copy { max-width: 100%; }
+  .jp-hero-blackfriday .jp-hero-brands { font-size: clamp(35px, 10vw, 52px); }
+  .jp-hero-blackfriday .jp-hero-subhead { font-size: clamp(24px, 7vw, 34px); }
+  .jp-hero-blackfriday .jp-hero-copy h1 em { font-size: clamp(25px, 7vw, 34px); }
+  .jp-hero-blackfriday .jp-bf-stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .jp-hero-blackfriday .jp-bf-stat { min-width: 0; }
+}
+@media (max-width: 420px) {
+  .jp-hero-blackfriday .jp-bf-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .jp-hero-blackfriday .jp-bf-stat { padding: 10px; }
+  .jp-hero-blackfriday .jp-bf-stat strong { font-size: 15px; }
+}
