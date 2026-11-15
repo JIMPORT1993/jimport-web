@@ -17,7 +17,8 @@
   const liveDiscount = p => { const r=retailPrice(p), l=livePrice(p); return r>0 && l<r ? Math.round((r-l)/r*100) : 0; };
   const livePriceMarkup = p => { const l=livePrice(p), d=liveDiscount(p); return `<strong class="teaser-price jp-live-price">${money(l)}</strong>${liveShowDiscount&&d>0?`<span class="jp-live-discount">-${d}% LIVE</span>`:""}`; };
   const wholesalePrice = p => Number(p?.wholesale_price ?? p?.price ?? 0);
-  const blackFridayPrice = p => wholesalePrice(p) > 0 ? wholesalePrice(p) : retailPrice(p);
+  // Black Friday es una capa visual sobre el modo seleccionado: NO cambia los precios guardados.
+  const blackFridayPrice = p => displayPrice(p);
   const blackFridayRegularPrice = p => Math.ceil(blackFridayPrice(p) * (1 + blackFridayPercent / 100) - 1e-9);
   const blackFridayDiscount = p => blackFridayPrice(p) > 0 ? blackFridayPercent : 0;
   const blackFridayPriceText = p => money(blackFridayPrice(p));
@@ -39,13 +40,71 @@
     {id:"demo2",name:"Cargador rápido USB-C",brand:"Anker",model:"Ejemplo",price:24.90,old_price:null,stock:"Bajo pedido",image_url:"",description:"Carga práctica para tus dispositivos compatibles.",demo:true},
     {id:"demo3",name:"Cable USB-C",brand:"UGREEN",model:"Ejemplo",price:8.50,old_price:null,stock:"Agotado",image_url:"",description:"Accesorio para uso diario.",demo:true}
   ];
+  // Vuelve a consultar el modo antes de compartir un precio: evita valores obsoletos en pestañas abiertas.
+  async function refreshPriceSettings(){
+    if(!client) throw new Error('Sin conexión a Supabase');
+    const {data,error}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent,live_show_discount').eq('id','main').maybeSingle();
+    if(error || !data) throw new Error(error?.message || 'No existe configuración de precios');
+    displayPriceMode=['retail','wholesale','live'].includes(data.display_price_mode)?data.display_price_mode:'retail';
+    blackFridayEnabled=data.black_friday_enabled===true;
+    blackFridayPercent=Number(data.black_friday_percent??6);
+    liveShowDiscount=data.live_show_discount!==false;
+    document.body.classList.toggle('black-friday-active',blackFridayEnabled);
+    document.body.classList.toggle('live-price-active',displayPriceMode==='live'&&!blackFridayEnabled);
+  }
+  // Sincroniza pestañas abiertas: consulta liviana cada 5 segundos y al regresar a la pestaña.
+  // Un solo origen de verdad: jimport_store_settings, sin caché local de precios.
+  let lastSettingsSignature = null, priceSyncBusy = false;
+  async function syncOpenPagePrices(){
+    if(priceSyncBusy || !client) return;
+    priceSyncBusy = true;
+    try {
+      await refreshPriceSettings();
+      const settings = {display_price_mode:displayPriceMode,black_friday_enabled:blackFridayEnabled,black_friday_percent:blackFridayPercent,live_show_discount:liveShowDiscount};
+      const signature = JSON.stringify(settings);
+      if(lastSettingsSignature !== null && signature !== lastSettingsSignature){
+        render();
+        renderPromotion();
+        updateOpenProductPrice();
+        window.dispatchEvent(new CustomEvent('jimport:prices-changed',{detail:settings}));
+      }
+      lastSettingsSignature = signature;
+    }catch(error){console.warn('JIMPORT: no se pudo sincronizar el precio; se reintentará.',error);}
+    finally{priceSyncBusy = false;}
+  }
+  function updateOpenProductPrice(){
+    const dlg=document.getElementById('jimportProductInfoDialog');
+    if(!dlg?.open || !dlg.dataset.currentProductId) return;
+    const p=products.find(x=>String(x.id)===dlg.dataset.currentProductId);
+    const target=dlg.querySelector('[data-jp-current-price]');
+    if(!p || !target) return;
+    target.innerHTML=productDialogPriceMarkup(p);
+    const link=dlg.querySelector('a[href^="https://wa.me/"]');
+    if(link)link.href=wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+whatsappProductPrice(p)+productPhoto(p));
+  }
+  function productDialogPriceMarkup(p){
+    const sale=blackFridayPrice(p), regular=blackFridayRegularPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
+    const live=livePrice(p), livePct=liveDiscount(p);
+    return blackFridayEnabled&&discount>0
+      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio anterior <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">-${discount}% BLACK FRIDAY</small></div>`
+      : displayPriceMode==='live' ? `<div class="jimport-dialog-live"><span>PRECIO LIVE</span><strong class="jimport-dialog-price">${money(live)}</strong>${liveShowDiscount&&livePct>0?`<small>Ahorras ${livePct}% frente al precio público</small>`:''}</div>`
+      : `<strong class="jimport-dialog-price">${displayPriceText(p)}</strong>`;
+  }
+  setInterval(syncOpenPagePrices,5000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncOpenPagePrices();});
+  window.addEventListener('focus',syncOpenPagePrices);
+  function whatsappProductPrice(p){
+    const price=displayPrice(p);
+    const modeLabel=displayPriceMode==='wholesale'?'PRECIO POR MAYOR':displayPriceMode==='live'?'PRECIO LIVE':'PRECIO PÚBLICO';
+    return `Modalidad vigente: ${modeLabel}${blackFridayEnabled?' + BLACK FRIDAY':''}\nPrecio del producto: ${money(price)}`;
+  }
   // Recupera todos los productos publicados, incluso si el proyecto contiene más de 1000.
   // No se modifica ni se borra ningún registro de Supabase.
   async function load() {
     if (!client) { products=[]; status.textContent="No se pudo conectar con el catálogo. Comprueba config.js."; render(); return; }
     try {
-      const {data:priceSettings,error:settingsError}=await client.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent,live_show_discount').eq('id','main').maybeSingle();
-      if(!settingsError){displayPriceMode=priceSettings?.display_price_mode||'retail';blackFridayEnabled=priceSettings?.black_friday_enabled===true;blackFridayPercent=Number(priceSettings?.black_friday_percent??6);liveShowDiscount=priceSettings?.live_show_discount!==false;document.body.classList.toggle('black-friday-active',blackFridayEnabled);document.body.classList.toggle('live-price-active',displayPriceMode==='live'&&!blackFridayEnabled);}
+      await refreshPriceSettings();
+      lastSettingsSignature=JSON.stringify({display_price_mode:displayPriceMode,black_friday_enabled:blackFridayEnabled,black_friday_percent:blackFridayPercent,live_show_discount:liveShowDiscount});
       const all=[]; const batchSize=500;
       for(let offset=0;offset<50000;offset+=batchSize){
         const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false}).range(offset,offset+batchSize-1);
@@ -160,16 +219,21 @@
   function openProductInfo(p){
     let dlg=document.getElementById('jimportProductInfoDialog');
     if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
-    const sale=blackFridayPrice(p), regular=blackFridayRegularPrice(p), discount=blackFridayEnabled?blackFridayDiscount(p):0;
-    const live=livePrice(p), livePct=liveDiscount(p);
-    const priceBlock=blackFridayEnabled&&discount>0
-      ? `<div class="jimport-dialog-bf"><span class="jimport-dialog-bf-tag">BLACK FRIDAY</span><p class="jimport-dialog-model">Precio anterior <del>${money(regular)}</del></p><strong class="jimport-dialog-price">Precio especial ${money(sale)}</strong><small class="jimport-dialog-save">-${discount}% BLACK FRIDAY</small></div>`
-      : displayPriceMode==='live' ? `<div class="jimport-dialog-live"><span>PRECIO LIVE</span><strong class="jimport-dialog-price">${money(live)}</strong>${liveShowDiscount&&livePct>0?`<small>Ahorras ${livePct}% frente al precio público</small>`:''}</div>`
-      : `<strong class="jimport-dialog-price">${displayPriceText(p)}</strong>`;
-    const waPrice=blackFridayEnabled&&discount>0?`Precio anterior: ${money(regular)}\nPrecio Black Friday: ${money(sale)}\nDescuento: ${discount}%`:displayPriceMode==='live'?`Precio público: ${money(retailPrice(p))}\nPrecio LIVE: ${money(live)}${liveShowDiscount&&livePct>0?`\nAhorro: ${livePct}%`:''}`:`Precio mostrado: ${displayPriceText(p)}`;
+    dlg.dataset.currentProductId=String(p.id);
+    const priceBlock=productDialogPriceMarkup(p);
+    const waPrice=whatsappProductPrice(p);
     const smart=smartProductCopy(p), gallery=productGallery(p);
     const galleryHtml=gallery.length?`<div class="jp-ai-gallery" aria-label="Fotografías del producto">${gallery.map((url,i)=>`<button type="button" class="jp-ai-photo ${i===0?'is-active':''}" data-gallery-index="${i}" aria-label="Ver fotografía ${i+1}"><img src="${esc(url)}" alt="${esc(p.name)} fotografía ${i+1}" loading="lazy"></button>`).join('')}</div>`:'<p class="jp-ai-no-photos">No hay fotografías adicionales registradas todavía.</p>';
-    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>✨ Ficha inteligente JIMPORT</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div><div class="jp-ai-main-photo">${gallery[0]?`<img id="jpAiMainPhoto" src="${esc(gallery[0])}" alt="${esc(p.name)}">`:'<div class="jp-ai-photo-empty">📦 Fotografía no disponible</div>'}</div>${galleryHtml}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''} ${p.category?'· '+esc(p.category):''}</p><section class="jp-ai-section"><h4>Descripción del producto</h4><p>${esc(smart.intro)}</p><p class="jimport-dialog-text">${esc(smart.description)}</p><p class="jp-ai-note">La IA generativa puede ampliar esta información usando únicamente los datos técnicos registrados.</p><button type="button" class="jp-ai-generate-button" id="jpAiGenerate" hidden>✨ Generar descripción con IA</button><div id="jpAiGenerated" aria-live="polite"><p class="jp-ai-loading">Preparando la descripción inteligente…</p></div></section><section class="jp-ai-section"><h4>Características y beneficios</h4><p>${esc(smart.benefit)}</p>${p.specifications?`<p class="jimport-dialog-text"><b>Especificaciones:</b> ${esc(typeof p.specifications==='string'?p.specifications:JSON.stringify(p.specifications))}</p>`:''}${p.features?`<p class="jimport-dialog-text"><b>Funciones:</b> ${esc(typeof p.features==='string'?p.features:JSON.stringify(p.features))}</p>`:''}</section>${priceBlock}<a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
+    dlg.innerHTML=`<div class="jimport-dialog-head"><strong>✨ Ficha inteligente JIMPORT</strong><button type="button" aria-label="Cerrar características" class="jimport-dialog-close">✕</button></div><div class="jp-ai-main-photo">${gallery[0]?`<img id="jpAiMainPhoto" src="${esc(gallery[0])}" alt="${esc(p.name)}">`:'<div class="jp-ai-photo-empty">📦 Fotografía no disponible</div>'}</div>${galleryHtml}<h3>${esc(p.name)}</h3><p class="jimport-dialog-model">${esc(p.brand||'JIMPORT')} ${p.model?'· '+esc(p.model):''} ${p.category?'· '+esc(p.category):''}</p><section class="jp-ai-section"><h4>Descripción del producto</h4><p>${esc(smart.intro)}</p><p class="jimport-dialog-text">${esc(smart.description)}</p><p class="jp-ai-note">La IA generativa puede ampliar esta información usando únicamente los datos técnicos registrados.</p><button type="button" class="jp-ai-generate-button" id="jpAiGenerate" hidden>✨ Generar descripción con IA</button><div id="jpAiGenerated" aria-live="polite"><p class="jp-ai-loading">Preparando la descripción inteligente…</p></div></section><section class="jp-ai-section"><h4>Características y beneficios</h4><p>${esc(smart.benefit)}</p>${p.specifications?`<p class="jimport-dialog-text"><b>Especificaciones:</b> ${esc(typeof p.specifications==='string'?p.specifications:JSON.stringify(p.specifications))}</p>`:''}${p.features?`<p class="jimport-dialog-text"><b>Funciones:</b> ${esc(typeof p.features==='string'?p.features:JSON.stringify(p.features))}</p>`:''}</section><div data-jp-current-price>${priceBlock}</div><a class="button" target="_blank" rel="noopener" href="${wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+waPrice+productPhoto(p))}">Consultar por WhatsApp ↗</a>`;
+    dlg.querySelector('a[href^="https://wa.me/"]')?.addEventListener('click',async e=>{
+      e.preventDefault();
+      const tab=window.open('about:blank','_blank');
+      try{
+        await refreshPriceSettings();
+        const link=wa('Hola JIMPORT, deseo información sobre '+p.name+'\n'+whatsappProductPrice(p)+productPhoto(p));
+        if(tab) tab.location.replace(link); else window.location.href=link;
+      }catch(error){if(tab)tab.close();alert('No se pudo confirmar el precio vigente. Intenta de nuevo para evitar enviar un precio equivocado.');}
+    });
     dlg.querySelectorAll('[data-gallery-index]').forEach(btn=>btn.addEventListener('click',()=>{const url=gallery[Number(btn.dataset.galleryIndex)];const main=dlg.querySelector('#jpAiMainPhoto');if(main&&url)main.src=url;dlg.querySelectorAll('.jp-ai-photo').forEach(x=>x.classList.toggle('is-active',x===btn));}));
     dlg.querySelector('#jpAiGenerate').addEventListener('click',()=>generateProductDescriptionWithAI(p,dlg,smart));
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();dlg.showModal();

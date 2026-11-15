@@ -1,0 +1,12 @@
+JIMPORT - PROYECTO OPTIMIZADO PARA PUBLICAR
+
+Este ZIP contiene el sitio web, administrador, archivos JavaScript, CSS activos y recursos.
+Se quitaron del ZIP principal historiales de SQL, instrucciones previas, CSV de carga y CSS no referenciados.
+
+Funciones conservadas: precios publico, mayorista y LIVE; Black Friday; sincronizacion periodica de precios; consultas WhatsApp; carrito; Supabase; API de IA; administracion.
+
+IMPORTANTE: Los scripts SQL retirados son historicos y NO deben ejecutarse sin una revision de migraciones. Se guardan en JIMPORT_ARCHIVOS_HISTORICOS_RESPALDO.zip.
+
+Para publicar: subir el contenido de la carpeta jimport-web-main/ a tu repositorio (manteniendo api/ y assets/). Conservar variables/configuracion ya existentes de Supabase/Vercel.
+
+Verificaciones efectuadas: referencia de recursos desde el codigo, integridad del ZIP y sintaxis JS donde Node este disponible. No incluye pruebas reales de Supabase o Vercel.

@@ -1,8 +1,8 @@
 (()=>{'use strict';
 const cfg=window.JIMPORT_CONFIG||{},db=window.supabase?.createClient?.(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY),$=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD'}).format(Number(n||0)),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let products=[],combos=[],cart=[],compare=[],displayPriceMode="retail",blackFridayEnabled=false,blackFridayPercent=6;
-const displayPrice=p=>displayPriceMode==="wholesale"?Number(p?.wholesale_price??p?.price??0):Number(p?.price||0);
-const retailPrice=p=>Number(p?.price||0),wholesalePrice=p=>Number(p?.wholesale_price??p?.price??0),bfPrice=p=>wholesalePrice(p)>0?wholesalePrice(p):retailPrice(p),bfRegular=p=>Math.ceil(bfPrice(p)*(1+blackFridayPercent/100)-1e-9),bfDiscount=()=>blackFridayPercent;
+const displayPrice=p=>displayPriceMode==="wholesale"?Number(p?.wholesale_price??p?.price??0):displayPriceMode==="live"?Math.floor((Number(p?.price||0)+Number(p?.wholesale_price??p?.price??0))/2):Number(p?.price||0);
+const retailPrice=p=>Number(p?.price||0),wholesalePrice=p=>Number(p?.wholesale_price??p?.price??0),bfPrice=p=>displayPrice(p),bfRegular=p=>Math.ceil(bfPrice(p)*(1+blackFridayPercent/100)-1e-9),bfDiscount=()=>blackFridayPercent;
 const bfProductDiscount=p=>blackFridayEnabled&&bfPrice(p)>0?blackFridayPercent:0;
 const bfComboDiscount=c=>blackFridayEnabled&&Number(c.combo_price||0)>0?blackFridayPercent:0;
 const bfComboRegular=c=>Math.ceil(Number(c.combo_price||0)*(1+blackFridayPercent/100)-1e-9);
@@ -10,17 +10,27 @@ const photo=p=>p?.image_url?'\n📷 '+p.image_url:'';
 const wa=msg=>'https://wa.me/'+String(cfg.WHATSAPP_NUMBER||'').replace(/\D/g,'')+'?text='+encodeURIComponent(msg);
 function visible(p){return p.active!==false;}
 async function start(){if(!db)return;const [a,b,c]=await Promise.all([db.from('products').select('*').limit(3000),db.from('jimport_super_combos').select('*').eq('active',true).order('created_at',{ascending:false}),db.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent').eq('id','main').maybeSingle()]);if(!c.error){displayPriceMode=c.data?.display_price_mode||'retail';blackFridayEnabled=c.data?.black_friday_enabled===true;blackFridayPercent=Number(c.data?.black_friday_percent??6);document.body.classList.toggle('black-friday-active',blackFridayEnabled);}if(!a.error)products=(a.data||[]).filter(visible);if(!b.error)combos=b.data||[];else $('jxCombos').textContent='Los Súper Combos estarán disponibles próximamente. Activa su tabla en Supabase.';drawCombos();drawCompare();enhanceCards();new MutationObserver(()=>enhanceCards()).observe($('productGrid'),{childList:true,subtree:false});}
+async function refreshPriceSettings(){
+ if(!db)throw new Error('Sin conexión');
+ const {data,error}=await db.from('jimport_store_settings').select('display_price_mode,black_friday_enabled,black_friday_percent').eq('id','main').maybeSingle();
+ if(error||!data)throw new Error(error?.message||'Configuración no disponible');
+ displayPriceMode=['retail','wholesale','live'].includes(data.display_price_mode)?data.display_price_mode:'retail';
+ blackFridayEnabled=data.black_friday_enabled===true;
+ blackFridayPercent=Number(data.black_friday_percent??6);
+}
+const modeLabel=()=>displayPriceMode==='wholesale'?'PRECIO POR MAYOR':displayPriceMode==='live'?'PRECIO LIVE':'PRECIO PÚBLICO';
 function get(id){return products.find(p=>String(p.id)===String(id));}
 function cartAdd(id,qty=1){const p=get(id);if(!p||p.stock==='Agotado')return;const found=cart.find(x=>x.id===String(id));if(found)found.qty+=qty;else cart.push({id:String(id),qty});drawCart();}
 window.JIMPORT_CART_ADD=cartAdd;
 function comboAdd(c){const ids=c.items||[];const label=c.name;cart.push({comboId:c.id,label,price:Number(c.combo_price),ids});drawCart();}
 function drawCart(){const bar=$('jxCartBar');if(!bar)return;const total=cart.reduce((s,x)=>s+(x.comboId?x.price:displayPrice(get(x.id))*x.qty),0);bar.hidden=!cart.length;if(!cart.length)return;bar.innerHTML=`<div><b>🛒 Mi pedido · ${cart.length} selección(es)</b><span>Total estimado: ${money(total)}</span></div><button type="button" data-jx="view">Ver pedido</button><button type="button" data-jx="send">Enviar por WhatsApp</button>`;bar.querySelector('[data-jx="view"]').onclick=showCart;bar.querySelector('[data-jx="send"]').onclick=sendCart;}
 function showCart(){let d=$('jxCartDialog');if(!d){d=document.createElement('dialog');d.id='jxCartDialog';d.className='jx-dialog';document.body.append(d);}d.innerHTML=`<h2>Tu pedido</h2>${cart.map((x,i)=>`<div class="jx-cart-line"><span>${esc(x.comboId?'🔥 '+x.label:(get(x.id)?.name||'Producto')+' × '+x.qty)}</span><b>${money(x.comboId?x.price:displayPrice(get(x.id))*x.qty)}</b><button type="button" data-remove="${i}" aria-label="Quitar">✕</button></div>`).join('')}<p>El precio final, stock y entrega se confirman por WhatsApp.</p><div class="jx-actions"><button class="button" data-send>Enviar pedido</button><button class="button button-outline" data-close>Cerrar</button></div>`;d.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart.splice(Number(b.dataset.remove),1);drawCart();showCart();});d.querySelector('[data-send]').onclick=sendCart;d.querySelector('[data-close]').onclick=()=>d.close();if(!d.open)d.showModal();}
-function sendCart(){if(!cart.length)return;const lines=cart.map(x=>x.comboId?`• Súper Combo: ${x.label} — ${money(x.price)} (${x.ids.length} artículos)`:`• ${get(x.id)?.name||'Producto'} × ${x.qty} — ${money(displayPrice(get(x.id))*x.qty)+photo(get(x.id))}`);const total=cart.reduce((s,x)=>s+(x.comboId?x.price:displayPrice(get(x.id))*x.qty),0);window.open(wa('Hola JIMPORT, quisiera confirmar este pedido:\n'+lines.join('\n')+'\nTotal estimado: '+money(total)+'\n¿Me confirman disponibilidad, garantía y entrega?'),'_blank','noopener');}
+async function sendCart(){if(!cart.length)return;const tab=window.open('about:blank','_blank');try{await refreshPriceSettings();}catch(error){if(tab)tab.close();alert('No se pudo confirmar el precio vigente. No se enviará un precio incorrecto.');return;}drawCart();const lines=cart.map(x=>x.comboId?`• Súper Combo: ${x.label} — ${money(x.price)} (${x.ids.length} artículos)`:`• ${get(x.id)?.name||'Producto'} × ${x.qty} — ${money(displayPrice(get(x.id))*x.qty)+photo(get(x.id))}`);const total=cart.reduce((s,x)=>s+(x.comboId?x.price:displayPrice(get(x.id))*x.qty),0);const link=wa('Hola JIMPORT, quisiera confirmar este pedido:\nModalidad vigente: '+modeLabel()+(blackFridayEnabled?' + BLACK FRIDAY':'')+'\n'+lines.join('\n')+'\nTotal estimado: '+money(total)+'\n¿Me confirman disponibilidad, garantía y entrega?');if(tab)tab.location.replace(link);else window.location.href=link;}
 function showComboInfo(c){
  const ps=(Array.isArray(c.items)?c.items:[]).map(get).filter(Boolean);
  let dlg=document.getElementById('jimportComboInfoDialog');
  if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportComboInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
+ dlg.dataset.currentComboId=String(c.id);
  const desc=c.description?`<p class="jimport-dialog-text">${esc(c.description)}</p>`:'';
  const list=ps.map(p=>`<li>${esc(p.name)}</li>`).join('');
  dlg.innerHTML=`<div class="jimport-dialog-head"><strong>Descripción del Súper Combo</strong><button type="button" class="jimport-dialog-close" aria-label="Cerrar descripción">✕</button></div><h3>${esc(c.name)}</h3>${desc}<p class="jimport-dialog-model">Productos incluidos:</p><ul class="jx-combo-dialog-items">${list}</ul>${blackFridayEnabled&&bfComboDiscount(c)>0?`<span class="bf-discount-badge">-${bfComboDiscount(c)}% BLACK FRIDAY</span><del class="bf-regular-price">${money(bfComboRegular(c))}</del><strong class="jimport-dialog-price">${money(c.combo_price)}</strong>`:`<strong class="jimport-dialog-price">${money(c.combo_price)}</strong>`}<a class="button" target="_blank" rel="noopener noreferrer" href="${wa('Hola JIMPORT, deseo información sobre el Súper Combo '+c.name+'\n💵 Precio del combo: '+money(c.combo_price))}">Consultar por WhatsApp ↗</a>`;
@@ -64,10 +74,27 @@ function localAnalysis(a,b){
  return parts;
 }
 function drawCompare(){const el=$('jxCompare');if(!el)return;const selected=compare.map(get).filter(Boolean);
- el.innerHTML=selected.length?`<div class="jx-compare-grid">${selected.map(p=>`<article><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}"><h3>${esc(p.name)}</h3><p>${esc(p.brand||'')} · ${esc(p.model||'')}</p><strong>${money(p.price)}</strong><p>${esc(clean(p.description||'Sin descripción'))}</p><p>${esc(clean(typeof p.specifications==='string'?p.specifications:JSON.stringify(p.specifications||'')))}</p></article>`).join('')}</div><div class="jx-compare-tools"><button type="button" class="button" id="jxCompareNow" ${selected.length!==2?'disabled':''}>✨ Compara ahora</button><button type="button" class="jx-quick" id="jxClearCompare">Limpiar comparación</button></div><div id="jxCompareResult" class="jx-compare-result" role="status" aria-live="polite">${selected.length<2?'Selecciona un segundo producto para obtener el análisis.':'Presiona «Compara ahora» para recibir una recomendación.'}</div>`:'<p>En el catálogo, elige «Comparar» en dos productos y pulsa «Compara ahora» para ver la recomendación aquí mismo.</p>';
+ el.innerHTML=selected.length?`<div class="jx-compare-grid">${selected.map(p=>`<article><img src="${esc(p.image_url||'')}" alt="${esc(p.name)}"><h3>${esc(p.name)}</h3><p>${esc(p.brand||'')} · ${esc(p.model||'')}</p><strong>${money(displayPrice(p))}</strong><p>${esc(clean(p.description||'Sin descripción'))}</p><p>${esc(clean(typeof p.specifications==='string'?p.specifications:JSON.stringify(p.specifications||'')))}</p></article>`).join('')}</div><div class="jx-compare-tools"><button type="button" class="button" id="jxCompareNow" ${selected.length!==2?'disabled':''}>✨ Compara ahora</button><button type="button" class="jx-quick" id="jxClearCompare">Limpiar comparación</button></div><div id="jxCompareResult" class="jx-compare-result" role="status" aria-live="polite">${selected.length<2?'Selecciona un segundo producto para obtener el análisis.':'Presiona «Compara ahora» para recibir una recomendación.'}</div>`:'<p>En el catálogo, elige «Comparar» en dos productos y pulsa «Compara ahora» para ver la recomendación aquí mismo.</p>';
  if($('jxClearCompare'))$('jxClearCompare').onclick=()=>{compare=[];drawCompare();};
  if($('jxCompareNow'))$('jxCompareNow').onclick=()=>{const [a,b]=selected;const result=$('jxCompareResult');result.replaceChildren();const title=document.createElement('h3');title.textContent='Análisis de compra JIMPORT';result.append(title);for(const line of localAnalysis(a,b)){const p=document.createElement('p');p.textContent=line;result.append(p);}const note=document.createElement('small');note.textContent='Comparación automática basada en los datos registrados en el catálogo. No utiliza un modelo de IA generativa ni verifica especificaciones externas.';result.append(note);};
 }
 
+// Comparte el modo vigente con carrito, comparador y cuadros abiertos.
+window.addEventListener('jimport:prices-changed',event=>{
+ const s=event.detail||{};
+ displayPriceMode=['retail','wholesale','live'].includes(s.display_price_mode)?s.display_price_mode:'retail';
+ blackFridayEnabled=s.black_friday_enabled===true;
+ blackFridayPercent=Number(s.black_friday_percent??6);
+ drawCart();
+ drawCompare();
+ drawCombos();
+ const cartDialog=$('jxCartDialog');
+ if(cartDialog?.open)showCart();
+ const comboDialog=$('jimportComboInfoDialog');
+ if(comboDialog?.open){
+  const selected=combos.find(x=>String(x.id)===comboDialog.dataset.currentComboId);
+  if(selected){comboDialog.close();showComboInfo(selected);}
+ }
+});
 start();
 })();
