@@ -123,22 +123,13 @@
     }
   }
   function norm(v){return String(v??"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es");}
-  // Búsqueda local por lenguaje natural: no utiliza APIs de pago ni modifica el inventario.
-  const ignoredSearchWords=new Set(['quiero','quisiera','necesito','busco','buscar','dame','tienes','tienen','un','una','unos','unas','el','la','los','las','de','del','para','por','con','que','me','mi','en','y','o','a','al','es','sea','producto','productos','favor','algo','compatible']);
-  const searchAliases={cargadores:'cargador',carga:'cargador',cargas:'cargador',cargue:'cargador',rapida:'rapido',rapidos:'rapido',rapidas:'rapido',watts:'w',watt:'w',vatios:'w',vatio:'w',baterias:'powerbank',bateria:'powerbank',portatil:'powerbank',portatiles:'powerbank',powerbanks:'powerbank',audifonos:'auriculares',audifono:'auriculares',cascos:'auriculares',celular:'telefono',movil:'telefono',telefonos:'telefono',cables:'cable',adaptadores:'adaptador',adaptadoresusb:'adaptador',typec:'usbc'};
-  function searchable(v){return norm(v).replace(/(\d+)\s*(?:watts?|vatios?|w)(?![a-z])/g,'$1w').replace(/usb[ -]?c/g,'usbc').replace(/power[ -]?banks?/g,'powerbank').replace(/[^a-z0-9]+/g,' ').trim();}
-  function searchTerms(query){return searchable(query).split(/\s+/).filter(Boolean).filter(t=>!ignoredSearchWords.has(t)).map(t=>searchAliases[t]||t);}
-  function searchContent(p){return searchable([p.name,p.brand,p.model,p.description,p.category,p.sku,p.specifications,p.features].filter(v=>typeof v==='string'||typeof v==='number').join(' '));}
-  function closeWord(a,b){if(a.length<4||b.length<4||Math.abs(a.length-b.length)>1)return false;let i=0,j=0,errors=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue;}if(++errors>1)return false;if(a.length>b.length)i++;else if(b.length>a.length)j++;else{i++;j++;}}return errors+(i<a.length?1:0)+(j<b.length?1:0)<=1;}
-  function matchesSearch(p,query){
-    const terms=searchTerms(query);if(!terms.length)return true;
-    const content=searchContent(p), words=content.split(' ');
-    // Todos los términos relevantes deben coincidir; se tolera un error de tipeo leve.
-    return terms.every(t=>content.includes(t)||(t.length>=4&&words.some(w=>closeWord(t,w))));
-  }
-  function searchScore(p,query){
-    const name=searchable(p.name),model=searchable(p.model),brand=searchable(p.brand),terms=searchTerms(query);
-    return terms.reduce((score,t)=>score+(name.includes(t)?5:0)+(model.includes(t)?4:0)+(brand.includes(t)?3:0),0);
+  // Busca por palabras clave en todos los datos visibles del producto.
+  // Ej.: "100w", "100 W" y "100 watts" encuentran los artículos de 100 W.
+  function searchable(v){return norm(v).replace(/(\d+)\s*(watts?|w)(?![a-z])/g,"$1w").replace(/[^a-z0-9]+/g," ").trim();}
+  function matchesSearch(p, query){
+    const content=searchable([p.name,p.brand,p.model,p.description,p.category,p.sku,p.specifications,p.features].filter(v=>typeof v==="string"||typeof v==="number").join(" "));
+    const terms=searchable(query).split(/\s+/).filter(Boolean);
+    return terms.every(term=>content.includes(term));
   }
   // Una ficha por modelo/SKU en la interfaz; los registros originales permanecen en Supabase.
   // Evita fichas repetidas sin modificar registros de inventario en Supabase.
@@ -252,9 +243,12 @@
   
 function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
-    // No crear datalist: Android mostraba la lista completa e impedía escribir con comodidad.
-    search.removeAttribute('list');
-    document.getElementById('jimportSearchSuggestions')?.remove();
+    // Sugerencias de búsqueda inteligentes construidas con el catálogo real.
+    let smartList=document.getElementById("jimportSearchSuggestions");
+    if(!smartList){smartList=document.createElement("datalist");smartList.id="jimportSearchSuggestions";search.setAttribute("list",smartList.id);search.insertAdjacentElement("afterend",smartList);}
+    const suggestions=new Set();
+    products.forEach(p=>[p.name,p.brand,p.model,p.category].forEach(v=>{const s=String(v||"").trim();if(s.length>1)suggestions.add(s);}));
+    smartList.innerHTML=[...suggestions].slice(0,500).map(v=>`<option value="${esc(v)}"></option>`).join("");
     const brands=[...new Map(products.map(p=>String(p.brand||"").trim()).filter(Boolean).map(b=>[norm(b),b.toLocaleUpperCase("es")])).values()].sort((a,b)=>a.localeCompare(b,"es"));
     brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("");
     brandFilter.value=brands.find(b=>norm(b)===norm(currentBrand))||"";
@@ -264,7 +258,7 @@ function render() {
       categoryFilter.value=categories.find(c=>norm(c)===norm(currentCategory))||"";
     }
     const brand=brandFilter.value, category=categoryFilter?.value||"";
-    const list=uniqueProducts(products.filter(p=>!promotedProductIds.has(String(p.id))&&(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category)))).sort((a,b)=>q?searchScore(b,q)-searchScore(a,q):0);
+    const list=uniqueProducts(products.filter(p=>!promotedProductIds.has(String(p.id))&&(!q||matchesSearch(p,q))&&(!brand||norm(p.brand)===norm(brand))&&(!category||norm(p.category||"VARIOS")===norm(category))));
     renderCatalogTeasers();
     renderShowcaseProducts();
     if(!brand && !category && !q){
@@ -321,7 +315,7 @@ function render() {
   function renderCatalogTeasers(){
     const el=document.getElementById("catalogTeasers"); if(!el)return;
     const withImages=products.filter(p=>p.active!==false);
-    el.hidden=Boolean(brandFilter.value || categoryFilter?.value || committedSearch.trim());
+    el.hidden=Boolean(brandFilter.value || categoryFilter?.value || search.value.trim());
     if(teaserTimer){clearInterval(teaserTimer);teaserTimer=null;}
     if(!withImages.length){el.innerHTML='<p class="catalog-teaser-empty">Todavía no hay productos publicados en el catálogo.</p>';return;}
     const ordered=[...withImages].sort((a,b)=>norm(a.brand).localeCompare(norm(b.brand),'es') || norm(a.name).localeCompare(norm(b.name),'es'));
@@ -454,7 +448,7 @@ function render() {
   }
   function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
   document.querySelectorAll('[data-brand]').forEach(link=>link.addEventListener('click',()=>{
-    search.value=''; committedSearch=''; if(categoryFilter)categoryFilter.value='';
+    search.value=''; if(categoryFilter)categoryFilter.value='';
     const selected=link.dataset.brand;
     const match=[...brandFilter.options].find(o=>norm(o.value)===norm(selected));
     brandFilter.value=match?match.value:selected; render();
@@ -502,13 +496,9 @@ function render() {
   ratingPicker?.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{ratingSelect.value=button.dataset.rating;paintRating();}));
   ratingSelect?.addEventListener('change',paintRating);reviewForm?.addEventListener('reset',()=>requestAnimationFrame(paintRating));paintRating();
   if(reviewsList) loadReviews();
-  function clearFilters(){search.value="";committedSearch="";brandFilter.value="";if(categoryFilter)categoryFilter.value="";render();}
+  function clearFilters(){search.value="";brandFilter.value="";if(categoryFilter)categoryFilter.value="";render();}
   document.getElementById("clearFilters")?.addEventListener("click",clearFilters);
   const initialSearch=new URLSearchParams(location.search).get("buscar");
-  if(initialSearch){search.value=initialSearch;committedSearch=initialSearch;brandFilter.value="";if(categoryFilter)categoryFilter.value="";}
-  function submitCatalogSearch(){committedSearch=search.value.trim();render();}
-  document.getElementById('catalogSearchForm')?.addEventListener('submit',e=>{e.preventDefault();submitCatalogSearch();search.blur();});
-  // Compatibilidad con enlaces y carruseles que rellenan el buscador mediante JavaScript.
-  search.addEventListener('input',e=>{if(!e.isTrusted){submitCatalogSearch();}else if(!search.value.trim()&&committedSearch){committedSearch='';render();}});
-  brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
+  if(initialSearch){search.value=initialSearch;brandFilter.value="";if(categoryFilter)categoryFilter.value="";}
+  search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
 })();
