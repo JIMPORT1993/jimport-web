@@ -128,7 +128,8 @@
   function searchable(v){return norm(v).replace(/(\d+)\s*(watts?|w)(?![a-z])/g,"$1w").replace(/[^a-z0-9]+/g," ").trim();}
   function matchesSearch(p, query){
     const content=searchable([p.name,p.brand,p.model,p.description,p.category,p.sku,p.specifications,p.features].filter(v=>typeof v==="string"||typeof v==="number").join(" "));
-    const terms=searchable(query).split(/\s+/).filter(Boolean);
+    const stopWords=new Set(["busco","buscar","quiero","necesito","me","un","una","unos","unas","de","del","el","la","los","las","con","para","por","favor","que","tenga","tienen","tiene","producto","productos","algun","alguna"]);
+    const terms=searchable(query).split(/\s+/).filter(term=>term&&!stopWords.has(term));
     return terms.every(term=>content.includes(term));
   }
   // Una ficha por modelo/SKU en la interfaz; los registros originales permanecen en Supabase.
@@ -243,12 +244,6 @@
   
 function render() {
     const q=norm(search.value), currentBrand=brandFilter.value, currentCategory=categoryFilter?.value||"";
-    // Sugerencias de búsqueda inteligentes construidas con el catálogo real.
-    let smartList=document.getElementById("jimportSearchSuggestions");
-    if(!smartList){smartList=document.createElement("datalist");smartList.id="jimportSearchSuggestions";search.setAttribute("list",smartList.id);search.insertAdjacentElement("afterend",smartList);}
-    const suggestions=new Set();
-    products.forEach(p=>[p.name,p.brand,p.model,p.category].forEach(v=>{const s=String(v||"").trim();if(s.length>1)suggestions.add(s);}));
-    smartList.innerHTML=[...suggestions].slice(0,500).map(v=>`<option value="${esc(v)}"></option>`).join("");
     const brands=[...new Map(products.map(p=>String(p.brand||"").trim()).filter(Boolean).map(b=>[norm(b),b.toLocaleUpperCase("es")])).values()].sort((a,b)=>a.localeCompare(b,"es"));
     brandFilter.innerHTML='<option value="">Todas las marcas</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("");
     brandFilter.value=brands.find(b=>norm(b)===norm(currentBrand))||"";
@@ -500,5 +495,10 @@ function render() {
   document.getElementById("clearFilters")?.addEventListener("click",clearFilters);
   const initialSearch=new URLSearchParams(location.search).get("buscar");
   if(initialSearch){search.value=initialSearch;brandFilter.value="";if(categoryFilter)categoryFilter.value="";}
+  search.removeAttribute("list");
+  document.getElementById("jimportSearchSuggestions")?.remove();
+  const runCatalogSearch=()=>{render();if(search.value.trim()){document.getElementById("status")?.scrollIntoView({behavior:"smooth",block:"start"});}};
+  document.getElementById("jimportSearchButton")?.addEventListener("click",runCatalogSearch);
+  search.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();search.blur();runCatalogSearch();}});
   search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
 })();

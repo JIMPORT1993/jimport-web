@@ -670,3 +670,11 @@ body.black-friday-active .promo-price{display:flex;align-items:center;gap:9px;fl
 .jp-live-price{color:#007c72!important}.jimport-dialog-live{display:grid;gap:7px;margin:10px 0;padding:14px 16px;border:1px solid rgba(0,180,160,.28);border-radius:16px;background:linear-gradient(135deg,#eafffa,#edf7ff)}.jimport-dialog-live>span{font-size:11px;font-weight:900;letter-spacing:.14em;color:#007c72}.jimport-dialog-live strong{font-size:28px;color:#063c4b}.jimport-dialog-live small{color:#087b70;font-weight:700}
 .jp-live-card{border-color:rgba(0,220,190,.22)}.jp-live-card .jp-bf-card-copy small{color:#55e5d0}.jp-live-card .jp-bf-card-save{color:#65ead8}
 @media(max-width:700px){.jp-hero-live{padding-bottom:22px}.jp-live-badge{font-size:12px;padding:8px 13px}.jp-live-stats .jp-bf-stat{flex:1 1 140px}}
+
+/* Buscador JIMPORT: escritura libre + lupa. Sin lista de sugerencias nativa. */
+#productos .filters .jimport-search-box{display:flex;align-items:stretch;flex:1 1 290px;min-width:0;position:relative;}
+#productos .filters .jimport-search-box input{width:100%;min-width:0;flex:1 1 auto;padding-right:8px;border-radius:12px 0 0 12px;border-right:0;}
+#productos .filters .jimport-search-box button{display:grid;place-items:center;flex:0 0 52px;min-height:48px;padding:0;border:1px solid #298fda;border-radius:0 12px 12px 0;background:#1178c8;color:#fff;cursor:pointer;}
+#productos .filters .jimport-search-box button:hover{background:#0966b4;}
+#productos .filters .jimport-search-box button:focus-visible{outline:3px solid #75cfff;outline-offset:2px;}
+@media(max-width:700px){#productos .filters .jimport-search-box{width:100%;flex:0 0 auto;}#productos .filters .jimport-search-box button{flex-basis:56px;}}
