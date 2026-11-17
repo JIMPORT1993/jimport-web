@@ -19,7 +19,8 @@ async function readProducts(select) {
     const response = await fetch(endpoint.toString(), {
       headers: {
         apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        // La clave sb_publishable_* no es un JWT. No debe enviarse como Bearer.
+        // Para lectura pública usamos únicamente la cabecera apikey.
         Range: `${offset}-${offset + pageSize - 1}`,
         'Range-Unit': 'items'
       }
