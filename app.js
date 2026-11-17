@@ -217,9 +217,51 @@
     const urls=[p.image_url,...extras].filter(v=>typeof v==='string'&&/^https?:\/\//i.test(v));
     return [...new Set(urls)].slice(0,12);
   }
-  function openProductInfo(p){
+  // SEO por producto: cada ficha tiene una URL compartible e indexable.
+  const homeTitle=document.title;
+  const homeDescription=document.querySelector('meta[name="description"]')?.content||'JIMPORT: tecnología y accesorios en Ecuador.';
+  function setCanonical(url){
+    let link=document.querySelector('link[rel="canonical"]');
+    if(!link){link=document.createElement('link');link.rel='canonical';document.head.appendChild(link);}
+    link.href=url;
+  }
+  function setProductSEO(p){
+    const name=String(p.name||'Producto JIMPORT');
+    const brand=String(p.brand||'JIMPORT');
+    const description=String(p.description||`${name}. Consulta disponibilidad y asesoría en JIMPORT, Latacunga, Ecuador.`).replace(/\s+/g,' ').slice(0,300);
+    document.title=`${name} | ${brand} | JIMPORT Ecuador`;
+    const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=description;
+    const url=new URL(window.location.href);url.searchParams.set('producto',String(p.id));
+    setCanonical(url.toString());
+    let schema=document.getElementById('jimportProductSchema');
+    if(!schema){schema=document.createElement('script');schema.id='jimportProductSchema';schema.type='application/ld+json';document.head.appendChild(schema);}
+    const data={'@context':'https://schema.org','@type':'Product','name':name,'brand':{'@type':'Brand','name':brand},'description':description,'url':url.toString()};
+    if(p.image_url&&/^https?:\/\//i.test(p.image_url))data.image=[p.image_url];
+    if(p.sku)data.sku=String(p.sku);
+    schema.textContent=JSON.stringify(data);
+  }
+  function restoreHomeSEO(){
+    document.title=homeTitle;
+    const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=homeDescription;
+    setCanonical('https://jimport-web.vercel.app/');
+    document.getElementById('jimportProductSchema')?.remove();
+  }
+  function openProductInfo(p, updateUrl=true){
     let dlg=document.getElementById('jimportProductInfoDialog');
-    if(!dlg){dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});}
+    if(!dlg){
+      dlg=document.createElement('dialog');dlg.id='jimportProductInfoDialog';dlg.className='jimport-product-dialog';document.body.appendChild(dlg);
+      dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+      dlg.addEventListener('close',()=>{
+        const url=new URL(window.location.href);
+        if(url.searchParams.has('producto')){url.searchParams.delete('producto');history.replaceState({},'',url.pathname+url.search+url.hash);}
+        restoreHomeSEO();
+      });
+    }
+    if(updateUrl){
+      const url=new URL(window.location.href);
+      if(url.searchParams.get('producto')!==String(p.id)){url.searchParams.set('producto',String(p.id));history.pushState({jimportProductId:String(p.id)},'',url.pathname+url.search+url.hash);}
+    }
+    setProductSEO(p);
     dlg.dataset.currentProductId=String(p.id);
     const priceBlock=productDialogPriceMarkup(p);
     const waPrice=whatsappProductPrice(p);
@@ -237,7 +279,7 @@
     });
     dlg.querySelectorAll('[data-gallery-index]').forEach(btn=>btn.addEventListener('click',()=>{const url=gallery[Number(btn.dataset.galleryIndex)];const main=dlg.querySelector('#jpAiMainPhoto');if(main&&url)main.src=url;dlg.querySelectorAll('.jp-ai-photo').forEach(x=>x.classList.toggle('is-active',x===btn));}));
     dlg.querySelector('#jpAiGenerate').addEventListener('click',()=>generateProductDescriptionWithAI(p,dlg,smart));
-    dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();dlg.showModal();
+    dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();if(!dlg.open)dlg.showModal();
     // Genera automáticamente la descripción IA al abrir la ficha del producto.
     generateProductDescriptionWithAI(p,dlg,smart);
   }
@@ -500,5 +542,17 @@ function render() {
   const runCatalogSearch=()=>{render();if(search.value.trim()){document.getElementById("status")?.scrollIntoView({behavior:"smooth",block:"start"});}};
   document.getElementById("jimportSearchButton")?.addEventListener("click",runCatalogSearch);
   search.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();search.blur();runCatalogSearch();}});
-  search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render); load().then(restartHero); loadPromotions();
+  window.addEventListener('popstate',()=>{
+    const productId=new URLSearchParams(location.search).get('producto');
+    const dlg=document.getElementById('jimportProductInfoDialog');
+    if(productId){const product=products.find(item=>String(item.id)===productId);if(product)openProductInfo(product,false);}
+    else if(dlg?.open)dlg.close();else restoreHomeSEO();
+  });
+  search.addEventListener("input",render); brandFilter.addEventListener("change",render); categoryFilter?.addEventListener("change",render);
+  load().then(()=>{
+    restartHero();
+    const productId=new URLSearchParams(location.search).get('producto');
+    if(productId){const product=products.find(item=>String(item.id)===productId);if(product)openProductInfo(product,false);}
+  });
+  loadPromotions();
 })();
