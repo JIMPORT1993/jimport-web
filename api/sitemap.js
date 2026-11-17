@@ -1,7 +1,7 @@
 // Sitemap dinámico de JIMPORT. Replica la lógica de visibilidad del catálogo público.
 // No usa service_role: solo la clave publishable/anon de la tienda.
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jzthabpvevvustttlreb.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_i90Ns7-JD-jNInfajvHy8Q_3_TzOMUK';
+const SUPABASE_ANON_KEY = 'sb_publishable_i90Ns7-JD-iNInfajvHy8Q_3_TzOMUK';
 const SITE_URL = 'https://jimport-web.vercel.app';
 
 function xmlEscape(value) {
