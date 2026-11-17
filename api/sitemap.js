@@ -1,12 +1,41 @@
-// Sitemap dinámico de JIMPORT. Publica únicamente productos activos
-// que tienen una ficha accesible mediante ?producto=ID.
+// Sitemap dinámico de JIMPORT. Replica la lógica de visibilidad del catálogo público.
+// No usa service_role: solo la clave publishable/anon de la tienda.
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jzthabpvevvustttlreb.supabase.co';
-// Clave publishable/anon ya utilizada por la tienda en el navegador.
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_i90Ns7-JD-jNInfajvHy8Q_3_TzOMUK';
 const SITE_URL = 'https://jimport-web.vercel.app';
 
 function xmlEscape(value) {
   return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+async function readProducts(select) {
+  const products = [];
+  const pageSize = 1000;
+  for (let offset = 0; offset < 50000; offset += pageSize) {
+    const endpoint = new URL('/rest/v1/products', SUPABASE_URL);
+    endpoint.searchParams.set('select', select);
+    // La visibilidad se filtra en JavaScript, igual que en app.js.
+    // Así no dependemos de que PostgREST admita filtros sobre columnas opcionales.
+    const response = await fetch(endpoint.toString(), {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Range: `${offset}-${offset + pageSize - 1}`,
+        'Range-Unit': 'items'
+      }
+    });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      const error = new Error(`Supabase respondió ${response.status}: ${detail.slice(0, 500)}`);
+      error.status = response.status;
+      throw error;
+    }
+    const batch = await response.json();
+    if (!Array.isArray(batch)) throw new Error('Supabase no devolvió una lista de productos.');
+    products.push(...batch);
+    if (batch.length < pageSize) break;
+  }
+  return products;
 }
 
 module.exports = async function handler(req, res) {
@@ -15,28 +44,25 @@ module.exports = async function handler(req, res) {
     return res.status(405).send('Method Not Allowed');
   }
   try {
-    const products = [];
-    const pageSize = 1000;
-    for (let offset = 0; offset < 50000; offset += pageSize) {
-      const endpoint = new URL('/rest/v1/products', SUPABASE_URL);
-      endpoint.searchParams.set('select', 'id,active');
-      endpoint.searchParams.set('or', '(active.eq.true,active.is.null)');
-      endpoint.searchParams.set('order', 'created_at.desc');
-      const response = await fetch(endpoint.toString(), {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          Range: `${offset}-${offset + pageSize - 1}`,
-          'Range-Unit': 'items'
-        }
-      });
-      if (!response.ok) throw new Error(`Supabase respondió ${response.status}`);
-      const batch = await response.json();
-      products.push(...(Array.isArray(batch) ? batch : []));
-      if (!Array.isArray(batch) || batch.length < pageSize) break;
+    let products;
+    try {
+      // Caso normal: conserva la exclusión de productos explícitamente inactivos.
+      products = await readProducts('id,active');
+    } catch (firstError) {
+      // Compatibilidad con catálogos antiguos donde la columna active no existe.
+      // Si el problema es RLS/credenciales, el segundo intento también fallará.
+      if (/active|column|schema cache|42703|PGRST/i.test(firstError.message)) {
+        products = await readProducts('id');
+      } else {
+        throw firstError;
+      }
     }
 
-    const uniqueIds = [...new Set(products.map(item => String(item.id || '').trim()).filter(Boolean))];
+    const uniqueIds = [...new Set(products
+      .filter(item => item && item.active !== false)
+      .map(item => String(item.id || '').trim())
+      .filter(Boolean))];
+
     const urls = [
       `  <url><loc>${xmlEscape(SITE_URL + '/')}</loc></url>`,
       ...uniqueIds.map(id => `  <url><loc>${xmlEscape(`${SITE_URL}/?producto=${encodeURIComponent(id)}`)}</loc></url>`)
@@ -50,6 +76,6 @@ module.exports = async function handler(req, res) {
     console.error('JIMPORT sitemap error:', error);
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
-    return res.status(500).send('No se pudo generar el sitemap de JIMPORT. Revisa la conexión pública de lectura de Supabase.');
+    return res.status(500).send('No se pudo generar el sitemap. Revisa los registros de la función en Vercel y los permisos públicos SELECT de la tabla products en Supabase.');
   }
 };

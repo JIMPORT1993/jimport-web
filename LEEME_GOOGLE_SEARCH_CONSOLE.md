@@ -20,5 +20,5 @@
 ## Importante
 - El endpoint usa la clave publishable/anon que ya está expuesta en el frontend y las políticas públicas de lectura de la tabla `products`. Nunca se usa una clave `service_role`.
 - El endpoint lista productos con `active=true` o `active` vacío, igual que la tienda, y excluye `active=false`.
-- Si Supabase no permite lectura pública de esos registros o el campo `active` tiene otra configuración, Vercel devolverá un error y habrá que revisar las políticas de lectura; no se deben abrir permisos de escritura.
+- El endpoint intenta primero leer `id,active` y, si el catálogo no tiene la columna `active`, reintenta con `id`. Si ambos intentos fallan, revisa los registros de la función en Vercel y las políticas SELECT de `products` en Supabase. No abras permisos de escritura ni uses `service_role`.
 - Google puede tardar días o semanas en rastrear e indexar las URLs. Enviar el sitemap no garantiza la indexación.
