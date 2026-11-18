@@ -686,6 +686,8 @@
   });
 
   $('reloadReviews').addEventListener('click',refreshReviews);
+  // Nuevas calificaciones pendientes visibles automáticamente en el administrador.
+  setInterval(()=>{if(!document.hidden&&!dashboard.hidden)refreshReviews();},25000);
   async function refreshReviews(){
     if(!client)return;
     reviewStatus.textContent='Cargando opiniones…';

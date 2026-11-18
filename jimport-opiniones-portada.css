@@ -26,3 +26,6 @@
   .jm-reviews-home .jm-op-content p{max-width:none;font-size:12px!important}
   .jm-reviews-home .jm-op-top strong{max-width:none}
 }
+
+/* Ciudad opcional incluida por el cliente en la calificación */
+.jm-op-city{display:block;width:100%;margin:5px 0 3px;color:#b9eaff;font-weight:700;font-size:12px;line-height:1.4;}

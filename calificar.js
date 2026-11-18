@@ -9,10 +9,12 @@
   form.addEventListener('submit',async e=>{
     e.preventDefault();const msg=document.getElementById('reviewMessage'),btn=document.getElementById('reviewSubmit');
     if(!client){msg.textContent='No se pudo conectar con el sistema de calificaciones. Inténtalo más tarde.';return;}
-    const first=document.getElementById('reviewName').value.trim(),last=document.getElementById('reviewLastName').value.trim(),name=`${first} ${last}`.trim(),code=document.getElementById('reviewCode').value.trim(),comment=document.getElementById('reviewComment').value.trim(),rating=Number(select.value);
-    if(!first||!last||name.length>70||!code||comment.length<10||rating<1||rating>5){msg.textContent='Completa todos los campos correctamente.';return;}
+    const first=document.getElementById('reviewName').value.trim(),last=document.getElementById('reviewLastName').value.trim(),name=`${first} ${last}`.trim(),code=document.getElementById('reviewCode').value.trim(),comment=document.getElementById('reviewComment').value.trim(),city=document.getElementById('reviewCity').value.trim(),rating=Number(select.value);
+    if(!first||!last||name.length>70||!code||comment.length<10||rating<1||rating>5||city.length>60||/[\r\n\]]/.test(city)){msg.textContent='Completa todos los campos correctamente.';return;}
     btn.disabled=true;msg.textContent='Verificando tu compra y enviando calificación…';
-    const {error}=await client.rpc('submit_verified_review',{purchase_code:code,reviewer_name:name,review_rating:rating,review_comment:comment});
+    const commentWithCity=city?`[CIUDAD: ${city}]\n${comment}`:comment;
+    if(commentWithCity.length>1000){btn.disabled=false;msg.textContent='Tu comentario es demasiado largo. Acórtalo un poco para incluir tu ciudad.';return;}
+    const {error}=await client.rpc('submit_verified_review',{purchase_code:code,reviewer_name:name,review_rating:rating,review_comment:commentWithCity});
     btn.disabled=false;
     if(error){msg.textContent='No se pudo verificar la compra o el código ya fue utilizado. Comprueba el código recibido por WhatsApp.';return;}
     form.reset();msg.textContent='¡Gracias por calificar tu compra! Tu opinión fue recibida y se publicará después de su aprobación.';
