@@ -723,19 +723,3 @@ body:has(.jp-hero) .reviews-section{background:linear-gradient(130deg,#041433,#0
 /* Ciudad opcional incluida por el cliente en la calificación */
 .jm-op-city{display:block;width:100%;margin:5px 0 3px;color:#b9eaff;font-weight:700;font-size:12px;line-height:1.4;}
 
-
-
-/* Accesibilidad y navegación: mejoras globales seguras */
-:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 3px solid #48d9ff;
-  outline-offset: 3px;
-}
-:where(section, main, footer, [id]) { scroll-margin-top: 92px; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    scroll-behavior: auto !important;
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-  }
-}
