@@ -384,6 +384,11 @@ function render() {
     paint();autoplay();
   }
   function renderHero(){
+    const dynamicRotator=document.getElementById('jimportHomeRotator');
+    if(dynamicRotator?.dataset.hasBanners==='true'){
+      ['jpStandardHero','jpBlackFridayHero','jpLiveHero'].forEach(id=>{const node=document.getElementById(id);if(node)node.hidden=true;});
+      return;
+    }
     const standard=document.getElementById('jpStandardHero');
     const blackFriday=document.getElementById('jpBlackFridayHero');
     const liveHero=document.getElementById('jpLiveHero');
