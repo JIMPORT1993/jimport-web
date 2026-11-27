@@ -20,27 +20,6 @@ https://..."></textarea><small>Agrega enlaces directos a fotografías del mismo 
     <div class="form-actions"><button class="button" type="submit">Guardar producto</button><button class="button button-outline" id="cancelForm" type="button">Cancelar</button></div>
   </form>
   <section class="panel" id="brandsPanel"><h2 id="brandsTitle">Gestionar marcas · añadir o quitar</h2><p>La marca se guarda en Supabase y aparecerá en el selector al registrar productos.</p><form id="newBrandForm" class="brand-create-form"><label>Nombre de marca <input id="newBrandName" maxlength="60" required placeholder="Ej.: BASEUS"></label><button type="submit" class="button">Crear marca</button></form><p id="brandCreateStatus" role="status"></p><div id="brandsList"></div></section><div class="admin-toolbar"><h2>Categorías del catálogo</h2></div><div class="category-creator"><h3>Gestionar categorías · añadir o quitar</h3><p>Disponible para los productos nuevos y existentes.</p><form id="newCategoryForm"><label for="newCategoryName">Nombre de categoría</label><input id="newCategoryName" maxlength="60" required placeholder="Ej.: SOPORTES PARA LAPTOP"><button type="submit" class="button">Crear categoría</button></form><p id="categoryCreateStatus" role="status" aria-live="polite"></p></div><div id="managedCategories" class="managed-taxonomy-list"></div><div id="importStatus" class="notice" hidden></div><div class="catalog-manager-filters"><label>Buscar producto, modelo o SKU<input id="adminSearch" type="search" placeholder="Ej.: cable USB-C, A123, cargador..."></label><label>Categoría<select id="adminCategory"><option value="">Todas las categorías</option></select></label><label>Marca<select id="adminBrand"><option value="">Todas las marcas</option></select></label><label>Mostrar<select id="adminPageSize"><option value="10">10 productos</option><option value="20">20 productos</option><option value="50">50 productos</option></select></label><button type="button" class="button button-outline" id="adminClearFilters">Limpiar filtros</button></div><div class="admin-results-line"><strong id="adminResultCount"></strong><div id="adminPagination" class="admin-pagination"></div></div><div class="admin-filter-row"><button type="button" id="setAllMinimumOne" class="button button-outline">Fijar alerta mínima en 1 para todos</button><button type="button" id="filterLowStock" class="button button-outline" aria-pressed="false">🔴 Ver solo stock bajo</button><small>Las alertas rojas son privadas y no aparecen en la tienda.</small></div><div id="adminProducts" class="admin-products"></div>
-  <section class="panel jh-admin-panel" id="jhBannerPanel">
-    <div class="admin-toolbar"><div><h2>Portadas dinámicas de la página</h2><p>Diseña campañas, prográmalas y deja que roten automáticamente en la tienda.</p></div></div>
-    <form id="jhBannerForm" class="product-form">
-      <input type="hidden" id="jhBannerId">
-      <div class="form-grid">
-        <label>Título principal *<input id="jhBannerTitle" maxlength="90" required placeholder="Ej.: Tecnología que impulsa tu día"></label>
-        <label>Texto destacado<input id="jhBannerSubtitle" maxlength="100" placeholder="Ej.: UGREEN · ANKER · DJI"></label>
-        <label class="full">Descripción<input id="jhBannerDescription" maxlength="220" placeholder="Una frase breve que invite a descubrir el catálogo"></label>
-        <label>Texto del botón<input id="jhBannerButton" maxlength="35" value="Explorar catálogo"></label>
-        <label>Destino del botón<input id="jhBannerLink" type="text" value="#productos" placeholder="#productos o URL HTTPS"></label>
-        <label>Imagen de portada (JPG, PNG o WebP)<input id="jhBannerFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
-        <label>O enlace de imagen HTTPS<input id="jhBannerUrl" type="url" placeholder="https://..."></label>
-        <label>Orden de aparición<input id="jhBannerOrder" type="number" min="0" step="1" value="0"></label>
-        <label>Segundos antes de cambiar<input id="jhBannerDuration" type="number" min="4" max="60" value="7"></label>
-        <label class="full"><input id="jhBannerActive" type="checkbox" checked> Publicar esta portada</label>
-      </div>
-      <div class="form-actions"><button class="button" id="jhBannerSave" type="submit">Guardar portada</button><button class="button button-outline" id="jhBannerReset" type="button">Limpiar formulario</button></div>
-      <p id="jhBannerStatus" role="status" aria-live="polite"></p>
-    </form>
-    <div id="jhBannerList" class="jh-banner-list"><p>Las portadas guardadas aparecerán aquí.</p></div>
-  </section>
   <div class="admin-toolbar promo-admin-toolbar"><h2>Promociones de portada</h2><button class="button" id="newPromotion" type="button">+ Añadir promoción</button></div>
   <form id="promotionForm" class="panel product-form" hidden>
     <h3 id="promotionFormTitle">Nueva promoción</h3><input type="hidden" id="promotionId">
@@ -70,5 +49,5 @@ https://..."></textarea><small>Agrega enlaces directos a fotografías del mismo 
     <div id="adminReviews" class="admin-products"></div>
   </section>
 </section></main><footer><span>JIMPORT · Panel de administración</span><a href="index.html">Volver a la tienda</a></footer>
-<script src="config.js"></script><script src="admin.js?v=savefix-20261105"></script><link rel="stylesheet" href="jimport-home-rotator.css?v=1"><script src="jimport-home-admin.js?v=1" defer></script><script src="jimport-commerce-admin.js" defer></script><script src="admin-visits.js"></script><link rel="stylesheet" href="jimport-admin-3.bundle.css"><script src="admin-compact.js" defer></script><script src="daily-sales-report.js" defer></script></body></html>
+<script src="config.js"></script><script src="admin.js?v=savefix-20261105"></script><script src="jimport-commerce-admin.js" defer></script><script src="admin-visits.js"></script><link rel="stylesheet" href="jimport-admin-3.bundle.css"><script src="admin-compact.js" defer></script><script src="daily-sales-report.js" defer></script></body></html>
 <style>.catalog-manager-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;align-items:end;margin:18px 0;padding:16px;background:rgba(127,127,127,.07);border-radius:14px}.catalog-manager-filters label{font-size:13px;font-weight:650;display:flex;flex-direction:column;gap:6px}.catalog-manager-filters input,.catalog-manager-filters select{width:100%;min-height:42px;padding:9px;border:1px solid #aab2bd;border-radius:9px;background:var(--surface,#fff);color:var(--text,#222)}.admin-results-line{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}.admin-pagination{display:flex;align-items:center;gap:8px}.admin-pagination button{border:1px solid #aab2bd;border-radius:8px;padding:7px 12px;cursor:pointer;background:transparent;color:inherit}.admin-pagination button:disabled{opacity:.35;cursor:default}</style>
