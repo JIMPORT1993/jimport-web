@@ -445,7 +445,9 @@ function render() {
     if(!client){ initPromoControls(); return; }
     const {data,error}=await client.from("promotions").select("*").eq("active",true).order("created_at",{ascending:false});
     if(error){ console.warn("Promociones: ejecuta el bloque actualizado de schema.sql en Supabase.",error); initPromoControls(); return; }
-    promotions=data||[]; promotedProductIds=new Set(promotions.filter(p=>p.product_id).map(p=>String(p.product_id))); renderPromotion(); initPromoControls(); render();
+    const now=Date.now();
+    promotions=(data||[]).filter(p=>(!p.start_at||new Date(p.start_at).getTime()<=now)&&(!p.end_at||new Date(p.end_at).getTime()>=now));
+    promotedProductIds=new Set(promotions.filter(p=>p.product_id).map(p=>String(p.product_id))); renderPromotion(); initPromoControls(); render();
   }
   const moneyPromo=n=>new Intl.NumberFormat("es-EC",{style:"currency",currency:"USD"}).format(Number(n));
   function showPromotionInfo(p){

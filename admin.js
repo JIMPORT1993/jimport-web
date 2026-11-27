@@ -513,17 +513,25 @@
   function drawPromotions(){
     const el=$("adminPromotions");
     if(!promoRows.length){el.innerHTML='<div class="empty">Todavía no hay promociones. Pulsa “Añadir promoción” y selecciona un producto registrado.</div>';return;}
-    el.innerHTML=promoRows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✦"}</div><div class="admin-row-info"><b>${safe(p.title)}</b><span>${safe(p.description||"Sin descripción")}</span><strong>${p.sale_price!=null?`${money(p.sale_price)} (antes ${money(p.regular_price)}) · `:""}${p.active?"Visible en portada":"Oculta"}</strong></div><button class="button button-outline promo-edit" data-id="${safe(p.id)}" type="button">Editar</button><button class="button button-outline promo-toggle" data-id="${safe(p.id)}" type="button">${p.active?"Ocultar":"Activar"}</button><button class="button button-danger promo-delete" data-id="${safe(p.id)}" type="button">Eliminar</button></article>`).join("");
+    el.innerHTML=promoRows.map(p=>`<article class="admin-row"><div class="mini-img">${p.image_url?`<img src="${safe(p.image_url)}" alt="">`:"✦"}</div><div class="admin-row-info"><b>${safe(p.title)}</b><span>${safe(p.description||"Sin descripción")}</span><strong>${p.sale_price!=null?`${money(p.sale_price)} (antes ${money(p.regular_price)}) · `:""}${p.active?"Activa":"Oculta"}${p.campaign_name?` · ${safe(p.campaign_name)}`:""}</strong><small class="campaign-meta">${p.start_at?`Desde ${new Date(p.start_at).toLocaleString("es-EC")}`:"Sin fecha de inicio"}${p.end_at?` · Hasta ${new Date(p.end_at).toLocaleString("es-EC")}`:" · Sin vencimiento"}${p.badge_text?` · ${safe(p.badge_text)}`:""}</small></div><button class="button button-outline promo-edit" data-id="${safe(p.id)}" type="button">Editar</button><button class="button button-outline promo-toggle" data-id="${safe(p.id)}" type="button">${p.active?"Ocultar":"Activar"}</button><button class="button button-danger promo-delete" data-id="${safe(p.id)}" type="button">Eliminar</button></article>`).join("");
     el.querySelectorAll(".promo-edit").forEach(b=>b.onclick=()=>openPromotion(promoRows.find(p=>p.id===b.dataset.id)));
     el.querySelectorAll(".promo-delete").forEach(b=>b.onclick=()=>removePromotion(b.dataset.id));
     el.querySelectorAll(".promo-toggle").forEach(b=>b.onclick=async()=>{const p=promoRows.find(p=>p.id===b.dataset.id);const {error}=await client.from("promotions").update({active:!p.active}).eq("id",p.id);if(error)note("No se pudo cambiar la visibilidad: "+error.message);else await refreshPromotions();});
   }
+  function toLocalDateTime(value){
+    if(!value)return "";
+    const d=new Date(value);if(Number.isNaN(d.getTime()))return "";
+    const pad=n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  function fromLocalDateTime(value){return value?new Date(value).toISOString():null;}
   function openPromotion(p=null){
     populatePromoProducts();$("promoProduct").value="";showSelectedPromoProduct();
     $("promotionFormTitle").textContent=p?"Editar promoción":"Nueva promoción";
     $("promotionId").value=p?.id||"";$("promoProduct").value=p?.product_id||"";showSelectedPromoProduct();$("promoTitle").value=p?.title||"";$("promoDescription").value=p?.description||"";
     $("promoImage").value=p?.image_url||"";$("promoLink").value=p?.link_url||"";$("promoButton").value=p?.button_text||"Ver oferta";
     $("promoRegularPrice").value=p?.regular_price??"";$("promoSalePrice").value=p?.sale_price??"";
+    $("promoCampaign").value=p?.campaign_name||"";$("promoStartAt").value=toLocalDateTime(p?.start_at);$("promoEndAt").value=toLocalDateTime(p?.end_at);$("promoBadge").value=p?.badge_text||"";
     $("promoActive").checked=p?.active!==false;promoForm.hidden=false;promoForm.scrollIntoView({behavior:"smooth",block:"start"});
   }
   promoForm.addEventListener("submit",async e=>{
@@ -534,7 +542,9 @@
     if(!image){note("Añade una imagen al producto o pega una URL de imagen para esta promoción.");return;}
     const regular=$("promoRegularPrice").value, sale=$("promoSalePrice").value;
     if(sale!=="" && regular!=="" && Number(sale)>=Number(regular)){note("El precio promocional debe ser menor que el precio normal.");return;}
-    const item={product_id:product?String(product.id):null,regular_price:regular===""?null:Number(regular),sale_price:sale===""?null:Number(sale),title:$("promoTitle").value.trim(),description:$("promoDescription").value.trim()||null,image_url:image,link_url:$("promoLink").value.trim()||(product?`index.html?buscar=${encodeURIComponent(product.model||product.name)}#productos`:null),button_text:$("promoButton").value.trim()||"Ver oferta",active:$("promoActive").checked};
+    const startValue=$("promoStartAt").value,endValue=$("promoEndAt").value;
+    if(startValue&&endValue&&new Date(endValue)<=new Date(startValue)){note("La fecha de finalización debe ser posterior al inicio.");return;}
+    const item={product_id:product?String(product.id):null,regular_price:regular===""?null:Number(regular),sale_price:sale===""?null:Number(sale),title:$("promoTitle").value.trim(),description:$("promoDescription").value.trim()||null,image_url:image,link_url:$("promoLink").value.trim()||(product?`index.html?buscar=${encodeURIComponent(product.model||product.name)}#productos`:null),button_text:$("promoButton").value.trim()||"Ver oferta",active:$("promoActive").checked,campaign_name:$("promoCampaign").value.trim()||null,start_at:fromLocalDateTime(startValue),end_at:fromLocalDateTime(endValue),badge_text:$("promoBadge").value.trim()||null};
     const result=id?await client.from("promotions").update(item).eq("id",id):await client.from("promotions").insert(item);
     if(result.error){note("No se pudo guardar la promoción: "+(result.error.message||"Error desconocido")+". Comprueba la tabla y los permisos en Supabase.");console.error(result.error);return;}
     promoForm.hidden=true;note("Promoción guardada correctamente.");await refreshPromotions();

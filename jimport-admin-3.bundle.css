@@ -113,3 +113,9 @@
   .admin-bf-toggle label[for="blackFridayPercent"] input[type="number"]{width:130px}
 }
 
+
+/* JIMPORT 3.0 · campañas programadas */
+.campaign-admin-hint{margin:0;padding:12px 14px;border-radius:12px;background:#eef5ff;color:#29415f;font-size:.9rem}
+.admin-row-info .campaign-meta{display:block;margin-top:5px;color:#52657d;font-size:.82rem}
+.promo-campaign-badge{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;background:#e9f2ff;color:#174b83;font-size:.72rem;font-weight:800;letter-spacing:.04em}
+@media(prefers-color-scheme:dark){.campaign-admin-hint{background:#17283d;color:#d9e8fa}}

@@ -31,7 +31,12 @@ https://..."></textarea><small>Agrega enlaces directos a fotografías del mismo 
       <label class="full">Descripción<textarea id="promoDescription" rows="3" maxlength="500"></textarea></label>
       <label class="full">URL de imagen *<input id="promoImage" type="url" required placeholder="https://..."></label>
       <label class="full">Enlace al pulsar (opcional)<input id="promoLink" type="url" placeholder="https://... o https://wa.me/..."></label>
+      <label>Nombre de campaña<input id="promoCampaign" maxlength="80" placeholder="Ej.: Semana UGREEN, Navidad JIMPORT"></label>
+      <label>Inicio de publicación<input id="promoStartAt" type="datetime-local"></label>
+      <label>Fin de publicación<input id="promoEndAt" type="datetime-local"></label>
+      <label>Etiqueta visible<input id="promoBadge" maxlength="32" placeholder="OFERTA ESPECIAL"></label>
       <label><input id="promoActive" type="checkbox" checked> Mostrar en la portada</label>
+      <p class="full campaign-admin-hint">La promoción se mostrará automáticamente dentro del período programado. Si dejas las fechas vacías, se mostrará mientras esté activa.</p>
     </div>
     <div class="form-actions"><button class="button" type="submit">Guardar promoción</button><button class="button button-outline" id="cancelPromotion" type="button">Cancelar</button></div>
   </form>
