@@ -1,5 +1,13 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
-  ]
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    }
+  ],
+  "functions": {
+    "api/marketing-ai.js": {
+      "maxDuration": 120
+    }
+  }
 }
