@@ -11,3 +11,9 @@ create policy marketing_admin on public.jimport_marketing_posts for all to authe
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('jimport-marketing','jimport-marketing',true,3000000,array['image/jpeg']) on conflict(id) do nothing;
 drop policy if exists marketing_admin_upload on storage.objects;
 create policy marketing_admin_upload on storage.objects for insert to authenticated with check(bucket_id='jimport-marketing' and public.jimport_is_admin());
+
+-- Credenciales cifradas: solo servicio de servidor, sin acceso desde navegador.
+create table if not exists public.jimport_social_connection (id text primary key check(id='meta'), encrypted text not null);
+alter table public.jimport_social_connection enable row level security;
+revoke all on public.jimport_social_connection from anon, authenticated;
+grant select,insert,update,delete on public.jimport_social_connection to service_role;
