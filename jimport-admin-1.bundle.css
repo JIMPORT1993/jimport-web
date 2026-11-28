@@ -47,7 +47,7 @@ body{background:linear-gradient(125deg,#080b11,#0b1524 42%,#090d14 75%,#101a29);
 
 /* Cabecera cósmica animada JIMPORT */
 .topbar{position:relative;isolation:isolate;overflow:hidden;background:#070a12;border-bottom:1px solid #29344a}
-.topbar::before{content:"";position:absolute;inset:-35%;z-index:-2;background-image:url('assets/galaxia-jimport.png');background-size:cover;background-position:68% 48%;opacity:.78;transform:scale(1.05);animation:galaxiaMovimiento 24s ease-in-out infinite alternate}
+.topbar::before{content:"";position:absolute;inset:-35%;z-index:-2;background-image:url('assets/galaxia-jimport.webp');background-size:cover;background-position:68% 48%;opacity:.78;transform:scale(1.05);animation:galaxiaMovimiento 24s ease-in-out infinite alternate}
 .topbar::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,8,16,.72),rgba(5,8,16,.32) 48%,rgba(5,8,16,.62))}
 .topbar nav{color:#f0f5ff;text-shadow:0 1px 8px #000}
 .topbar .button{box-shadow:0 0 24px #1469f544}

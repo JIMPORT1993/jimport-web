@@ -114,6 +114,7 @@
       }
       // Los productos antiguos sin columna active se consideran visibles.
       products=uniqueProducts(all.filter(p=>p.active!==false));
+      window.dispatchEvent(new CustomEvent("jx:catalog",{detail:products}));
       render();
     } catch(error){
       console.error("JIMPORT: error al cargar productos",error);
@@ -282,6 +283,7 @@
     dlg.querySelector('.jimport-dialog-close').onclick=()=>dlg.close();if(!dlg.open)dlg.showModal();
     // Genera automáticamente la descripción IA al abrir la ficha del producto.
     generateProductDescriptionWithAI(p,dlg,smart);
+    window.dispatchEvent(new CustomEvent("jx:product",{detail:p}));
   }
   
 function render() {

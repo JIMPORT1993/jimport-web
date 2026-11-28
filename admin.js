@@ -473,7 +473,7 @@
     finally{importButton.disabled=false;}
   });
 
-  async function remove(id){const p=rows.find(x=>x.id===id);if(!p)return;if(!confirm(`¿Eliminar “${p.name}” del catálogo?`))return;const {error}=await client.from("products").delete().eq("id",id);if(error){note("No se pudo eliminar el producto.");return;}note("Producto eliminado.");refresh();}
+  async function remove(id){const p=rows.find(x=>x.id===id);if(!p)return;if(!confirm(`¿Ocultar “${p.name}” del catálogo? Puedes volver a activarlo.`))return;const {error}=await client.from("products").update({active:false}).eq("id",id);if(error){note("No se pudo eliminar el producto.");return;}note("Producto ocultado. Puedes volver a activarlo.");refresh();}
   function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
   const promoForm=$("promotionForm");
