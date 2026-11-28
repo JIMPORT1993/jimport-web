@@ -77,7 +77,7 @@
   $("logout").addEventListener("click",async()=>{await client.auth.signOut();authorized=false;setLoggedIn(false);form.hidden=true;note("Sesión cerrada.");});
   $("newProduct").addEventListener("click",()=>openForm());
   $("cancelForm").addEventListener("click",()=>form.hidden=true);
-  async function refresh(){await loadStorePriceMode();const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];window.dispatchEvent(new CustomEvent("jimport-marketing-products",{detail:rows.map(({id,name,brand,model,sku,description,category,price,image_url,active})=>({id,name,brand,model,sku,description,category,price,image_url,active}))}));await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await loadSaleCombos();await refreshBrands();updateCategoryChoices();}
+  async function refresh(){await loadStorePriceMode();const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});if(error){note("Error al cargar productos. Revisa que hayas ejecutado schema.sql en Supabase.");return;}rows=data||[];await loadPrivate();updateAdminFilters();draw();populatePromoProducts();populateSaleProducts();await loadSaleCombos();await refreshBrands();updateCategoryChoices();}
 
   let extraBrands=[];
   async function refreshBrands(){
