@@ -2,3 +2,5 @@
 .mai-panel{padding:20px;border:1px solid #398c82;border-radius:16px;margin:24px 0;background:rgba(30,130,120,.07)}#marketingStudio .mai-networks{display:flex;flex-wrap:wrap;gap:12px}#marketingStudio .mai-networks label{display:flex;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid #8498a4;border-radius:10px}#marketingStudio .mai-networks input{width:auto}.mai-sources{display:grid;gap:6px;overflow-wrap:anywhere}#mai-status{white-space:pre-wrap;overflow-wrap:anywhere}#mai-history{max-height:250px;overflow:auto}
 
 #marketingStudio .mk-brand-heading{display:flex;align-items:center;gap:16px;flex-wrap:wrap}#marketingStudio .mk-brand-heading img{width:220px;max-width:100%;height:auto;border-radius:8px;object-fit:contain}
+
+#marketingStudio .social-manual-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:12px 0}#marketingStudio .social-manual-card{display:grid;gap:8px;align-content:start;padding:14px;border:1px solid #8796a6;border-radius:14px}#marketingStudio .social-manual-card a{color:inherit;text-decoration:underline}#marketingStudio .social-manual-card small{font-size:12px;opacity:.85}
