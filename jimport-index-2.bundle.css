@@ -739,3 +739,43 @@ body:has(.jp-hero) .reviews-section{background:linear-gradient(130deg,#041433,#0
     transition-duration: .01ms !important;
   }
 }
+
+/* JIMPORT: catálogo compacto, precios en una sola línea cuando caben. */
+#productGrid.catalog-same-design .catalog-teaser,
+#catalogTeasers .catalog-teaser {
+ display:flex!important; flex-direction:column!important; align-items:stretch!important;
+ justify-content:flex-start!important; height:100%!important; min-height:0!important;
+ box-sizing:border-box!important; padding:9px!important; gap:4px!important; border-radius:13px!important;
+}
+#productGrid.catalog-same-design .catalog-teaser>img,
+#productGrid.catalog-same-design .catalog-teaser>.catalog-teaser-image,
+#catalogTeasers .catalog-teaser>img,
+#catalogTeasers .catalog-teaser>.catalog-teaser-image {
+ width:100%!important; height:clamp(90px,12vw,170px)!important; min-height:0!important;
+ aspect-ratio:auto!important; object-fit:contain!important; padding:3px!important;
+ box-sizing:border-box!important; filter:none!important; border-radius:9px!important;
+}
+#productGrid.catalog-same-design .catalog-teaser>span,
+#catalogTeasers .catalog-teaser>span {
+ font-size:clamp(12px,1.1vw,15px)!important; line-height:1.25!important;
+ min-height:2.5em!important; max-height:2.5em!important; text-align:left!important;
+}
+#productGrid.catalog-same-design .catalog-teaser>small,
+#catalogTeasers .catalog-teaser>small {font-size:11px!important;line-height:1.15!important;}
+.catalog-teaser .teaser-pricing {display:flex; flex-wrap:wrap; align-items:center; gap:4px 7px; min-height:27px; text-align:left;}
+#productGrid.catalog-same-design .catalog-teaser .teaser-pricing .teaser-price,
+#catalogTeasers .catalog-teaser .teaser-pricing .teaser-price {order:-2; font-size:clamp(16px,1.5vw,22px)!important; line-height:1.15!important; margin:0!important; align-self:center!important;}
+.catalog-teaser .teaser-pricing del {order:-1; font-size:11px!important; margin:0!important; color:#64748b!important;}
+.catalog-teaser .teaser-pricing .bf-discount-badge,
+.catalog-teaser .teaser-pricing .jp-live-discount {display:inline-flex!important; font-size:10px!important; line-height:1.1!important; padding:4px 6px!important; margin:0!important; white-space:nowrap; border-radius:7px!important; box-shadow:none!important; color:#241000!important;}
+#productGrid.catalog-same-design .catalog-teaser .teaser-stock,
+#catalogTeasers .catalog-teaser .teaser-stock {align-self:flex-start!important; min-height:0!important; min-width:0!important; max-width:100%!important; margin:0!important; padding:3px 7px!important; gap:5px!important; font-size:10px!important; line-height:1.15!important; border-radius:7px!important; box-shadow:none!important;}
+.catalog-teaser .teaser-stock>span {font-size:inherit!important; line-height:inherit!important; color:inherit!important;}
+.catalog-teaser .teaser-stock .teaser-stock-dot {width:6px!important;height:6px!important;flex-basis:6px!important;}
+#productGrid.catalog-same-design .catalog-teaser .teaser-brand-button,
+#catalogTeasers .catalog-teaser .teaser-brand-button {margin: auto 0 0!important; padding:6px 3px!important; min-height:32px!important; height:auto!important; font-size:12px!important; line-height:1.2!important; border-radius:8px!important;}
+@media(max-width:650px){
+ #productGrid.catalog-same-design .catalog-teaser,#catalogTeasers .catalog-teaser {padding:6px!important;gap:4px!important;}
+ #productGrid.catalog-same-design .catalog-teaser>img,#productGrid.catalog-same-design .catalog-teaser>.catalog-teaser-image,#catalogTeasers .catalog-teaser>img,#catalogTeasers .catalog-teaser>.catalog-teaser-image {height:clamp(90px,29vw,140px)!important;}
+ #productGrid.catalog-same-design .catalog-teaser .teaser-brand-button,#catalogTeasers .catalog-teaser .teaser-brand-button {font-size:10px!important;min-height:34px!important;}
+}
